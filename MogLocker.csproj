@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.props" Condition="Exists('$(MSBuildToolsPath)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{52F9078B-3637-4262-962D-4BCB2CF94A3D}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>MogLocker</RootNamespace>
+    <AssemblyName>MogLockerApp</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <StartupObject>MogLocker.Program</StartupObject>
+    <LangVersion>5</LangVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MogLocker.cs" />
+    <Compile Include="SecurityTools.cs" />
+    <Compile Include="AnimatedButton.cs" />
+    <Compile Include="AdBlock\AdBlockModels.cs" />
+    <Compile Include="AdBlock\AdBlockStore.cs" />
+    <Compile Include="AdBlock\FilterRuleEngine.cs" />
+    <Compile Include="AdBlock\FilterListService.cs" />
+    <Compile Include="AdBlock\NativeMessagingRegistration.cs" />
+    <Compile Include="AdBlock\NativeMessagingHost.cs" />
+    <Compile Include="AdBlock\AdBlockPanel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Launcher.cs" />
+    <None Include="bootstrap.ps1" />
+    <None Include="build.cmd" />
+    <None Include="build-extension.ps1" />
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="browser-extension\manifest.json">
+      <Link>browser-extension\manifest.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="browser-extension\background.js">
+      <Link>browser-extension\background.js</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="browser-extension\popup.html">
+      <Link>browser-extension\popup.html</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="browser-extension\popup.css">
+      <Link>browser-extension\popup.css</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="browser-extension\popup.js">
+      <Link>browser-extension\popup.js</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="soundpad\**\*">
+      <Link>soundpad\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="tests\AdBlockEngineSmokeTests.cs" />
+    <None Include="tests\run-smoke-tests.cmd" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

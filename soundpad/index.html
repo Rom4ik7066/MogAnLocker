@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#171a1c">
+  <meta name="description" content="Luma — офлайн-саундпад для быстрых звуков и сэмплов.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <title>Luma Soundpad</title>
+<style>
+    :root {
+      color-scheme: dark;
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+      --space-5: 24px; --space-6: 32px; --space-7: 48px;
+      --radius-sm: 7px; --radius-key: 13px; --radius-panel: 18px; --radius-pill: 999px;
+      --ink: #171a1c; --panel: #202426; --panel-raised: #282d2f; --line: #3b4143;
+      --text: #f0eee8; --muted: #a6adae; --accent: #c8f169; --accent-ink: #171a1c;
+      --warning: #f2ae5c; --error: #ff8880; --key-shadow: 0 5px 0 #080a0b, 0 8px 14px #07090a66;
+      --glow: 0 0 0 1px var(--tile-color, #c8f169), 0 0 25px var(--tile-color, #c8f169);
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --round: ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+      font-family: var(--font); font-size: 16px; font-synthesis: none;
+      background: var(--ink); color: var(--text);
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --ink: #f0eee8; --panel: #fffefa; --panel-raised: #e6e3da; --line: #c6c3b8;
+      --text: #202426; --muted: #5d6668; --accent: #446d12; --accent-ink: #fff;
+      --warning: #92520c; --error: #ae302a; --key-shadow: 0 5px 0 #c7c3b8, 0 8px 14px #24242414;
+    }
+    @media (prefers-color-scheme: light) {
+      :root[data-theme="auto"] {
+        color-scheme: light; --ink: #f0eee8; --panel: #fffefa; --panel-raised: #e6e3da;
+        --line: #c6c3b8; --text: #202426; --muted: #5d6668; --accent: #446d12;
+        --accent-ink: #fff; --warning: #92520c; --error: #ae302a;
+        --key-shadow: 0 5px 0 #c7c3b8, 0 8px 14px #24242414;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--ink); }
+    body { margin: 0; min-width: 320px; min-height: 100vh; min-height: 100dvh; }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    .app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; max-width: 1920px; margin: auto; padding: max(16px, env(safe-area-inset-top)) clamp(12px, 2.2vw, 32px) max(16px, env(safe-area-inset-bottom)); }
+    .topbar { min-height: 60px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: max-content; }
+    .brand-mark { width: 32px; height: 32px; color: var(--accent); }
+    .brand-name { font: 700 20px/1 var(--round); letter-spacing: -.04em; }
+    .bank-nav { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; overflow: auto; scrollbar-width: none; }
+    .bank-nav::-webkit-scrollbar { display: none; }
+    .bank-tab { border: 0; background: transparent; border-radius: var(--radius-pill); padding: 10px 14px; min-height: 44px; color: var(--muted); white-space: nowrap; cursor: pointer; }
+    .bank-tab[aria-current="page"] { background: var(--panel-raised); color: var(--text); }
+    .bank-add { border: 1px solid var(--line); background: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex: 0 0 auto; font-size: 20px; }
+    .tools { display: flex; align-items: center; gap: 8px; }
+    .icon-button, .button { border: 1px solid var(--line); background: var(--panel); min-height: 44px; border-radius: var(--radius-sm); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; }
+    .icon-button { width: 44px; padding: 0; }
+    .button:hover, .icon-button:hover, .bank-add:hover { border-color: var(--muted); }
+    .button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+    .button.danger { color: var(--error); }
+    .icon { width: 20px; height: 20px; flex: 0 0 auto; }
+    .transport { display: flex; align-items: center; gap: 16px; padding: 16px 0; }
+    .stop-button { background: var(--panel-raised); font-weight: 650; }
+    .master { display: flex; align-items: center; gap: 12px; flex: 1; max-width: 360px; color: var(--muted); font-size: 14px; }
+    input[type="range"] { accent-color: var(--accent); min-width: 70px; width: 100%; }
+    .edit-toggle[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .search { width: min(25vw, 260px); min-width: 120px; height: 44px; padding: 0 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-sm); color: var(--text); }
+    .grid-wrap { flex: 1; }
+    .pad-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 145px), 1fr)); gap: clamp(10px, 1.2vw, 16px); align-content: start; padding: 4px 2px 20px; }
+    .tile { --tile-color: #c8f169; position: relative; border: 1px solid var(--tile-color); border-radius: var(--radius-key); min-height: clamp(106px, 12vw, 150px); overflow: hidden; text-align: left; padding: 14px; background: var(--panel); box-shadow: var(--key-shadow); cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: transform 100ms ease, box-shadow 130ms ease, border-color 130ms ease; }
+    .tile:active, .tile.pressed { transform: scale(.96) translateY(2px); box-shadow: 0 2px 0 #080a0b, 0 0 18px var(--tile-color); }
+    .tile.playing { border-color: var(--tile-color); box-shadow: var(--glow); }
+    .tile.playing::before { opacity: 1; }
+    .tile.editing { border-style: dashed; }
+    .tile-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; max-width: 100%; font: 650 clamp(15px, 1.2vw, 18px)/1.25 var(--round); }
+    .tile-meta { position: absolute; left: 14px; right: 14px; bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+    .tile-key { font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 2px 5px; color: var(--text); }
+    .progress { position: absolute; bottom: 0; left: 0; height: 3px; width: 0; background: var(--tile-color); opacity: .85; }
+    .wave { position: absolute; left: 0; right: 0; bottom: 18px; height: 21px; opacity: .16; width: 100%; pointer-events: none; }
+    .empty { border: 1px dashed var(--line); min-height: 230px; display: grid; place-content: center; text-align: center; gap: 12px; color: var(--muted); border-radius: var(--radius-panel); }
+    .empty strong { color: var(--text); font: 650 20px var(--round); }
+    .drop-overlay { display: none; position: fixed; inset: 10px; z-index: 4; border: 2px dashed var(--accent); background: var(--panel); color: var(--text); border-radius: var(--radius-panel); place-items: center; font: 700 24px var(--round); pointer-events: none; }
+    .drop-overlay.visible { display: grid; }
+    .bottom-bar { border-top: 1px solid var(--line); padding-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 13px; }
+    .status { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .toast-region { position: fixed; z-index: 10; right: max(16px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); display: grid; gap: 8px; width: min(400px, calc(100vw - 32px)); }
+    .toast { background: var(--panel-raised); color: var(--text); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 12px 14px; box-shadow: 0 8px 24px #0004; }
+    dialog { color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-panel); width: min(520px, calc(100vw - 24px)); max-height: min(90dvh, 820px); padding: 0; box-shadow: 0 24px 80px #0008; }
+    dialog::backdrop { background: #090b0ccc; }
+    .dialog-content { padding: 24px; display: grid; gap: 16px; }
+    .dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .dialog-head h2 { margin: 0; font: 700 23px var(--round); }
+    .field { display: grid; gap: 7px; color: var(--muted); font-size: 14px; }
+    .field input:not([type="range"]):not([type="color"]), .field select { color: var(--text); background: var(--ink); border: 1px solid var(--line); min-height: 44px; border-radius: var(--radius-sm); padding: 8px 10px; width: 100%; }
+    .field input[type="color"] { height: 46px; width: 70px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--ink); padding: 4px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .dialog-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 4px; }
+    .dialog-actions .spacer { flex: 1; }
+    .volume-row { display: flex; align-items: center; gap: 12px; }
+    .file-label { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); cursor: pointer; }
+    .file-label input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .setting-row select { width: 170px; }
+    .setting-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .key-capture { width: 100%; min-height: 44px; border: 1px dashed var(--line); border-radius: var(--radius-sm); background: var(--ink); color: var(--text); cursor: pointer; }
+    .key-capture.listening { border-color: var(--accent); color: var(--accent); }
+    .hidden { display: none !important; }
+    @media (max-width: 680px) {
+      .app { padding-left: 12px; padding-right: 12px; }
+      .topbar { display: grid; grid-template-columns: 32px minmax(0, 1fr) 40px 44px; grid-template-rows: 44px auto; gap: 8px; border: 0; padding-bottom: 4px; }
+      .brand { grid-column: 1; grid-row: 1; }
+      .brand-name { display: none; }
+      .brand-mark { width: 28px; }
+      .bank-nav { grid-column: 2; grid-row: 1; }
+      .bank-add { grid-column: 3; grid-row: 1; }
+      .topbar .tools { display: contents; }
+      .search { grid-column: 1 / 4; grid-row: 2; width: 100%; max-width: none; }
+      .topbar .tools .icon-button { grid-column: 4; grid-row: 1; }
+      .transport { order: 3; position: sticky; bottom: 0; z-index: 2; margin: auto -12px -16px; padding: 10px 12px max(12px, env(safe-area-inset-bottom)); background: var(--ink); border-top: 1px solid var(--line); }
+      .master { max-width: none; }
+      .master-label { display: none; }
+      .transport { gap: 8px; }
+      .transport .button { width: 44px; min-width: 44px; padding: 0; }
+      .transport #stopText, .transport #editText, .transport #addText { display: none; }
+      .master { min-width: 0; gap: 7px; }
+      .master input { min-width: 0; }
+      .master #masterValue { font-variant-numeric: tabular-nums; }
+      .pad-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 125px), 1fr)); gap: 10px; padding-bottom: 90px; }
+      .tile { min-height: 112px; padding: 12px; }
+      .tile-meta { left: 12px; right: 12px; bottom: 10px; }
+      .bottom-bar { display: none; }
+      .dialog-content { padding: 20px; }
+      dialog { margin: auto 0 0; border-radius: 18px 18px 0 0; width: 100%; max-height: 92dvh; }
+      dialog[open] { animation: sheet-in 150ms ease-out; }
+      @keyframes sheet-in { from { opacity: .7; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    }
+    @media (max-width: 360px) {
+      .pad-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tools { gap: 4px; }
+      .icon-button { width: 40px; height: 40px; min-height: 40px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
+<script>
+  (() => {
+    "use strict";
+    try { const t=localStorage.getItem("luma-theme"); if(t==="dark"||t==="light"||t==="auto") document.documentElement.dataset.theme=t; } catch (_) {}
+    const VERSION = 3, DB_NAME = "luma-soundpad", MAX_FILE = 25 * 1024 * 1024, MAX_SECONDS = 180, MAX_VOICES = 32;
+    const PALETTE = ["#F2AE5C","#E97962","#D96C91","#B97BD2","#8A82DE","#6C9FE8","#58B7C8","#55B995","#8DBB5B","#C8C85D","#D39A63","#92A6A2"];
+    const WORDS = {
+      ru: {ready:"Готово к звуку", stop:"Стоп всё", volume:"Громкость", edit:"Правка", add:"Добавить", banks:"Банки звуков", settings:"Настройки", find:"Найти звук", emptyTitle:"Добавьте первый звук", emptyBody:"Выберите аудиофайлы или перетащите их на страницу.", addCount:"Добавлено: {n}", editTitle:"Настроить звук", name:"Название", color:"Цвет плитки", mode:"Режим", once:"Один раз", hold:"Пока держу", loop:"Петля вкл/выкл", tileVolume:"Громкость плитки", key:"Клавиша", noKey:"Не назначена", listen:"Нажмите клавишу… (Esc — отмена)", replace:"Заменить звук", left:"Сдвинуть влево", right:"Сдвинуть вправо", delete:"Удалить", save:"Сохранить", close:"Закрыть", theme:"Тема", dark:"Тёмная", light:"Светлая", auto:"Авто", language:"Язык", used:"Занято", export:"Экспортировать", import:"Импортировать", reset:"Сбросить всё", bankName:"Название банка", createBank:"Создать банк", bank:"Банк", rename:"Переименовать", delBank:"Удалить банк", importAsk:"Объединить с текущими данными? Выберите «Отмена», чтобы заменить всю доску.", imported:"Доска импортирована", exportDone:"Экспортировано", update:"Доступно обновление", apply:"Обновить", badAudio:"Не удалось прочитать «{name}». Проверьте формат и попробуйте WAV, MP3 или M4A.", tooBig:"Файл «{name}» больше 25 МБ.", tooLong:"Файл «{name}» длиннее 3 минут.", savedMemory:"Хранилище недоступно. Работаю в памяти; экспортируйте доску, чтобы сохранить резервную копию.", savedQuota:"Не хватило места для сохранения. Удалите часть звуков или экспортируйте доску.", noAudio:"Браузер не поддерживает этот формат. Конвертируйте файл в WAV, MP3 или M4A.", conflict:"Эта клавиша уже назначена другой плитке.", deleteAsk:"Удалить этот звук?", resetAsk:"Удалить все звуки и настройки?", confirm:"Подтвердить", cancel:"Отмена", loaded:"Звук готов", route:"Для эфира выберите виртуальный аудиокабель как выход, а его вход — в OBS/Discord/Zoom. Браузер не пишет звук в микрофон и не ловит клавиши в свёрнутом окне.", storageHint:"Данные хранятся в этом браузере. На iPhone установите страницу на экран «Домой», чтобы снизить риск очистки данных.", noBankDelete:"Нельзя удалить последний банк.", updateButton:"Обновить", statusError:"Произошла ошибка. Попробуйте ещё раз.", drop:"Перетащите аудиофайлы сюда", playError:"Не удалось запустить звук. Нажмите ещё раз, чтобы возобновить аудио.", importedSome:"Некорректные записи пропущены.", bankNew:"Новый банк", play:"Воспроизвести", exportUnavailable:"Не удалось создать экспорт.", capture:"Назначить клавишу", toasts:"Уведомления" },
+      en: {ready:"Ready for sound", stop:"Stop all", volume:"Master", edit:"Edit", add:"Add", banks:"Sound banks", settings:"Settings", find:"Find sound", emptyTitle:"Add your first sound", emptyBody:"Choose audio files or drop them on this page.", addCount:"Added: {n}", editTitle:"Edit sound", name:"Name", color:"Pad color", mode:"Mode", once:"One shot", hold:"Hold", loop:"Toggle loop", tileVolume:"Pad volume", key:"Key", noKey:"Unassigned", listen:"Press a key… (Esc cancels)", replace:"Replace sound", left:"Move left", right:"Move right", delete:"Delete", save:"Save", close:"Close", theme:"Theme", dark:"Dark", light:"Light", auto:"Auto", language:"Language", used:"Used", export:"Export", import:"Import", reset:"Reset all", bankName:"Bank name", createBank:"Create bank", bank:"Bank", rename:"Rename", delBank:"Delete bank", importAsk:"Merge with current board? Choose Cancel to replace the whole board.", imported:"Board imported", exportDone:"Exported", update:"Update available", apply:"Update", badAudio:"Could not read “{name}”. Check the format or convert it to WAV, MP3, or M4A.", tooBig:"“{name}” is larger than 25 MB.", tooLong:"“{name}” is longer than 3 minutes.", savedMemory:"Storage is unavailable. Running in memory; export the board for a backup.", savedQuota:"Not enough storage. Remove sounds or export the board.", noAudio:"This browser does not support the format. Convert it to WAV, MP3, or M4A.", conflict:"That key is already assigned to another pad.", deleteAsk:"Delete this sound?", resetAsk:"Delete all sounds and settings?", confirm:"Confirm", cancel:"Cancel", loaded:"Sound ready", route:"For live routing, select a virtual audio cable as output and its input in OBS/Discord/Zoom. Browsers cannot write to a microphone or capture keys while minimized.", noBankDelete:"The last bank cannot be deleted.", updateButton:"Update", statusError:"Something went wrong. Please try again.", drop:"Drop audio files here", playError:"Could not start audio. Tap again to resume audio.", importedSome:"Invalid records were skipped.", bankNew:"New bank", play:"Play", exportUnavailable:"Could not create export.", capture:"Assign key", toasts:"Notifications" }
+    };
+    const I18n = {
+      lang: (navigator.language || "ru").toLowerCase().startsWith("ru") ? "ru" : "en",
+      t(key, vars) { const extra={outputLabel:{ru:"Основной выход",en:"Main output"},secondaryOutput:{ru:"Второй выход",en:"Second output"},chooseOutput:{ru:"Разрешить выбор выхода",en:"Choose an audio output"},outputOff:{ru:"Выключен",en:"Off"},manageBank:{ru:"Управлять текущим банком",en:"Manage current bank"},routeDetail:{ru:"Windows: оставьте основной выход на наушниках, во втором выберите CABLE Input, затем укажите CABLE Output как микрофон в Discord/игре. macOS: BlackHole. Linux: виртуальный sink PipeWire/PulseAudio и его monitor-источник.",en:"Windows: keep headphones as the main output, select CABLE Input as the second output, then set CABLE Output as the microphone in Discord/the game. On macOS use BlackHole; on Linux use a PipeWire/PulseAudio virtual sink and its monitor source."}};let s = WORDS[this.lang][key] || (extra[key]&&extra[key][this.lang]) || WORDS.ru[key] || key; for (const [k,v] of Object.entries(vars || {})) s = s.replaceAll(`{${k}}`, String(v)); return s; },
+      set(lang) { this.lang = lang === "en" ? "en" : "ru"; document.documentElement.lang = this.lang; }
+    };
+    const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    const makeBank = (name) => ({id:uid(), name, tileIds:[]});
+    const initialState = () => {
+      const b = makeBank(I18n.lang==="ru"?"Банк 1":"Main"); return {schema:VERSION, banks:[b], activeBankId:b.id, tiles:[], prefs:{theme:"dark",lang:I18n.lang,master:80,outputDevice:"",secondaryOutputDevice:""}};
+    };
+    const validCode = (code) => typeof code === "string" && /^(Key[A-Z]|Digit[0-9]|Numpad[0-9]|F([1-9]|1[0-2])|Arrow(Up|Down|Left|Right)|Space|Enter|Minus|Equal|Bracket(Left|Right)|Backslash|Semicolon|Quote|Comma|Period|Slash|Backquote)$/.test(code);
+    const validColor = (color) => typeof color === "string" && /^#[0-9a-fA-F]{6}$/.test(color);
+    const safeTile = (t) => t && typeof t.id === "string" && t.id.length<=128 && typeof t.bankId === "string" && t.bankId.length<=128 && typeof t.blobId === "string" && t.blobId.length<=128 && typeof t.name === "string" && t.name.length <= 80 && validColor(t.color) && ["once","hold","loop"].includes(t.mode) && Number.isFinite(t.volume) && t.volume >= 0 && t.volume <= 1 && (!t.key || validCode(t.key)) && (t.wave===undefined || Array.isArray(t.wave)&&t.wave.length<=128&&t.wave.every(v=>Number.isFinite(v)&&v>=0&&v<=1));
+
+    class Store {
+      constructor() { this.db = null; this.memory = {state:null, blobs:new Map()}; this.persistent = true; this.channel = null; }
+      async open() {
+        if (!("indexedDB" in window)) { this.persistent = false; return; }
+        try {
+          this.db = await new Promise((resolve,reject) => {
+            const req = indexedDB.open(DB_NAME, VERSION);
+            req.onupgradeneeded = () => {
+              const db = req.result;
+              if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta");
+              if (!db.objectStoreNames.contains("blobs")) db.createObjectStore("blobs");
+            };
+            req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error);
+          });
+          if (window.BroadcastChannel) { this.channel = new BroadcastChannel("luma-board"); this.channel.onmessage = () => window.dispatchEvent(new Event("luma-external-change")); }
+          if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+        } catch (_) { this.persistent = false; this.db = null; }
+      }
+      transaction(stores, mode, work) {
+        return new Promise((resolve,reject) => {
+          const tx = this.db.transaction(stores, mode); let result;
+          try { result = work(tx); } catch (e) { reject(e); return; }
+          tx.oncomplete = () => resolve(result); tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error || new Error("Transaction aborted"));
+        });
+      }
+      async load() {
+        if (!this.db) return this.memory.state;
+        const state = await new Promise((resolve,reject) => {
+          const tx=this.db.transaction("meta","readonly"), req=tx.objectStore("meta").get("state");
+          req.onsuccess=()=>resolve(req.result || null); req.onerror=()=>reject(req.error);
+        });
+        if (!state) return null;
+        return this.validateState(state);
+      }
+      validateState(raw) {
+        if (!raw || !Array.isArray(raw.banks) || !Array.isArray(raw.tiles) || !raw.prefs) return null;
+        const seenBanks=new Set();
+        const banks = raw.banks.filter(b => b && typeof b.id==="string" && b.id.length<=128 && !seenBanks.has(b.id) && typeof b.name==="string" && b.name.trim().length>0 && b.name.length<=40 && Array.isArray(b.tileIds) && (seenBanks.add(b.id),true)).map(b=>({id:b.id,name:b.name.trim(),tileIds:[]}));
+        if (!banks.length) return null;
+        const ids = new Set(banks.map(b=>b.id));
+        const seenTiles=new Set();
+        const tiles = raw.tiles.filter(safeTile).filter(t=>ids.has(t.bankId)&&!seenTiles.has(t.id)&&(seenTiles.add(t.id),true)).map(t=>({...t, name:t.name.slice(0,80)}));
+        for (const t of tiles) banks.find(b=>b.id===t.bankId).tileIds.push(t.id);
+        const p=raw.prefs;
+        return {schema:VERSION,banks,activeBankId:ids.has(raw.activeBankId)?raw.activeBankId:banks[0].id,tiles,prefs:{theme:["dark","light","auto"].includes(p.theme)?p.theme:"dark",lang:p.lang==="en"?"en":"ru",master:Number.isFinite(p.master)?Math.max(0,Math.min(100,p.master)):80,outputDevice:typeof p.outputDevice==="string"?p.outputDevice.slice(0,256):"",secondaryOutputDevice:typeof p.secondaryOutputDevice==="string"?p.secondaryOutputDevice.slice(0,256):""}};
+      }
+      async save(state, blobWrites, deleteIds) {
+        const clean = this.validateState(state);
+        if (!clean) throw new Error("Invalid board state");
+        if (!this.db) {
+          this.memory.state=structuredClone(clean);
+          if(deleteIds==="all")this.memory.blobs.clear();
+          else for(const id of (deleteIds||[])) this.memory.blobs.delete(id);
+          for(const [id,blob] of (blobWrites||[])) this.memory.blobs.set(id,blob);
+          return;
+        }
+        try {
+          await this.transaction(["meta","blobs"],"readwrite",tx=>{
+            const meta=tx.objectStore("meta"), blobs=tx.objectStore("blobs");
+            meta.put(clean,"state"); if(deleteIds==="all")blobs.clear();else for(const id of (deleteIds||[])) blobs.delete(id); for(const [id,blob] of (blobWrites||[])) blobs.put(blob,id);
+          });
+          if(this.channel) this.channel.postMessage({at:Date.now()});
+        } catch(e) { if(e && (e.name==="QuotaExceededError" || e.name==="UnknownError")) throw Object.assign(new Error("quota"),{kind:"quota",cause:e}); throw e; }
+      }
+      async getBlob(id) {
+        if (!this.db) return this.memory.blobs.get(id) || null;
+        return new Promise((resolve,reject)=>{const req=this.db.transaction("blobs","readonly").objectStore("blobs").get(id);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});
+      }
+      async allBlobs() {
+        if(!this.db) return [...this.memory.blobs.entries()];
+        return new Promise((resolve,reject)=>{const tx=this.db.transaction("blobs","readonly"), req=tx.objectStore("blobs").openCursor(), out=[];req.onsuccess=()=>{const c=req.result;if(c){out.push([c.key,c.value]);c.continue();}else resolve(out);};req.onerror=()=>reject(req.error);});
+      }
+      async clear() {
+        if(!this.db){this.memory={state:null,blobs:new Map()};return;}
+        await this.transaction(["meta","blobs"],"readwrite",tx=>{tx.objectStore("meta").clear();tx.objectStore("blobs").clear();});
+      }
+      async bytes() { return (await this.allBlobs()).reduce((n,p)=>n+(p[1]&&p[1].size||0),0); }
+    }
+
+    function encodeWav(buffer) {
+      const channels=buffer.numberOfChannels, frames=buffer.length, bytes=44+frames*channels*2, out=new ArrayBuffer(bytes), view=new DataView(out), samples=[];
+      const write=(offset,text)=>{for(let i=0;i<text.length;i++)view.setUint8(offset+i,text.charCodeAt(i));};
+      write(0,"RIFF");view.setUint32(4,bytes-8,true);write(8,"WAVE");write(12,"fmt ");view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,channels,true);view.setUint32(24,buffer.sampleRate,true);view.setUint32(28,buffer.sampleRate*channels*2,true);view.setUint16(32,channels*2,true);view.setUint16(34,16,true);write(36,"data");view.setUint32(40,frames*channels*2,true);
+      for(let c=0;c<channels;c++) samples.push(buffer.getChannelData(c));
+      let at=44; for(let i=0;i<frames;i++) for(let c=0;c<channels;c++){const s=Math.max(-1,Math.min(1,samples[c][i]));view.setInt16(at,s<0?s*32768:s*32767,true);at+=2;}
+      return new Blob([out],{type:"audio/wav"});
+    }
+    async function wavPeaks(blob) {
+      const bytes=await blob.arrayBuffer(),view=new DataView(bytes),channels=view.getUint16(22,true),frames=Math.floor((bytes.byteLength-44)/(channels*2)),peaks=[];
+      for(let i=0;i<48;i++) {
+        const start=Math.floor(i*frames/48),end=Math.max(start+1,Math.floor((i+1)*frames/48));let peak=0;
+        for(let frame=start;frame<end;frame++)for(let c=0;c<channels;c++)peak=Math.max(peak,Math.abs(view.getInt16(44+(frame*channels+c)*2,true)/32768));
+        peaks.push(peak);
+      }
+      return peaks;
+    }
+    async function createDemo() {
+      const Offline=window.OfflineAudioContext||window.webkitOfflineAudioContext,rate=22050;
+      const specs=[["Kick",0,110,.16],["Snare",1,190,.2],["Clap",2,680,.18],["Laser",3,760,.32],["Bell",4,920,.48],["Zap",5,360,.24],["Rim",6,1250,.1],["Noise",7,480,.4]];
+      const synth=(spec,index)=>{
+        const length=Math.floor(rate*spec[3]), data=new Float32Array(length), freq=spec[2];
+        for(let n=0;n<length;n++) {
+          const t=n/rate, x=n/length, env=Math.pow(1-x,index===4?2.2:4);
+          let sample;
+          if(index===0)sample=Math.sin(2*Math.PI*(freq*Math.exp(-t*20))*t)*env;
+          else if(index===1||index===2||index===7)sample=(Math.random()*2-1)*env*(index===2&&n%Math.floor(rate*.035)<Math.floor(rate*.006)?1:.7);
+          else if(index===4)sample=(Math.sin(2*Math.PI*freq*t)+.45*Math.sin(2*Math.PI*freq*2.01*t))*env;
+          else if(index===6)sample=Math.sin(2*Math.PI*freq*t)*env*(1-x*.7);
+          else sample=Math.sin(2*Math.PI*(freq*(1-x*.88))*t)*env;
+          data[n]=Math.max(-1,Math.min(1,sample*.72));
+        }
+        return encodeWav({numberOfChannels:1,length,sampleRate:rate,getChannelData:()=>data});
+      };
+      if(!Offline)return specs.map((s,i)=>[s[0],synth(s,i)]);
+      const result=[];
+      try {
+        for(let i=0;i<specs.length;i++) {
+          const spec=specs[i],ctx=new Offline(1,Math.ceil(rate*spec[3]),rate),gain=ctx.createGain();
+          gain.gain.setValueAtTime(.0001,0);gain.gain.exponentialRampToValueAtTime(.7,.006);gain.gain.exponentialRampToValueAtTime(.0001,spec[3]);gain.connect(ctx.destination);
+          if(i===1||i===2||i===7) {
+            const noise=ctx.createBuffer(1,Math.ceil(rate*spec[3]),rate),channel=noise.getChannelData(0);
+            for(let n=0;n<channel.length;n++)channel[n]=Math.random()*2-1;
+            const src=ctx.createBufferSource();src.buffer=noise;src.connect(gain);src.start();
+          } else {
+            const osc=ctx.createOscillator();osc.type=i===4?"sine":i===6?"triangle":"sawtooth";osc.frequency.setValueAtTime(spec[2],0);
+            if(i===0)osc.frequency.exponentialRampToValueAtTime(42,spec[3]*.75);
+            if(i===3||i===5)osc.frequency.exponentialRampToValueAtTime(90,spec[3]);
+            osc.connect(gain);osc.start();osc.stop(spec[3]);
+          }
+          result.push([spec[0],encodeWav(await ctx.startRendering())]);
+        }
+        return result;
+      } catch (_) { return specs.map((s,i)=>[s[0],synth(s,i)]); }
+    }
+
+    class AudioEngine {
+      constructor(store, hooks) { this.store=store; this.hooks=hooks; this.ctx=null; this.master=null; this.limiter=null; this.voices=[]; this.cache=new Map(); this.loading=new Map(); this.pending=new Map(); this.maxBytes=innerWidth<700?80:200; this.cacheBytes=0; this.fallbackVoices=new Map(); this.raf=0; this.silentAudio=null; this.silentUrl=""; this.secondaryDestination=null; this.secondaryAudio=null; }
+      ensureContext() {
+        if(this.ctx) return this.ctx;
+        const Ctx=window.AudioContext||window.webkitAudioContext;
+        if(!Ctx) return null;
+        try {
+          this.ctx=new Ctx();
+          this.master=this.ctx.createGain(); this.master.gain.value=(app.state.prefs.master||0)/100;
+          this.limiter=this.ctx.createDynamicsCompressor(); this.limiter.threshold.value=-4; this.limiter.knee.value=4; this.limiter.ratio.value=20; this.limiter.attack.value=.003; this.limiter.release.value=.15;
+          this.master.connect(this.limiter); this.limiter.connect(this.ctx.destination);
+          if(navigator.audioSession) { try { navigator.audioSession.type="playback"; } catch (_) {} }
+          return this.ctx;
+        } catch (_) { return null; }
+      }
+      async resumeInGesture() {
+        const ctx=this.ensureContext();
+        if(/iPhone|iPad|iPod/i.test(navigator.userAgent)&&!navigator.audioSession)this.startSilentSession();
+        if(ctx && ctx.state!=="running") { try { await ctx.resume(); } catch (_) {} }
+        if(ctx && ctx.state==="running") return true;
+        return false;
+      }
+      startSilentSession() {
+        if(this.silentAudio){if(this.silentAudio.paused)this.silentAudio.play().catch(()=>{});return;}
+        const silence=new Float32Array(2205),blob=encodeWav({numberOfChannels:1,length:silence.length,sampleRate:22050,getChannelData:()=>silence});
+        this.silentUrl=URL.createObjectURL(blob);this.silentAudio=new Audio(this.silentUrl);this.silentAudio.loop=true;this.silentAudio.volume=.005;this.silentAudio.play().catch(()=>{});
+      }
+      pauseSilentSession() { if(this.silentAudio)this.silentAudio.pause(); }
+      disposeSilentSession() { if(this.silentAudio)this.silentAudio.pause();if(this.silentUrl)URL.revokeObjectURL(this.silentUrl);this.silentAudio=null;this.silentUrl=""; }
+      async decode(blob,background=false) {
+        let ctx=this.ctx;
+        if(!ctx&&background) {
+          const Offline=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+          if(Offline) { try { ctx=new Offline(1,1,44100); } catch (_) {} }
+        }
+        if(!ctx)ctx=this.ensureContext();
+        if(!ctx) throw new Error("Web Audio unavailable");
+        const bytes=await blob.arrayBuffer();
+        const decoded=await new Promise((resolve,reject)=>{
+          let settled=false; const ok=v=>{if(!settled){settled=true;resolve(v);}}, fail=e=>{if(!settled){settled=true;reject(e);}};
+          try {
+            const result=ctx.decodeAudioData(bytes.slice(0),ok,fail);
+            if(result && typeof result.then==="function") result.then(ok,fail);
+          } catch(e) { fail(e); }
+        });
+        if(decoded.duration>MAX_SECONDS) throw new Error("duration");
+        return decoded;
+      }
+      async getBuffer(tile) {
+        if(this.cache.has(tile.blobId)) { const item=this.cache.get(tile.blobId); item.used=performance.now(); return item.buffer; }
+        if(this.loading.has(tile.blobId)) return this.loading.get(tile.blobId);
+        const promise=(async()=>{
+          const blob=await this.store.getBlob(tile.blobId); if(!blob) throw new Error("missing audio");
+          const buffer=await this.decode(blob);
+          const size=buffer.length*buffer.numberOfChannels*4;
+          this.remember(tile.blobId,buffer,size);
+          return buffer;
+        })();
+        this.loading.set(tile.blobId,promise);
+        try { return await promise; } finally { this.loading.delete(tile.blobId); }
+      }
+      remember(id,buffer,size) {
+        if(size>this.maxBytes*1024*1024)return;
+        const existing=this.cache.get(id);if(existing)this.cacheBytes-=existing.size;
+        while(this.cacheBytes+size>this.maxBytes*1024*1024&&this.cache.size){const oldest=[...this.cache.entries()].sort((a,b)=>a[1].used-b[1].used)[0];this.cacheBytes-=oldest[1].size;this.cache.delete(oldest[0]);}
+        this.cache.set(id,{buffer,size,used:performance.now()});this.cacheBytes+=size;
+      }
+      stopTile(tileId, fade=.008) {
+        this.pending.delete(tileId);
+        const matched=this.voices.filter(v=>v.tileId===tileId);
+        matched.forEach(v=>this.stopVoice(v,fade));
+        const fallbacks=this.fallbackVoices.get(tileId)||[];
+        fallbacks.forEach(a=>{a.pause();a.currentTime=0;if(a._lumaCleanup)a._lumaCleanup();});
+        this.fallbackVoices.delete(tileId);
+      }
+      async start(tile, {held=false, looping=false}={}) {
+        const resumed=this.resumeInGesture();
+        const old=this.voices.filter(v=>v.tileId===tile.id);
+        const oldFallback=this.fallbackVoices.get(tile.id);
+        if(looping && (old.length || (oldFallback&&oldFallback.length) || this.pending.has(tile.id))) { this.stopTile(tile.id); return null; }
+        this.stopTile(tile.id);
+        const token=uid();this.pending.set(tile.id,token);
+        const fallbackCount=[...this.fallbackVoices.values()].reduce((n,a)=>n+a.length,0);
+        if(this.voices.length+fallbackCount>=MAX_VOICES) {
+          if(this.voices.length)this.stopVoice(this.voices[0],.006);
+          else {const first=this.fallbackVoices.entries().next().value;if(first){const [id,audios]=first;const audio=audios[0];audio.pause();if(audio._lumaCleanup)audio._lumaCleanup();if(!this.fallbackVoices.has(id))this.fallbackVoices.delete(id);}}
+        }
+        const ctx=this.ensureContext();
+        try {
+          if(ctx) {
+            const bufferPromise=this.getBuffer(tile);
+            await resumed;
+            const buffer=await bufferPromise;
+            if(this.pending.get(tile.id)!==token)return null;
+            if(ctx.state!=="running") await this.resumeInGesture();
+            if(this.pending.get(tile.id)!==token)return null;
+            const source=ctx.createBufferSource(), gain=ctx.createGain(), now=ctx.currentTime;
+            source.buffer=buffer; source.loop=looping;
+            gain.gain.setValueAtTime(.0001,now); gain.gain.linearRampToValueAtTime(tile.volume,now+.007);
+            source.connect(gain);gain.connect(this.master);
+            const voice={tileId:tile.id,source,gain,start:now,duration:buffer.duration,held,looping,stopping:false};
+            this.pending.delete(tile.id);this.voices.push(voice); source.onended=()=>this.removeVoice(voice);
+            source.start(now); if(!looping && !held) source.stop(now+buffer.duration);
+            this.hooks.onVoice(tile.id,true);this.startFrame();
+            return voice;
+          }
+          await resumed;
+          if(this.pending.get(tile.id)!==token)return null;
+          const result=await this.startFallback(tile,held,looping,token);
+          if(this.pending.get(tile.id)===token)this.pending.delete(tile.id);
+          return result;
+        } catch(e) {
+          if(this.pending.get(tile.id)!==token)return null;
+          this.pending.delete(tile.id);
+          if(e && e.message==="duration") throw e;
+          throw new Error("play");
+        }
+      }
+      async startFallback(tile,held,looping,token) {
+        const blob=await this.store.getBlob(tile.blobId);if(!blob) throw new Error("missing audio");
+        if(this.pending.get(tile.id)!==token)return null;
+        const url=URL.createObjectURL(blob), audio=new Audio(url);audio.preload="auto";audio.volume=tile.volume*(app.state.prefs.master/100);audio.loop=looping;
+        const arr=this.fallbackVoices.get(tile.id)||[];arr.push(audio);this.fallbackVoices.set(tile.id,arr);
+        let cleaned=false;
+        const clean=()=>{if(cleaned)return;cleaned=true;URL.revokeObjectURL(url);const a=this.fallbackVoices.get(tile.id)||[];const left=a.filter(x=>x!==audio);if(left.length)this.fallbackVoices.set(tile.id,left);else this.fallbackVoices.delete(tile.id);if(!left.length)this.hooks.onVoice(tile.id,false);};
+        audio._lumaCleanup=clean;
+        audio.addEventListener("ended",clean,{once:true});audio.addEventListener("error",clean,{once:true});
+        await audio.play();this.hooks.onVoice(tile.id,true);
+        if(held) audio.dataset.held="1";return audio;
+      }
+      stopVoice(v,fade=.008) {
+        if(!v||v.stopping)return;v.stopping=true;
+        const ctx=this.ctx;
+        try { const now=ctx.currentTime;v.gain.gain.cancelScheduledValues(now);v.gain.gain.setValueAtTime(Math.max(.0001,v.gain.gain.value),now);v.gain.gain.linearRampToValueAtTime(.0001,now+fade);v.source.stop(now+fade+.001); } catch (_) { this.removeVoice(v); }
+      }
+      removeVoice(v) {
+        const i=this.voices.indexOf(v);if(i<0)return;
+        this.voices.splice(i,1);try{v.source.disconnect();v.gain.disconnect();}catch(_){}
+        if(!this.voices.some(x=>x.tileId===v.tileId))this.hooks.onVoice(v.tileId,false);
+        if(!this.voices.length){cancelAnimationFrame(this.raf);this.raf=0;}
+      }
+      release(tileId) {
+        this.pending.delete(tileId);
+        this.voices.filter(v=>v.tileId===tileId&&v.held).forEach(v=>this.stopVoice(v));
+        const a=this.fallbackVoices.get(tileId)||[];a.filter(x=>x.dataset.held==="1").forEach(x=>{x.pause();x.currentTime=0;if(x._lumaCleanup)x._lumaCleanup();});
+      }
+      stopAll() {
+        this.pending.clear();
+        [...this.voices].forEach(v=>this.stopVoice(v,.006));
+        for(const [id,list] of this.fallbackVoices){list.forEach(a=>{a.pause();a.currentTime=0;if(a._lumaCleanup)a._lumaCleanup();});this.fallbackVoices.delete(id);this.hooks.onVoice(id,false);}
+      }
+      setMaster(value) { if(this.master&&this.ctx){this.master.gain.setTargetAtTime(value/100,this.ctx.currentTime,.01);} }
+      async setPrimaryOutput(deviceId) {
+        if(!this.ctx||typeof this.ctx.setSinkId!=="function")throw new Error("Primary output selection is unsupported");
+        await this.ctx.setSinkId(deviceId);
+      }
+      async setSecondaryOutput(deviceId) {
+        if(!deviceId) {
+          if(this.secondaryDestination&&this.limiter)try{this.limiter.disconnect(this.secondaryDestination);}catch(_){}
+          if(this.secondaryAudio){this.secondaryAudio.pause();this.secondaryAudio.srcObject=null;this.secondaryAudio=null;}
+          if(this.secondaryDestination){this.secondaryDestination.stream.getTracks().forEach(t=>t.stop());this.secondaryDestination=null;}
+          return;
+        }
+        if(!this.ctx||!this.limiter||typeof HTMLMediaElement.prototype.setSinkId!=="function"||typeof this.ctx.createMediaStreamDestination!=="function")throw new Error("Second output selection is unsupported");
+        if(!this.secondaryDestination) {
+          this.secondaryDestination=this.ctx.createMediaStreamDestination();
+          this.secondaryAudio=new Audio();
+          this.secondaryAudio.autoplay=true;
+          this.secondaryAudio.srcObject=this.secondaryDestination.stream;
+          this.limiter.connect(this.secondaryDestination);
+        }
+        await this.secondaryAudio.setSinkId(deviceId);
+        if(this.secondaryAudio.paused)await this.secondaryAudio.play();
+      }
+      startFrame() {
+        if(this.raf)return;
+        const frame=()=>{
+          this.raf=0;const now=this.ctx?this.ctx.currentTime:0;
+          this.voices.forEach(v=>this.hooks.onProgress(v.tileId,v.looping?((now-v.start)%v.duration)/v.duration:Math.min(1,(now-v.start)/v.duration)));
+          if(this.voices.length)this.raf=requestAnimationFrame(frame);
+          else this.hooks.clearProgress();
+        };
+        this.raf=requestAnimationFrame(frame);
+      }
+      async warm(tiles) {
+        for(const tile of tiles) {
+          if(!this.cache.has(tile.blobId)) {
+            try {
+              const blob=await this.store.getBlob(tile.blobId);if(!blob)continue;
+              const buffer=await this.decode(blob,true),size=buffer.length*buffer.numberOfChannels*4;
+              this.remember(tile.blobId,buffer,size);
+            } catch (_) {}
+          }
+        }
+      }
+      clearCache(blobId) { if(blobId){const item=this.cache.get(blobId);if(item){this.cacheBytes-=item.size;this.cache.delete(blobId);}}else{this.cache.clear();this.cacheBytes=0;} }
+    }
+
+    class Input {
+      constructor(ui) { this.ui=ui;this.pointer=new Map();this.capture=null;this.heldKeys=new Map(); }
+      init() {
+        const grid=document.getElementById("padGrid");
+        grid.addEventListener("pointerdown",e=>this.pointerDown(e));
+        grid.addEventListener("pointermove",e=>this.pointerMove(e));
+        grid.addEventListener("pointerup",e=>this.pointerUp(e));
+        grid.addEventListener("pointercancel",e=>this.pointerEnd(e));
+        grid.addEventListener("lostpointercapture",e=>this.pointerEnd(e));
+        grid.addEventListener("click",e=>{const tile=e.target.closest(".tile");if(tile&&e.detail===0)this.ui.activate(tile.dataset.id,"keyboard");});
+        grid.addEventListener("contextmenu",e=>{const tile=e.target.closest(".tile");if(tile&&this.ui.editMode){e.preventDefault();this.ui.edit(tile.dataset.id);}});
+        document.addEventListener("keydown",e=>this.keyDown(e));
+        document.addEventListener("keyup",e=>this.keyUp(e));
+        window.addEventListener("blur",()=>this.releaseAll());
+        document.addEventListener("visibilitychange",()=>{if(document.hidden)this.releaseAll();else if(this.ui.app.audio.ctx&&this.ui.app.audio.ctx.state==="interrupted")this.ui.app.audio.resumeInGesture();});
+        window.addEventListener("pagehide",()=>this.ui.app.audio.disposeSilentSession());
+        window.addEventListener("dragenter",e=>{if([...e.dataTransfer.types].includes("Files"))this.ui.dropOverlay(true);});
+        window.addEventListener("dragleave",e=>{if(e.target===document.documentElement||e.target===document.body)this.ui.dropOverlay(false);});
+        window.addEventListener("dragover",e=>{if([...e.dataTransfer.types].includes("Files"))e.preventDefault();});
+        window.addEventListener("drop",e=>{if([...e.dataTransfer.types].includes("Files")){e.preventDefault();this.ui.dropOverlay(false);this.ui.addFiles([...e.dataTransfer.files]);}});
+      }
+      pointerDown(e) {
+        const el=e.target.closest(".tile");if(!el)return;
+        const id=el.dataset.id,tile=this.ui.tile(id);if(!tile)return;
+        this.pointer.set(e.pointerId,{id,x:e.clientX,y:e.clientY,type:e.pointerType,started:false});
+        if(e.pointerType==="mouse") {
+          if(this.ui.editMode){e.preventDefault();this.ui.edit(id);return;}
+          if(tile.mode==="hold"){this.ui.activate(id,"hold-start");this.pointer.get(e.pointerId).started=true;}
+          else if(tile.mode==="loop") this.ui.activate(id,"loop");
+          else this.ui.activate(id,"play");
+          el.classList.add("pressed");setTimeout(()=>el.classList.remove("pressed"),160);
+        } else if(tile.mode==="hold"&&!this.ui.editMode) {
+          this.ui.activate(id,"hold-start");this.pointer.get(e.pointerId).started=true;
+        }
+      }
+      pointerUp(e) {
+        const data=this.pointer.get(e.pointerId);if(!data)return;
+        const el=document.querySelector(`.tile[data-id="${CSS.escape(data.id)}"]`);
+        if(data.started) this.ui.app.audio.release(data.id);
+        else if(!data.cancelled&&data.type!=="mouse"&&Math.hypot(e.clientX-data.x,e.clientY-data.y)<=10) {
+          const tile=this.ui.tile(data.id);
+          if(this.ui.editMode)this.ui.edit(data.id);
+          else if(tile&&tile.mode==="loop")this.ui.activate(data.id,"loop");
+          else if(tile&&tile.mode==="once")this.ui.activate(data.id,"play");
+        }
+        if(el)el.classList.remove("pressed");
+        this.pointer.delete(e.pointerId);
+      }
+      pointerMove(e) {
+        const data=this.pointer.get(e.pointerId);
+        if(data&&data.started&&data.type!=="mouse"&&Math.hypot(e.clientX-data.x,e.clientY-data.y)>10){this.ui.app.audio.release(data.id);data.started=false;data.cancelled=true;}
+      }
+      pointerEnd(e) { const d=this.pointer.get(e.pointerId);if(d&&d.started)this.ui.app.audio.release(d.id);this.pointer.delete(e.pointerId); }
+      keyDown(e) {
+        if(e.repeat)return;
+        if(this.capture) {
+          if(e.code==="Escape"){e.preventDefault();this.capture=null;this.ui.setCapture(false);return;}
+          if(e.code==="Backspace"){e.preventDefault();this.capture=null;this.ui.assignKey("");return;}
+          if(e.ctrlKey||e.altKey||e.metaKey)return;
+          if(validCode(e.code)){e.preventDefault();this.capture=null;this.ui.assignKey(e.code);}
+          return;
+        }
+        if(e.code==="Escape"&&!this.ui.anyDialog()){this.ui.app.audio.stopAll();return;}
+        if(e.ctrlKey||e.altKey||e.metaKey||this.ui.anyDialog()||this.isTyping(e.target))return;
+        const tile=this.ui.app.state.tiles.find(t=>t.bankId===this.ui.app.state.activeBankId&&t.key===e.code);
+        if(tile){e.preventDefault();if(tile.mode==="hold"){this.ui.activate(tile.id,"hold-start");this.heldKeys.set(e.code,tile.id);}else if(tile.mode==="loop")this.ui.activate(tile.id,"loop");else this.ui.activate(tile.id,"play");}
+      }
+      keyUp(e) {
+        const id=this.heldKeys.get(e.code);
+        if(id){this.ui.app.audio.release(id);this.heldKeys.delete(e.code);}
+      }
+      isTyping(el) { return el && (el.matches("input,textarea,select")||el.isContentEditable); }
+      releaseAll() { this.pointer.forEach(d=>{if(d.started)this.ui.app.audio.release(d.id);});this.pointer.clear();this.heldKeys.forEach(id=>this.ui.app.audio.release(id));this.heldKeys.clear();this.ui.app.audio.voices.filter(v=>v.held).forEach(v=>this.ui.app.audio.release(v.tileId)); }
+    }
+
+    class UI {
+      constructor(app) {
+        this.app=app;this.editMode=false;this.currentEdit=null;this.bankEdit=null;this.progress=new Map();this.keyButton=document.getElementById("keyCapture");
+        this.el={nav:document.getElementById("bankNav"),grid:document.getElementById("padGrid"),status:document.getElementById("status"),count:document.getElementById("tileCount"),toast:document.getElementById("toastRegion"),edit:document.getElementById("editDialog"),settings:document.getElementById("settingsDialog"),bank:document.getElementById("bankDialog"),search:document.getElementById("search")};
+      }
+      init() {
+        const $=id=>document.getElementById(id);
+        $("settingsButton").addEventListener("click",()=>this.openSettings());
+        $("stopAll").addEventListener("click",()=>this.app.audio.stopAll());
+        $("editToggle").addEventListener("click",e=>{this.editMode=!this.editMode;e.currentTarget.setAttribute("aria-pressed",String(this.editMode));this.render();});
+        $("masterVolume").addEventListener("input",e=>{this.app.state.prefs.master=Number(e.target.value);$("masterValue").textContent=e.target.value;this.app.audio.setMaster(Number(e.target.value));this.app.saveSoon();});
+        $("addFiles").addEventListener("change",e=>{this.addFiles([...e.target.files]);e.target.value="";});
+        $("addBank").addEventListener("click",()=>this.openBank());
+        $("search").addEventListener("input",()=>this.renderTiles());
+        $("editForm").addEventListener("submit",e=>{e.preventDefault();this.saveEdit();});
+        $("keyCapture").addEventListener("click",()=>{this.app.input.capture=true;this.setCapture(true);});
+        $("tileVolume").addEventListener("input",e=>$("tileVolumeValue").textContent=e.target.value);
+        $("moveLeft").addEventListener("click",()=>this.moveTile(-1));$("moveRight").addEventListener("click",()=>this.moveTile(1));
+        $("deleteTile").addEventListener("click",()=>this.deleteTile());
+        $("replaceFile").addEventListener("change",e=>{if(e.target.files[0])this.replacement=e.target.files[0];});
+        document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>document.getElementById(b.dataset.close).close()));
+        $("editDialog").addEventListener("close",()=>{this.app.input.capture=false;this.setCapture(false);});
+        $("themeSelect").addEventListener("change",e=>{this.app.state.prefs.theme=e.target.value;this.applyTheme();this.app.saveSoon();});
+        $("languageSelect").addEventListener("change",e=>{I18n.set(e.target.value);this.app.state.prefs.lang=I18n.lang;this.applyText();this.render();this.app.saveSoon();});
+        $("exportBoard").addEventListener("click",()=>this.exportBoard());
+        $("importFile").addEventListener("change",e=>{if(e.target.files[0])this.importBoard(e.target.files[0]);e.target.value="";});
+        $("resetBoard").addEventListener("click",()=>this.resetBoard());
+        $("manageBank").addEventListener("click",()=>{this.el.settings.close();this.openBank(this.app.state.banks.find(b=>b.id===this.app.state.activeBankId));});
+        $("chooseOutput").addEventListener("click",()=>this.chooseOutput());
+        $("bankForm").addEventListener("submit",e=>{e.preventDefault();this.saveBank();});
+        $("bankDelete").addEventListener("click",()=>this.deleteBank());
+        $("audioRouteHint").textContent=I18n.t("route");
+        $("storageHint").textContent=I18n.t("storageHint");
+        window.addEventListener("error",e=>{e.preventDefault();this.toast(I18n.t("statusError"),"error");});
+        window.addEventListener("unhandledrejection",e=>{e.preventDefault();this.toast(I18n.t("statusError"),"error");});
+        this.applyTheme();this.applyText();
+        this.render();
+      }
+      text(id,key) { const e=document.getElementById(id);if(e)e.textContent=I18n.t(key); }
+      applyText() {
+        const map={stopText:"stop",masterLabel:"volume",editText:"edit",addText:"add",settingsTitle:"settings",themeLabel:"theme",languageLabel:"language",storageLabel:"used",exportBoard:"export",resetBoard:"reset",editTitle:"editTitle",nameLabel:"name",colorLabel:"color",modeLabel:"mode",volumeLabel:"tileVolume",keyLabel:"key",replaceLabel:"replace",moveLeft:"left",moveRight:"right",deleteTile:"delete",saveTile:"save",bankNameLabel:"bankName",bankDelete:"delBank"};
+        Object.entries(map).forEach(([id,key])=>this.text(id,key));
+        const mode=document.getElementById("tileMode");
+        [...mode.options].forEach((o,i)=>o.textContent=I18n.t(["once","hold","loop"][i]));
+        const theme=document.getElementById("themeSelect");[...theme.options].forEach(o=>o.textContent=I18n.t(o.value));
+        document.getElementById("search").placeholder=I18n.t("find");
+        document.getElementById("search").setAttribute("aria-label",I18n.t("find"));
+        document.getElementById("bankNav").setAttribute("aria-label",I18n.t("banks"));
+        document.getElementById("stopAll").setAttribute("aria-label",I18n.t("stop"));
+        document.getElementById("editToggle").setAttribute("aria-label",I18n.t("edit"));
+        document.getElementById("addFilesLabel").setAttribute("aria-label",I18n.t("add"));
+        document.getElementById("addBank").setAttribute("aria-label",I18n.t("createBank"));
+        document.getElementById("dropOverlay").textContent=I18n.t("drop");
+        document.getElementById("outputLabel").textContent=I18n.t("outputLabel");
+        document.getElementById("audioRouteHint").textContent=I18n.t("route");
+        document.getElementById("routeDetail").textContent=I18n.t("routeDetail");
+        document.getElementById("secondaryOutputLabel").textContent=I18n.t("secondaryOutput");
+        document.getElementById("chooseOutput").textContent=I18n.t("chooseOutput");
+        document.getElementById("storageHint").textContent=I18n.t("storageHint");
+        document.getElementById("masterVolume").setAttribute("aria-label",I18n.t("volume"));
+        document.querySelectorAll("[data-close]").forEach(b=>b.setAttribute("aria-label",I18n.t("close")));
+        this.text("importText","import");
+        this.text("manageBank","manageBank");
+        const lang=document.getElementById("languageSelect");lang.value=I18n.lang;
+      }
+      applyTheme() {
+        const theme=this.app.state.prefs.theme||"dark";
+        document.documentElement.dataset.theme=theme;
+        document.querySelector('meta[name="theme-color"]').content=theme==="light"?"#f0eee8":"#171a1c";
+        document.getElementById("themeSelect").value=theme;
+        try { localStorage.setItem("luma-theme",theme); } catch (_) {}
+      }
+      render() { this.renderBanks();this.renderTiles();this.updateCounts(); }
+      renderBanks() {
+        const nav=this.el.nav;nav.replaceChildren();
+        this.app.state.banks.forEach(bank=>{
+          const b=document.createElement("button");b.type="button";b.className="bank-tab";b.textContent=bank.name;b.dataset.id=bank.id;
+          b.setAttribute("aria-current",String(bank.id===this.app.state.activeBankId));b.title=I18n.lang==="ru"?"Правый клик — переименовать или удалить":"Right-click to rename or delete";
+          b.addEventListener("click",()=>{this.app.state.activeBankId=bank.id;this.el.search.value="";this.render();this.app.saveSoon();this.app.audio.warm(this.visibleTiles());});
+          b.addEventListener("contextmenu",e=>{e.preventDefault();this.openBank(bank);});
+          nav.append(b);
+        });
+      }
+      visibleTiles() { const ids=this.app.state.banks.find(b=>b.id===this.app.state.activeBankId)?.tileIds||[];return ids.map(id=>this.tile(id)).filter(Boolean); }
+      tile(id) { return this.app.state.tiles.find(t=>t.id===id); }
+      renderTiles() {
+        const grid=this.el.grid;grid.replaceChildren();
+        const search=this.el.search.value.trim().toLocaleLowerCase();
+        const tiles=this.visibleTiles().filter(t=>!search||t.name.toLocaleLowerCase().includes(search));
+        if(!tiles.length) {
+          const empty=document.createElement("div");empty.className="empty";
+          const title=document.createElement("strong"),body=document.createElement("span");
+          title.textContent=I18n.t(this.visibleTiles().length?"emptyTitle":"emptyTitle");body.textContent=I18n.t("emptyBody");
+          const add=document.createElement("label");add.className="file-label button primary";add.textContent=I18n.t("add");
+          const input=document.createElement("input");input.type="file";input.multiple=true;input.accept=document.getElementById("addFiles").accept;input.addEventListener("change",e=>this.addFiles([...e.target.files]));add.append(input);
+          empty.append(title,body,add);grid.append(empty);return;
+        }
+        const frag=document.createDocumentFragment();
+        tiles.forEach(t=>{
+          const b=document.createElement("button");b.type="button";b.className="tile";b.dataset.id=t.id;b.style.setProperty("--tile-color",t.color);
+          b.setAttribute("aria-label",`${t.name}${t.key?`, ${t.key}`:""}`);
+          if(this.app.audio.voices.some(v=>v.tileId===t.id)||this.app.audio.fallbackVoices.has(t.id))b.classList.add("playing");
+          if(this.editMode)b.classList.add("editing");
+          const name=document.createElement("span");name.className="tile-name";name.textContent=t.name;
+          const meta=document.createElement("span");meta.className="tile-meta";
+          const mode=document.createElement("span");mode.textContent=I18n.t(t.mode==="once"?"once":t.mode==="hold"?"hold":"loop");
+          meta.append(mode);if(t.key){const key=document.createElement("span");key.className="tile-key";key.textContent=t.key.replace("Key","").replace("Digit","");meta.append(key);}
+          const progress=document.createElement("span");progress.className="progress";progress.style.width=`${Math.round((this.progress.get(t.id)||0)*100)}%`;
+          b.append(name,this.makeWave(t.wave,t.color),meta,progress);
+          frag.append(b);
+        });
+        grid.append(frag);
+      }
+      makeWave(values,color) {
+        const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("class","wave");svg.setAttribute("viewBox","0 0 100 24");svg.setAttribute("preserveAspectRatio","none");svg.setAttribute("aria-hidden","true");
+        const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("fill","none");path.setAttribute("stroke",color);path.setAttribute("stroke-width","1.4");
+        const data=Array.isArray(values)&&values.length?values:Array.from({length:32},()=>.08);
+        path.setAttribute("d",data.map((v,i)=>`${i?"L":"M"} ${(i/(data.length-1))*100} ${12-Math.max(.08,Math.min(1,v))*10}`).join(" "));
+        svg.append(path);return svg;
+      }
+      updateCounts() {
+        const count=this.visibleTiles().length;document.getElementById("tileCount").textContent=`${count}`;
+        if(!this.app.store.persistent) this.el.status.textContent=I18n.t("savedMemory");
+        else this.el.status.textContent=I18n.t("ready");
+        document.getElementById("masterVolume").value=this.app.state.prefs.master;document.getElementById("masterValue").textContent=this.app.state.prefs.master;
+        document.getElementById("search").classList.toggle("hidden",this.app.state.tiles.length<8);
+      }
+      activate(id,action) {
+        const tile=this.tile(id);if(!tile)return;
+        if(action==="hold-start"||tile.mode==="hold"&&action==="play")this.app.audio.start(tile,{held:true}).catch(e=>this.handlePlayError(e));
+        else if(action==="loop"||tile.mode==="loop"&&action==="play")this.app.audio.start(tile,{looping:true}).catch(e=>this.handlePlayError(e));
+        else this.app.audio.start(tile).catch(e=>this.handlePlayError(e));
+        if(navigator.vibrate&&/Android/i.test(navigator.userAgent)){try{navigator.vibrate(8);}catch(_){}}
+      }
+      handlePlayError(e) { this.toast(e&&e.message==="play"?I18n.t("playError"):I18n.t("noAudio"),"error"); }
+      voice(id,on) {
+        const el=this.el.grid.querySelector(`.tile[data-id="${CSS.escape(id)}"]`);
+        if(el)el.classList.toggle("playing",on);
+      }
+      onProgress(id,value) { this.progress.set(id,value);const p=this.el.grid.querySelector(`.tile[data-id="${CSS.escape(id)}"] .progress`);if(p)p.style.width=`${Math.round(value*100)}%`; }
+      clearProgress() { this.progress.clear();this.el.grid.querySelectorAll(".progress").forEach(p=>p.style.width="0"); }
+      toast(message,type) {
+        const node=document.createElement("div");node.className="toast";node.setAttribute("role",type==="error"?"alert":"status");node.textContent=message;this.el.toast.append(node);
+        setTimeout(()=>node.remove(),5200);
+      }
+      dropOverlay(show) { document.getElementById("dropOverlay").classList.toggle("visible",show); }
+      anyDialog() { return !!document.querySelector("dialog[open]"); }
+      edit(id) {
+        const t=this.tile(id);if(!t)return;this.currentEdit=id;this.replacement=null;
+        document.getElementById("editTitle").textContent=I18n.t("editTitle");
+        document.getElementById("tileName").value=t.name;document.getElementById("tileColor").value=t.color;document.getElementById("tileMode").value=t.mode;
+        document.getElementById("tileVolume").value=Math.round(t.volume*100);document.getElementById("tileVolumeValue").textContent=Math.round(t.volume*100);
+        this.keyCode=t.key||"";this.setCapture(false);this.updateKeyButton();
+        document.getElementById("replaceFile").value="";
+        this.el.edit.showModal();
+      }
+      setCapture(on) { this.keyButton.classList.toggle("listening",on);this.keyButton.textContent=on?I18n.t("listen"):this.keyLabel(this.keyCode||""); }
+      keyLabel(code) { return code?code.replace("Key","").replace("Digit",""):I18n.t("noKey"); }
+      updateKeyButton() { this.keyButton.textContent=this.keyLabel(this.keyCode||""); }
+      assignKey(code) {
+        if(code && this.app.state.tiles.some(t=>t.key===code&&t.id!==this.currentEdit)){this.toast(I18n.t("conflict"),"error");this.setCapture(false);return;}
+        this.keyCode=code;this.setCapture(false);
+      }
+      async saveEdit() {
+        const t=this.tile(this.currentEdit);if(!t)return;
+        const name=document.getElementById("tileName").value.trim().slice(0,80)||t.name,color=document.getElementById("tileColor").value;
+        const mode=document.getElementById("tileMode").value,volume=Number(document.getElementById("tileVolume").value)/100,key=this.keyCode||"";
+        let writes=[],replacement=null;
+        if(this.replacement) {
+          try { replacement=await this.prepareFile(this.replacement);if(!replacement) return;writes.push([replacement.blobId,replacement.blob]); }
+          catch(e){this.fileError(this.replacement,e);return;}
+        }
+        const old=replacement?t.blobId:null;t.name=name;t.color=color;t.mode=mode;t.volume=volume;t.key=key;
+        if(replacement){t.blobId=replacement.blobId;t.wave=replacement.wave;this.app.audio.stopTile(t.id);this.app.audio.clearCache(old);this.app.pendingDelete.push(old);}
+        try { await this.app.commit(writes);this.el.edit.close();this.render(); }
+        catch(e){this.storageError(e);}
+      }
+      async moveTile(delta) {
+        const t=this.tile(this.currentEdit);if(!t)return;const bank=this.app.state.banks.find(b=>b.id===t.bankId),at=bank.tileIds.indexOf(t.id),to=Math.max(0,Math.min(bank.tileIds.length-1,at+delta));
+        if(at!==to){bank.tileIds.splice(at,1);bank.tileIds.splice(to,0,t.id);await this.app.commit();this.renderTiles();}
+      }
+      async deleteTile() {
+        const t=this.tile(this.currentEdit);if(!t)return;if(!confirm(I18n.t("deleteAsk")))return;
+        this.app.audio.stopTile(t.id);this.app.audio.clearCache(t.blobId);
+        this.app.state.tiles=this.app.state.tiles.filter(x=>x.id!==t.id);
+        const b=this.app.state.banks.find(x=>x.id===t.bankId);if(b)b.tileIds=b.tileIds.filter(id=>id!==t.id);
+        this.app.pendingDelete.push(t.blobId);
+        try{await this.app.commit();this.el.edit.close();this.render();}catch(e){this.storageError(e);}
+      }
+      openSettings() {
+        document.getElementById("storageUsage").textContent="…";
+        this.initOutputSelection();
+        this.el.settings.showModal();
+        this.app.store.bytes().then(n=>document.getElementById("storageUsage").textContent=this.formatBytes(n)).catch(()=>document.getElementById("storageUsage").textContent="—");
+      }
+      formatBytes(n) { if(n<1024)return `${n} B`;if(n<1048576)return `${(n/1024).toFixed(1)} KB`;return `${(n/1048576).toFixed(1)} MB`; }
+      openBank(bank=null) {
+        this.bankEdit=bank?bank.id:null;
+        document.getElementById("bankDialogTitle").textContent=I18n.t(bank?"rename":"createBank");
+        document.getElementById("bankName").value=bank?bank.name:"";
+        document.getElementById("bankDelete").classList.toggle("hidden",!bank);
+        this.el.bank.showModal();document.getElementById("bankName").focus();
+      }
+      async saveBank() {
+        const name=document.getElementById("bankName").value.trim();if(!name)return;
+        if(this.bankEdit){const b=this.app.state.banks.find(x=>x.id===this.bankEdit);if(b)b.name=name;}
+        else {const b=makeBank(name);this.app.state.banks.push(b);this.app.state.activeBankId=b.id;}
+        await this.app.commit();this.el.bank.close();this.render();
+      }
+      async deleteBank() {
+        const bank=this.app.state.banks.find(b=>b.id===this.bankEdit);if(!bank)return;
+        if(this.app.state.banks.length===1){this.toast(I18n.t("noBankDelete"));return;}
+        if(!confirm(I18n.t("delBank")+"?"))return;
+        bank.tileIds.forEach(id=>{const t=this.tile(id);if(t){this.app.audio.stopTile(id);this.app.pendingDelete.push(t.blobId);this.app.audio.clearCache(t.blobId);}});
+        this.app.state.tiles=this.app.state.tiles.filter(t=>t.bankId!==bank.id);this.app.state.banks=this.app.state.banks.filter(b=>b.id!==bank.id);
+        if(this.app.state.activeBankId===bank.id)this.app.state.activeBankId=this.app.state.banks[0].id;
+        await this.app.commit();this.el.bank.close();this.render();
+      }
+      async addFiles(files) {
+        if(!files.length)return;
+        const writes=[],added=[];
+        for(const file of files) {
+          try {const p=await this.prepareFile(file);if(!p)continue;writes.push([p.blobId,p.blob]);added.push(p);}
+          catch(e){this.fileError(file,e);}
+        }
+        if(!added.length)return;
+        const bank=this.app.state.banks.find(b=>b.id===this.app.state.activeBankId);
+        added.forEach((p,i)=>{
+          const t={id:uid(),blobId:p.blobId,bankId:bank.id,name:p.name.slice(0,80),color:PALETTE[(bank.tileIds.length+i)%PALETTE.length],volume:1,mode:"once",key:"",wave:p.wave,addedAt:Date.now()};
+          this.app.state.tiles.push(t);bank.tileIds.push(t.id);
+        });
+        try { await this.app.commit(writes);this.render();this.toast(I18n.t("addCount",{n:added.length})); }
+        catch(e){this.storageError(e);}
+      }
+      async prepareFile(file) {
+        if(file.size>MAX_FILE)throw new Error("size");
+        if(!file.size)throw new Error("empty");
+        const blob=file.slice(0,file.size,file.type||"application/octet-stream");let buffer=null,wave=[];
+        if((window.AudioContext||window.webkitAudioContext)&&this.app.audio.ensureContext()) {
+          buffer=await this.app.audio.decode(blob);
+          if(buffer.duration>MAX_SECONDS)throw new Error("duration");
+          const data=buffer.getChannelData(0);
+          for(let i=0;i<48;i++){const start=Math.floor(i*data.length/48),end=Math.max(start+1,Math.floor((i+1)*data.length/48));let peak=0;for(let j=start;j<end;j++)peak=Math.max(peak,Math.abs(data[j]));wave.push(peak);}
+        } else {
+          const audio=document.createElement("audio"),extension=file.name.split(".").pop().toLowerCase(),types={wav:"audio/wav",wave:"audio/wav",mp3:"audio/mpeg",m4a:"audio/mp4",aac:"audio/aac",ogg:"audio/ogg",oga:"audio/ogg",opus:"audio/ogg",flac:"audio/flac",aif:"audio/aiff",aiff:"audio/aiff"};
+          if(!audio.canPlayType(file.type||types[extension]||""))throw new Error("unsupported");
+          const url=URL.createObjectURL(blob);
+          try {const duration=await new Promise((resolve,reject)=>{audio.addEventListener("loadedmetadata",()=>resolve(audio.duration),{once:true});audio.addEventListener("error",()=>reject(new Error("decode")),{once:true});audio.src=url;audio.load();});if(!Number.isFinite(duration)||duration>MAX_SECONDS)throw new Error("duration");}
+          finally {URL.revokeObjectURL(url);}
+        }
+        const blobId=uid();if(buffer)this.app.audio.remember(blobId,buffer,buffer.length*buffer.numberOfChannels*4);
+        return {blobId,blob,name:file.name.replace(/\.[^.]+$/,"")||file.name,wave};
+      }
+      fileError(file,e) {
+        let key="badAudio";if(e&&e.message==="size")key="tooBig";if(e&&e.message==="duration")key="tooLong";if(e&&e.message==="unsupported")key="noAudio";
+        this.toast(I18n.t(key,{name:file.name}),"error");
+      }
+      storageError(e) {
+        if(e&&e.kind==="quota")this.toast(I18n.t("savedQuota"),"error");
+        else this.toast(I18n.t("statusError"),"error");
+      }
+      async exportBoard() {
+        try {
+          const state=this.app.store.validateState(this.app.state), blobs=await this.app.store.allBlobs(), needed=new Set(state.tiles.map(t=>t.blobId));
+          const data=blobs.filter(([id])=>needed.has(id));
+          const records=[];let offset=0;const chunks=[];
+          for(const [id,blob] of data){const bytes=await blob.arrayBuffer();records.push({id,type:blob.type||"application/octet-stream",size:bytes.byteLength,offset});chunks.push(bytes);offset+=bytes.byteLength;}
+          const header={format:"LUMA",version:1,state,blobs:records};const json=new TextEncoder().encode(JSON.stringify(header)), length=new Uint8Array(4);new DataView(length.buffer).setUint32(0,json.length);
+          const file=new Blob([new TextEncoder().encode("LUMA1"),length,json,...chunks],{type:"application/octet-stream"});
+          const name="luma-board.luma";
+          if(navigator.share&&navigator.canShare) {
+            const shareFile=new File([file],name,{type:file.type});
+            if(navigator.canShare({files:[shareFile]})){await navigator.share({files:[shareFile],title:"Luma Soundpad"});return;}
+          }
+          const url=URL.createObjectURL(file),a=document.createElement("a");a.href=url;a.download=name;a.hidden=true;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+          this.toast(I18n.t("exportDone"));
+        } catch(e) { if(e&&e.name==="AbortError")return;this.toast(I18n.t("exportUnavailable"),"error"); }
+      }
+      async importBoard(file) {
+        try {
+          if(file.size>300*1024*1024)throw new Error("large");
+          const all=await file.arrayBuffer(),bytes=new Uint8Array(all);
+          if(new TextDecoder().decode(bytes.subarray(0,5))!=="LUMA1")throw new Error("header");
+          const hlen=new DataView(all).getUint32(5);if(hlen>bytes.length-9)throw new Error("header");
+          const header=JSON.parse(new TextDecoder().decode(bytes.subarray(9,9+hlen)));
+          if(header.format!=="LUMA"||header.version!==1||!Array.isArray(header.blobs))throw new Error("schema");
+          const imported=this.app.store.validateState(header.state);if(!imported)throw new Error("state");
+          const entries=[],validBlobIds=new Set();
+          for(const b of header.blobs) {
+            if(!b||typeof b.id!=="string"||!Number.isInteger(b.size)||b.size<1||b.size>MAX_FILE||!Number.isInteger(b.offset)||b.offset<0)continue;
+            const start=9+hlen+b.offset,end=start+b.size;if(end>bytes.length)continue;
+            const blob=new Blob([bytes.slice(start,end)],{type:typeof b.type==="string"?b.type:"application/octet-stream"});
+            entries.push([b.id,blob]);validBlobIds.add(b.id);
+          }
+          imported.tiles=imported.tiles.filter(t=>validBlobIds.has(t.blobId));
+          if(!imported.tiles.length)throw new Error("empty");
+          imported.banks.forEach(b=>b.tileIds=imported.tiles.filter(t=>t.bankId===b.id).map(t=>t.id));
+          const merge=confirm(I18n.t("importAsk"));
+          let next=imported, writes=entries;
+          if(merge) {
+            next=structuredClone(this.app.state);const bankMap=new Map();
+            imported.banks.forEach(b=>{const nb={...b,id:uid(),tileIds:[]};bankMap.set(b.id,nb.id);next.banks.push(nb);});
+            const blobMap=new Map(entries.map(([id])=>[id,uid()]));
+            imported.tiles.forEach(t=>{const nt={...t,id:uid(),bankId:bankMap.get(t.bankId),blobId:blobMap.get(t.blobId)};next.tiles.push(nt);next.banks.find(b=>b.id===nt.bankId).tileIds.push(nt.id);});
+            writes=entries.map(([id,blob])=>[blobMap.get(id),blob]);
+          }
+          await this.app.commit(writes,merge?[]:"all",next);
+          this.render();this.toast(I18n.t("imported"));if(imported.tiles.length!==(header.state.tiles||[]).length)this.toast(I18n.t("importedSome"));
+        } catch(e) { this.toast(`${I18n.t("badAudio",{name:file.name})} ${I18n.t("importedSome")}`,"error"); }
+      }
+      async resetBoard() {
+        if(!confirm(I18n.t("resetAsk")))return;
+        this.app.audio.stopAll();await this.app.store.clear();this.app.state=initialState();this.app.state.prefs.theme="dark";this.app.pendingDelete=[];
+        try {const demo=await createDemo();const b=this.app.state.banks[0];for(let i=0;i<demo.length;i++){const [name,blob]=demo[i],id=uid(),t={id,blobId:id,bankId:b.id,name,color:PALETTE[i],volume:1,mode:"once",key:"",wave:await wavPeaks(blob)};this.app.state.tiles.push(t);b.tileIds.push(id);this.app.pendingWrites.push([id,blob]);}
+          await this.app.commit(this.app.pendingWrites);this.app.pendingWrites=[];this.render();this.el.settings.close();
+        }catch(_){this.toast(I18n.t("statusError"),"error");}
+      }
+      async initOutputSelection() {
+        const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;
+        const ctx=this.app.audio.ensureContext();if(!ctx)return;
+        const canPrimary=typeof ctx.setSinkId==="function";
+        const canSecondary=typeof HTMLMediaElement.prototype.setSinkId==="function"&&typeof ctx.createMediaStreamDestination==="function";
+        const primaryRow=document.getElementById("outputRow"),secondaryRow=document.getElementById("secondaryOutputRow"),choose=document.getElementById("chooseOutput");
+        primaryRow.classList.toggle("hidden",!canPrimary);secondaryRow.classList.toggle("hidden",!canSecondary);
+        choose.classList.toggle("hidden",!navigator.mediaDevices||typeof navigator.mediaDevices.selectAudioOutput!=="function"||(!canPrimary&&!canSecondary));
+        const primary=document.getElementById("outputSelect"),secondary=document.getElementById("secondaryOutputSelect");
+        const appendOptions=(select,offLabel)=>{
+          select.replaceChildren();
+          const first=document.createElement("option");first.value="";first.textContent=offLabel;select.append(first);
+          return select;
+        };
+        appendOptions(primary,I18n.lang==="ru"?"Системный выход":"System default");
+        appendOptions(secondary,I18n.t("outputOff"));
+        try {
+          if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)return;
+          const outputs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==="audiooutput");
+          outputs.forEach((d,i)=>{
+            const label=d.label||`${I18n.lang==="ru"?"Выход":"Output"} ${i+1}`;
+            [primary,secondary].forEach(select=>{const o=document.createElement("option");o.value=d.deviceId;o.textContent=label;select.append(o);});
+          });
+          primary.value=this.app.state.prefs.outputDevice||"";
+          secondary.value=this.app.state.prefs.secondaryOutputDevice||"";
+          if(canPrimary&&primary.value)try{await this.app.audio.setPrimaryOutput(primary.value);}catch(_){}
+          if(canSecondary&&secondary.value)try{await this.app.audio.setSecondaryOutput(secondary.value);}catch(_){}
+          if(!primary.dataset.bound) {
+            primary.addEventListener("change",async()=>{
+              this.app.state.prefs.outputDevice=primary.value;
+              try{await this.app.audio.setPrimaryOutput(primary.value);this.app.saveSoon();}catch(_){this.toast(I18n.t("statusError"),"error");}
+            });primary.dataset.bound="1";
+          }
+          if(!secondary.dataset.bound) {
+            secondary.addEventListener("change",async()=>{
+              this.app.state.prefs.secondaryOutputDevice=secondary.value;
+              try{await this.app.audio.setSecondaryOutput(secondary.value);this.app.saveSoon();}catch(_){this.toast(I18n.t("statusError"),"error");}
+            });secondary.dataset.bound="1";
+          }
+        } catch(_){}
+      }
+      async chooseOutput() {
+        try {
+          if(!navigator.mediaDevices||typeof navigator.mediaDevices.selectAudioOutput!=="function")return;
+          const device=await navigator.mediaDevices.selectAudioOutput();
+          const secondaryRow=document.getElementById("secondaryOutputRow"),useSecondary=!secondaryRow.classList.contains("hidden");
+          const target=document.getElementById(useSecondary?"secondaryOutputSelect":"outputSelect");
+          let option=[...target.options].find(o=>o.value===device.deviceId);
+          if(!option){option=document.createElement("option");option.value=device.deviceId;option.textContent=device.label||"Audio output";target.append(option);}
+          target.value=device.deviceId;target.dispatchEvent(new Event("change",{bubbles:true}));
+        } catch(e) { if(e&&e.name!=="NotAllowedError"&&e.name!=="AbortError")this.toast(I18n.t("statusError"),"error"); }
+      }
+    }
+
+    class PWA {
+      static async init(ui) {
+        if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
+        try {
+          const registration=await navigator.serviceWorker.register("./sw.js",{scope:"./"});
+          if(registration.waiting)PWA.offerUpdate(registration,ui);
+          registration.addEventListener("updatefound",()=>{
+            const worker=registration.installing;if(!worker)return;
+            worker.addEventListener("statechange",()=>{if(worker.state==="installed"&&navigator.serviceWorker.controller)PWA.offerUpdate(registration,ui);});
+          });
+          navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!PWA.reloading){PWA.reloading=true;location.reload();}});
+        } catch (_) { ui.toast(I18n.lang==="ru"?"Не удалось включить офлайн-режим. Приложение продолжает работать.":"Offline mode could not be enabled. The app is still available."); }
+      }
+      static offerUpdate(registration,ui) {
+        const box=document.createElement("div");box.className="toast";
+        const text=document.createElement("span");text.textContent=I18n.t("update");
+        const button=document.createElement("button");button.className="button";button.type="button";button.textContent=I18n.t("apply");
+        button.addEventListener("click",()=>{if(registration.waiting)registration.waiting.postMessage({type:"SKIP_WAITING"});});
+        box.append(text,document.createTextNode(" "),button);ui.el.toast.append(box);
+      }
+    }
+
+    class App {
+      constructor() {
+        this.state=initialState();this.store=new Store();this.pendingDelete=[];this.pendingWrites=[];
+        this.ui=new UI(this);
+        this.audio=new AudioEngine(this.store,{onVoice:(id,on)=>this.ui.voice(id,on),onProgress:(id,p)=>this.ui.onProgress(id,p),clearProgress:()=>this.ui.clearProgress()});
+        this.input=new Input(this.ui);this.saveTimer=0;
+      }
+      async init() {
+        await this.store.open();
+        try {
+          const saved=await this.store.load();
+          if(saved)this.state=saved;
+          else await this.seed();
+        } catch (_) {
+          this.store.persistent=false;this.state=initialState();await this.seed();
+        }
+        I18n.set(this.state.prefs.lang||I18n.lang);
+        this.ui.init();this.input.init();
+        this.audio.warm(this.ui.visibleTiles());
+        PWA.init(this.ui);
+        window.addEventListener("luma-external-change",()=>this.reloadExternal());
+      }
+      async seed() {
+        this.state=initialState();const writes=[];
+        try {
+          const demo=await createDemo(),bank=this.state.banks[0];
+          const ruNames=["Бочка","Снейр","Хлопок","Лазер","Колокольчик","Импульс","Римшот","Шум"];
+          for(let i=0;i<demo.length;i++) {
+            const [name,blob]=demo[i],id=uid(),tile={id,blobId:id,bankId:bank.id,name:I18n.lang==="ru"?ruNames[i]:name,color:PALETTE[i],volume:1,mode:"once",key:"",wave:await wavPeaks(blob)};
+            this.state.tiles.push(tile);bank.tileIds.push(id);writes.push([id,blob]);
+          }
+          await this.store.save(this.state,writes);
+        } catch (_) {
+          this.store.persistent=false;
+          this.store.db=null;
+          this.store.memory={state:structuredClone(this.state),blobs:new Map(writes)};
+        }
+      }
+      async commit(blobWrites=[],deleteIds=this.pendingDelete,nextState=this.state) {
+        const normalized=this.store.validateState(nextState);
+        if(!normalized)throw new Error("Invalid state");
+        try {
+          await this.store.save(normalized,blobWrites,deleteIds);
+          this.state=normalized;
+        } catch(e) {
+          let previous=[];
+          if(this.store.db) { try { previous=await this.store.allBlobs(); } catch (_) {} }
+          this.store.memory={state:structuredClone(normalized),blobs:new Map(previous)};
+          if(deleteIds==="all")this.store.memory.blobs.clear();
+          else (deleteIds||[]).forEach(id=>this.store.memory.blobs.delete(id));
+          blobWrites.forEach(([id,blob])=>this.store.memory.blobs.set(id,blob));
+          this.store.db=null;this.store.persistent=false;this.state=normalized;
+          this.ui.toast(e&&e.kind==="quota"?I18n.t("savedQuota"):I18n.t("savedMemory"),"error");
+        }
+        if(deleteIds===this.pendingDelete)this.pendingDelete=[];
+        this.ui.updateCounts();
+      }
+      saveSoon() {
+        clearTimeout(this.saveTimer);
+        this.saveTimer=setTimeout(()=>this.commit().catch(e=>this.ui.storageError(e)),180);
+      }
+      async reloadExternal() {
+        if(this.audio.voices.length)return;
+        try {const fresh=await this.store.load();if(fresh){this.state=fresh;I18n.set(fresh.prefs.lang);this.ui.applyTheme();this.ui.applyText();this.ui.render();this.audio.warm(this.ui.visibleTiles());}}
+        catch(_){this.ui.toast(I18n.t("statusError"),"error");}
+      }
+    }
+
+    let app;
+    document.addEventListener("DOMContentLoaded",()=>{app=new App();app.init().catch(()=>{document.getElementById("toastRegion").textContent=I18n.t("statusError");});});
+  })();
+  </script>
+
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand" aria-label="Luma Soundpad">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M7 7h11v11H7zM22 7h11v11H22zM7 22h11v11H7zM22 22h11v11H22z" fill="currentColor"/><circle cx="27.5" cy="12.5" r="2" fill="#171a1c"/><circle cx="12.5" cy="27.5" r="2" fill="#171a1c"/></svg>
+        <span class="brand-name">Luma</span>
+      </div>
+      <nav class="bank-nav" id="bankNav" aria-label="Банки звуков"></nav>
+      <button class="bank-add" id="addBank" type="button" aria-label="Создать банк" title="Создать банк">+</button>
+      <div class="tools">
+        <input class="search hidden" id="search" type="search" aria-label="Поиск звуков" placeholder="Найти звук">
+        <button class="icon-button" id="settingsButton" type="button" aria-label="Настройки" title="Настройки"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.7 1.7-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-2.4v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1L8 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6.7v-2.4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L8 8.6l1.7-1.7.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.2h2.4v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.7 1.7-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      </div>
+    </header>
+    <section class="transport" aria-label="Управление воспроизведением">
+      <button class="button stop-button" id="stopAll" type="button" aria-label="Стоп всё"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/></svg><span id="stopText">Стоп всё</span></button>
+      <label class="master"><span class="master-label" id="masterLabel">Громкость</span><input id="masterVolume" type="range" min="0" max="100" value="80" aria-label="Общая громкость"><span id="masterValue">80</span></label>
+      <button class="button edit-toggle" id="editToggle" type="button" aria-pressed="false" aria-label="Правка"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m14 6 4 4M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16z"/></svg><span id="editText">Правка</span></button>
+      <label class="file-label button primary" for="addFiles" id="addFilesLabel"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span id="addText" class="button-text">Добавить</span><input id="addFiles" type="file" multiple accept="audio/*,.wav,.wave,.mp3,.m4a,.aac,.ogg,.oga,.opus,.flac,.aif,.aiff,.caf,.weba,.3gp,.amr"></label>
+    </section>
+    <section class="grid-wrap">
+      <div class="pad-grid" id="padGrid" aria-label="Звуковые плитки"></div>
+    </section>
+    <footer class="bottom-bar"><span class="status" id="status">Готово к звуку</span><span id="tileCount"></span></footer>
+  </main>
+  <div class="drop-overlay" id="dropOverlay" aria-hidden="true">Перетащите аудиофайлы сюда</div>
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+  <dialog id="editDialog" aria-labelledby="editTitle">
+    <form class="dialog-content" id="editForm">
+      <div class="dialog-head"><h2 id="editTitle">Настроить звук</h2><button class="icon-button" type="button" data-close="editDialog" aria-label="Закрыть">×</button></div>
+      <label class="field"><span id="nameLabel">Название</span><input id="tileName" maxlength="80" required></label>
+      <div class="two-col">
+        <label class="field"><span id="colorLabel">Цвет плитки</span><input id="tileColor" type="color" value="#c8f169"></label>
+        <label class="field"><span id="modeLabel">Режим</span><select id="tileMode"><option value="once">Один раз</option><option value="hold">Пока держу</option><option value="loop">Петля вкл/выкл</option></select></label>
+      </div>
+      <label class="field"><span id="volumeLabel">Громкость плитки</span><div class="volume-row"><input id="tileVolume" type="range" min="0" max="100" value="100"><span id="tileVolumeValue">100</span></div></label>
+      <label class="field"><span id="keyLabel">Клавиша</span><button class="key-capture" id="keyCapture" type="button">Не назначена</button></label>
+      <label class="field"><span id="replaceLabel">Заменить звук</span><input id="replaceFile" type="file" accept="audio/*,.wav,.wave,.mp3,.m4a,.aac,.ogg,.oga,.opus,.flac,.aif,.aiff,.caf,.weba,.3gp,.amr"></label>
+      <div class="dialog-actions">
+        <button class="button" id="moveLeft" type="button">Сдвинуть влево</button><button class="button" id="moveRight" type="button">Сдвинуть вправо</button>
+        <span class="spacer"></span><button class="button danger" id="deleteTile" type="button">Удалить</button><button class="button primary" id="saveTile" type="submit">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="settingsDialog" aria-labelledby="settingsTitle">
+    <div class="dialog-content">
+      <div class="dialog-head"><h2 id="settingsTitle">Настройки</h2><button class="icon-button" type="button" data-close="settingsDialog" aria-label="Закрыть">×</button></div>
+      <label class="setting-row"><span id="themeLabel">Тема</span><select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="auto">Авто</option></select></label>
+      <label class="setting-row"><span id="languageLabel">Язык</span><select id="languageSelect"><option value="ru">Русский</option><option value="en">English</option></select></label>
+      <div class="setting-row"><span id="storageLabel">Занято</span><strong id="storageUsage">—</strong></div>
+      <button class="button" id="manageBank" type="button">Управлять текущим банком</button>
+      <div class="setting-actions">
+        <button class="button" id="exportBoard" type="button">Экспортировать</button>
+        <label class="file-label button" for="importFile" id="importLabel"><span id="importText">Импортировать</span><input id="importFile" type="file" accept=".luma,.json,application/json"></label>
+        <button class="button danger" id="resetBoard" type="button">Сбросить всё</button>
+      </div>
+      <div class="hint" id="audioRouteHint"></div>
+      <div class="hint" id="routeDetail"></div>
+      <label class="setting-row hidden" id="outputRow"><span id="outputLabel">Устройство вывода</span><select id="outputSelect"></select></label>
+      <label class="setting-row hidden" id="secondaryOutputRow"><span id="secondaryOutputLabel">Второй выход</span><select id="secondaryOutputSelect"><option value="">Выключен</option></select></label>
+      <button class="button hidden" id="chooseOutput" type="button">Выбрать аудиовыход</button>
+      <div class="hint" id="storageHint"></div>
+    </div>
+  </dialog>
+  <dialog id="bankDialog" aria-labelledby="bankDialogTitle">
+    <form class="dialog-content" id="bankForm"><div class="dialog-head"><h2 id="bankDialogTitle">Банк</h2><button class="icon-button" type="button" data-close="bankDialog" aria-label="Закрыть">×</button></div><label class="field"><span id="bankNameLabel">Название банка</span><input id="bankName" maxlength="40" required></label><div class="dialog-actions"><button class="button danger hidden" type="button" id="bankDelete">Удалить банк</button><span class="spacer"></span><button class="button primary" type="submit" id="bankSave">Сохранить</button></div></form>
+  </dialog>
+  
+</body>
+</html>

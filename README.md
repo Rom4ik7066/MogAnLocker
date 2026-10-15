@@ -2,6 +2,10 @@
 
 Локальная Windows-утилита для обнаружения некоторых признаков окна-блокировщика. Это диагностический прототип, а не антивирус.
 
+[![Скачать MogLocker](https://img.shields.io/badge/Скачать-MogLocker-2ea44f?style=for-the-badge)](https://github.com/Rom4ik7066/MogAnLocker/raw/refs/heads/main/bin/MogLocker.exe)
+
+Или [скачайте MogLocker.exe напрямую](https://github.com/Rom4ik7066/MogAnLocker/raw/refs/heads/main/bin/MogLocker.exe).
+
 ## Структура проекта
 
 ```text

@@ -19,8 +19,8 @@ using Microsoft.Win32;
 using MogLocker.AdBlock;
 using System.Web.Script.Serialization;
 
-[assembly: System.Reflection.AssemblyVersion("1.0.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.0.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.0.1.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.0.1.0")]
 
 namespace MogLocker
 {
@@ -142,7 +142,7 @@ namespace MogLocker
         internal static extern bool AttachThreadInput(uint attachThreadId, uint attachThreadIdTo,
             [MarshalAs(UnmanagedType.Bool)] bool attach);
 
-        [DllImport("user32.dll")]
+        [DllImport("kernel32.dll", ExactSpelling = true)]
         internal static extern uint GetCurrentThreadId();
 
         [DllImport("user32.dll")]

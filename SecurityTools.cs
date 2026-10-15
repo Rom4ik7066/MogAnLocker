@@ -386,6 +386,7 @@ namespace MogLocker
 
         public static GitHubRelease CheckLatest()
         {
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
             var request = (HttpWebRequest)WebRequest.Create(LatestReleaseApi);
             request.Method = "GET";
             request.Accept = "application/vnd.github+json";

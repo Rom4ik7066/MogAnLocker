@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MogLocker AdBlock</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup">
+    <header>
+      <span class="mark">M</span>
+      <div>
+        <h1>MogLocker AdBlock</h1>
+        <p id="connection" class="muted">Подключение…</p>
+      </div>
+    </header>
+    <section class="toggle-card">
+      <div>
+        <strong>Фильтрация запросов</strong>
+        <p id="enabled-label" class="muted">Загрузка состояния</p>
+      </div>
+      <label class="switch">
+        <input id="enabled" type="checkbox">
+        <span class="slider"></span>
+      </label>
+    </section>
+    <section class="stats">
+      <span class="count" id="blocked-count">0</span>
+      <span class="muted">заблокированных запросов</span>
+    </section>
+    <section class="site-card">
+      <div>
+        <strong id="site-host">Текущий сайт</strong>
+        <p class="muted">Исключение для этого домена</p>
+      </div>
+      <button id="allow-site" class="secondary">Добавить в Allowlist</button>
+    </section>
+    <p id="error" class="error" role="status"></p>
+    <footer>Правила и статистика хранятся локально в MogLocker.</footer>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "MogLocker AdBlock",
+  "version": "1.0.0",
+  "description": "Локальная блокировка сетевых рекламных и трекинговых правил с управлением из MogLocker.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4H6cKGZ4w2BdU3vjoADeyvgdmUlnKxIZoAusUehHQueuQ9TAu0aUG1EHsJO5cpeUnyCw/C/DabMziTaMcMV4muWGo1vHUg+dIg7wnryhlkiIySZNN87hHjccZjBAi/UAfz5hFjUWDfvKOdDBsQg09bALa2UJ60viSl0BYYx1tbcsWglfEE5jcupskIn4TBucmX6AcIjI6xOwqcnEOGR6WAZ81tFnfyiobLN+XuzLiBpRe3MnADNsasc6awEHeGCv/cEqleloOmpcWA0zLburIy/bOj55dOHSJCfnewWg8VsRsHcO4CkRU2Wder3vUHI0uIyTTvcPW+fbhQtsDXGJnQIDAQAB",
+  "permissions": [
+    "alarms",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback",
+    "nativeMessaging",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "MogLocker AdBlock",
+    "default_popup": "popup.html"
+  }
+}

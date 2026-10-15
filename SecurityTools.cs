@@ -99,6 +99,11 @@ namespace MogLocker
             RunPowerShell(script.ToString(), true);
         }
 
+        public static void CheckAccessWithUac()
+        {
+            RunPowerShell("$ErrorActionPreference='Stop';Get-MpPreference | Out-Null", true);
+        }
+
         private static bool IsAllowedParameter(string parameter)
         {
             return parameter == "ExclusionPath" || parameter == "ExclusionProcess" ||

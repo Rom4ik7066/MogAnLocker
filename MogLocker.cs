@@ -1112,11 +1112,35 @@ namespace MogLocker
             return settings;
         }
 
-        private void ShowDefenderExclusions(object sender, EventArgs e)
+        private async void ShowDefenderExclusions(object sender, EventArgs e)
         {
-            using (var dialog = new DefenderExclusionsForm())
-                dialog.ShowDialog(this);
-            ScanDefenderExclusions();
+            Control source = sender as Control;
+            if (source != null)
+                source.Enabled = false;
+            try
+            {
+                await Task.Run(() => DefenderExclusionManager.CheckAccessWithUac());
+                using (var dialog = new DefenderExclusionsForm())
+                    dialog.ShowDialog(this);
+                ScanDefenderExclusions();
+            }
+            catch (Win32Exception ex)
+            {
+                MessageBox.Show(this, ex.NativeErrorCode == 1223
+                    ? "Запрос UAC отменён. Список исключений не открыт."
+                    : "Не удалось проверить доступ к Microsoft Defender:\r\n\r\n" + ex.Message,
+                    "Проверка UAC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, "Не удалось проверить доступ к Microsoft Defender:\r\n\r\n" + ex.Message,
+                    "Проверка UAC", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (source != null && !source.IsDisposed)
+                    source.Enabled = true;
+            }
         }
 
         private async void CheckForUpdates(object sender, EventArgs e)

@@ -611,7 +611,7 @@ namespace MogLocker
             homeNavButton = CreateNavigationButton("⌂   Главная");
             adBlockNavButton = CreateNavigationButton("◉   AdBlock");
             monitorNavButton = CreateNavigationButton("◈   Мониторинг");
-            securityNavButton = CreateNavigationButton("♢   Защита");
+            securityNavButton = CreateNavigationButton("♢   Антивирус");
             settingsNavButton = CreateNavigationButton("⚙   Настройки");
             homeNavButton.SetBounds(8, 74, 202, 44);
             adBlockNavButton.SetBounds(8, 126, 202, 44);
@@ -869,7 +869,7 @@ namespace MogLocker
 
             var title = new Label
             {
-                Text = "Защита Windows",
+                Text = "Антивирус — монитор защиты Windows",
                 Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI Semibold", 21F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(237, 244, 255),
@@ -2195,7 +2195,7 @@ namespace MogLocker
             SetControlText(homeNavButton, menuExpanded ? "⌂   Главная" : "⌂");
             SetControlText(adBlockNavButton, menuExpanded ? "◉   AdBlock" : "◉");
             SetControlText(monitorNavButton, menuExpanded ? "◈   Мониторинг" : "◈");
-            SetControlText(securityNavButton, menuExpanded ? "♢   Защита" : "♢");
+            SetControlText(securityNavButton, menuExpanded ? "♢   Антивирус" : "♢");
             SetControlText(settingsNavButton, menuExpanded ? "⚙   Настройки" : "⚙");
         }
 

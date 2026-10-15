@@ -222,6 +222,7 @@ namespace MogLocker
         private readonly Panel sidebar;
         private readonly Panel homePanel;
         private readonly Panel monitorPanel;
+        private readonly Panel securityPanel;
         private readonly Panel settingsPanel;
         private readonly Panel macTitleBar;
         private readonly Panel pageHost;
@@ -231,6 +232,7 @@ namespace MogLocker
         private readonly Button homeNavButton;
         private readonly Button adBlockNavButton;
         private readonly Button monitorNavButton;
+        private readonly Button securityNavButton;
         private readonly Button settingsNavButton;
         private readonly Label monitorState;
         private readonly Label pulseDot;
@@ -240,6 +242,9 @@ namespace MogLocker
         private readonly Label registryState;
         private readonly Label explorerState;
         private readonly Label networkState;
+        private Label securityMonitorState;
+        private Label securityExclusionState;
+        private Label securityRegeditState;
         private readonly Button pauseButton;
         private readonly AdBlockPanel adBlockPanel;
         private readonly AppSettings appSettings;
@@ -606,11 +611,13 @@ namespace MogLocker
             homeNavButton = CreateNavigationButton("⌂   Главная");
             adBlockNavButton = CreateNavigationButton("◉   AdBlock");
             monitorNavButton = CreateNavigationButton("◈   Мониторинг");
+            securityNavButton = CreateNavigationButton("♢   Защита");
             settingsNavButton = CreateNavigationButton("⚙   Настройки");
             homeNavButton.SetBounds(8, 74, 202, 44);
             adBlockNavButton.SetBounds(8, 126, 202, 44);
             monitorNavButton.SetBounds(8, 178, 202, 44);
-            settingsNavButton.SetBounds(8, 230, 202, 44);
+            securityNavButton.SetBounds(8, 230, 202, 44);
+            settingsNavButton.SetBounds(8, 282, 202, 44);
             navigationIndicator = new Panel
             {
                 BackColor = Color.FromArgb(104, 211, 184),
@@ -626,6 +633,7 @@ namespace MogLocker
             content.Dock = DockStyle.Fill;
             monitorPanel = content;
             homePanel = CreateHomePage();
+            securityPanel = CreateSecurityPage();
             settingsPanel = CreateSettingsPage();
             adBlockPanel = new AdBlockPanel
             {
@@ -634,15 +642,18 @@ namespace MogLocker
             pageHost.Controls.Add(homePanel);
             pageHost.Controls.Add(content);
             pageHost.Controls.Add(adBlockPanel);
+            pageHost.Controls.Add(securityPanel);
             pageHost.Controls.Add(settingsPanel);
             homeNavButton.Click += delegate { ShowPage(0); };
             adBlockNavButton.Click += delegate { ShowPage(1); };
             monitorNavButton.Click += delegate { ShowPage(2); };
-            settingsNavButton.Click += delegate { ShowPage(3); };
+            securityNavButton.Click += delegate { ShowPage(3); };
+            settingsNavButton.Click += delegate { ShowPage(4); };
             sidebar.Controls.Add(menuToggleButton);
             sidebar.Controls.Add(homeNavButton);
             sidebar.Controls.Add(adBlockNavButton);
             sidebar.Controls.Add(monitorNavButton);
+            sidebar.Controls.Add(securityNavButton);
             sidebar.Controls.Add(settingsNavButton);
             sidebar.Controls.Add(navigationIndicator);
             bodyLayout = new BufferedTableLayoutPanel
@@ -684,6 +695,8 @@ namespace MogLocker
             registryBaseline = ReadRegistrySnapshot();
             ConfigureStartupWatchers();
             AddAlert("ИНФО", "Монитор", "Наблюдение запущено. Автоматического закрытия, удаления или восстановления нет.");
+            securityMonitorState.Text = "Мониторинг Windows: включён";
+            securityMonitorState.ForeColor = Color.FromArgb(104, 211, 184);
             screenState.Text = "Экранные окна: проверка каждые 1,5 сек.";
             startupState.Text = watchers.Count == 0
                 ? "Автозагрузка: папки запуска не удалось открыть."
@@ -827,6 +840,100 @@ namespace MogLocker
             return home;
         }
 
+        private Panel CreateSecurityPage()
+        {
+            var page = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = BackColor,
+                Padding = new Padding(30, 26, 30, 24)
+            };
+            var layout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                ColumnCount = 1,
+                RowCount = 7,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 66F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 54F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 54F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 54F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 66F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 76F));
+
+            var title = new Label
+            {
+                Text = "Защита Windows",
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 21F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(237, 244, 255),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            var disclaimer = new Label
+            {
+                Text = "Диагностический монитор, не полноценный антивирус. Microsoft Defender остаётся основной защитой; MogLocker не выполняет автоматическое удаление или блокировку.",
+                Dock = DockStyle.Fill,
+                ForeColor = Color.FromArgb(183, 199, 222),
+                Font = new Font("Segoe UI", 10F),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(4, 4, 4, 4)
+            };
+            securityMonitorState = MakeStatusLabel("Мониторинг Windows запускается…");
+            securityExclusionState = MakeStatusLabel("Исключения Defender: ожидание PowerShell");
+            securityRegeditState = MakeStatusLabel("Редактор реестра: проверка");
+
+            var actions = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                BackColor = Color.Transparent,
+                Padding = new Padding(0, 9, 0, 0)
+            };
+            var exclusionsButton = MakeButton("Исключения Defender", Color.FromArgb(53, 105, 99));
+            exclusionsButton.Width = 180;
+            exclusionsButton.Click += ShowDefenderExclusions;
+            var checkButton = MakeButton("Проверить сейчас", Color.FromArgb(64, 89, 122));
+            checkButton.Width = 150;
+            checkButton.Click += delegate
+            {
+                securityExclusionState.Text = "Исключения Defender: проверка через PowerShell…";
+                ScanDefenderExclusions();
+            };
+            var journalButton = MakeButton("Открыть журнал", Color.FromArgb(41, 53, 76));
+            journalButton.Width = 130;
+            journalButton.Click += delegate { ShowPage(2); };
+            actions.Controls.Add(exclusionsButton);
+            actions.Controls.Add(checkButton);
+            actions.Controls.Add(journalButton);
+
+            var details = new Label
+            {
+                Text = "Отслеживаются запуск regedit.exe и изменения списка исключений Microsoft Defender. Удаление исключений доступно вручную с подтверждением и запросом UAC.",
+                Dock = DockStyle.Fill,
+                ForeColor = Color.FromArgb(142, 160, 185),
+                Font = new Font("Segoe UI", 9F),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(4)
+            };
+
+            layout.Controls.Add(title, 0, 0);
+            layout.Controls.Add(disclaimer, 0, 1);
+            layout.Controls.Add(securityMonitorState, 0, 2);
+            layout.Controls.Add(securityExclusionState, 0, 3);
+            layout.Controls.Add(securityRegeditState, 0, 4);
+            layout.Controls.Add(actions, 0, 5);
+            layout.Controls.Add(details, 0, 6);
+            page.Controls.Add(layout);
+            return page;
+        }
+
         private Panel CreateSettingsPage()
         {
             var settings = new Panel
@@ -841,7 +948,7 @@ namespace MogLocker
                 Dock = DockStyle.Top,
                 AutoSize = true,
                 ColumnCount = 2,
-                RowCount = 10,
+                RowCount = 9,
                 BackColor = Color.Transparent,
                 Padding = new Padding(0),
                 Margin = new Padding(0)
@@ -856,7 +963,6 @@ namespace MogLocker
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 92F));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64F));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 84F));
 
             var title = new Label
@@ -976,14 +1082,7 @@ namespace MogLocker
             discordAudioButton.Click += ShowDiscordDesktopGuide;
             layout.Controls.Add(discordAudioButton, 1, 7);
 
-            layout.Controls.Add(CreateSettingsLabel("Microsoft Defender"), 0, 8);
-            var defenderButton = MakeButton("Исключения Defender", Color.FromArgb(53, 105, 99));
-            defenderButton.Width = 180;
-            defenderButton.Anchor = AnchorStyles.Left;
-            defenderButton.Click += ShowDefenderExclusions;
-            layout.Controls.Add(defenderButton, 1, 8);
-
-            layout.Controls.Add(CreateSettingsLabel("Обновления"), 0, 9);
+            layout.Controls.Add(CreateSettingsLabel("Обновления"), 0, 8);
             var updateRow = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -1007,7 +1106,7 @@ namespace MogLocker
             checkUpdatesButton.Click += CheckForUpdates;
             updateRow.Controls.Add(checkUpdatesButton);
             updateRow.Controls.Add(updateStatusLabel);
-            layout.Controls.Add(updateRow, 1, 9);
+            layout.Controls.Add(updateRow, 1, 8);
 
             settings.Controls.Add(layout);
             return settings;
@@ -1099,6 +1198,13 @@ namespace MogLocker
                 }
             }
             reportedRegeditProcesses.IntersectWith(activeProcessIds);
+            SetLabelState(securityRegeditState,
+                activeProcessIds.Count == 0
+                    ? "Редактор реестра: regedit.exe не запущен"
+                    : "Редактор реестра: запущен экземпляров — " + activeProcessIds.Count,
+                activeProcessIds.Count == 0
+                    ? Color.FromArgb(104, 211, 184)
+                    : Color.FromArgb(255, 190, 105));
         }
 
         private void ScanDefenderExclusions()
@@ -1120,6 +1226,9 @@ namespace MogLocker
                     if (!IsDisposed && IsHandleCreated)
                         BeginInvoke(new Action(delegate
                         {
+                            SetLabelState(securityExclusionState,
+                                "Исключения Defender: не удалось проверить",
+                                Color.FromArgb(255, 190, 105));
                             AddAlertThrottled("defender-preference-read-error",
                                 "ОШИБКА", "Исключения Microsoft Defender",
                                 "Не удалось проверить исключения через PowerShell: " + ex.Message);
@@ -1141,6 +1250,9 @@ namespace MogLocker
             if (defenderExclusionBaseline == null)
             {
                 defenderExclusionBaseline = current;
+                SetLabelState(securityExclusionState,
+                    "Исключения Defender: проверено через PowerShell — " + current.Count,
+                    Color.FromArgb(104, 211, 184));
                 AddAlert("ИНФО", "Исключения Microsoft Defender",
                     "Снимок исключений получен через PowerShell; автоматическое изменение настроек выключено.");
                 return;
@@ -1161,6 +1273,9 @@ namespace MogLocker
                         "Обнаружено удаление исключения. Источник изменения не установлен: " + entry.Value);
             }
             defenderExclusionBaseline = current;
+            SetLabelState(securityExclusionState,
+                "Исключения Defender: проверено через PowerShell — " + current.Count,
+                Color.FromArgb(104, 211, 184));
         }
 
         private void RefreshThemeOptions()
@@ -1439,7 +1554,8 @@ namespace MogLocker
                 case 0: return homePanel;
                 case 1: return adBlockPanel;
                 case 2: return monitorPanel;
-                case 3: return settingsPanel;
+                case 3: return securityPanel;
+                case 4: return settingsPanel;
                 default: return null;
             }
         }
@@ -1449,7 +1565,8 @@ namespace MogLocker
             homePanel.Visible = page == 0;
             adBlockPanel.Visible = page == 1;
             monitorPanel.Visible = page == 2;
-            settingsPanel.Visible = page == 3;
+            securityPanel.Visible = page == 3;
+            settingsPanel.Visible = page == 4;
         }
 
         private void AnimatePageTransition(object sender, EventArgs e)
@@ -1878,6 +1995,7 @@ namespace MogLocker
             SetControlWidth(homeNavButton, (int)buttonWidth);
             SetControlWidth(adBlockNavButton, (int)buttonWidth);
             SetControlWidth(monitorNavButton, (int)buttonWidth);
+            SetControlWidth(securityNavButton, (int)buttonWidth);
             SetControlWidth(settingsNavButton, (int)buttonWidth);
             SetControlWidth(menuToggleButton, (int)Math.Max(44F, sidebarWidth - 24F));
             SetNavigationLabels();
@@ -1888,7 +2006,7 @@ namespace MogLocker
 
         private void ShowPage(int page)
         {
-            if (page < 0 || page > 3)
+            if (page < 0 || page > 4)
                 return;
             if (transitioningPage != null)
                 CompletePageTransition();
@@ -1935,7 +2053,10 @@ namespace MogLocker
 
         private void SetActiveNavigation(int page)
         {
-            Button[] buttons = { homeNavButton, adBlockNavButton, monitorNavButton, settingsNavButton };
+            Button[] buttons =
+            {
+                homeNavButton, adBlockNavButton, monitorNavButton, securityNavButton, settingsNavButton
+            };
             bool lightTheme = SettingsStore.ResolveLightTheme(appSettings.Theme);
             for (int index = 0; index < buttons.Length; index++)
             {
@@ -2074,6 +2195,7 @@ namespace MogLocker
             SetControlText(homeNavButton, menuExpanded ? "⌂   Главная" : "⌂");
             SetControlText(adBlockNavButton, menuExpanded ? "◉   AdBlock" : "◉");
             SetControlText(monitorNavButton, menuExpanded ? "◈   Мониторинг" : "◈");
+            SetControlText(securityNavButton, menuExpanded ? "♢   Защита" : "♢");
             SetControlText(settingsNavButton, menuExpanded ? "⚙   Настройки" : "⚙");
         }
 
@@ -2588,6 +2710,12 @@ namespace MogLocker
             foreach (FileSystemWatcher watcher in watchers)
                 watcher.EnableRaisingEvents = isMonitoring;
             pauseButton.Text = isMonitoring ? "Пауза" : "Продолжить";
+            securityMonitorState.Text = isMonitoring
+                ? "Мониторинг Windows: включён"
+                : "Мониторинг Windows: приостановлен";
+            securityMonitorState.ForeColor = isMonitoring
+                ? Color.FromArgb(104, 211, 184)
+                : Color.FromArgb(255, 190, 105);
             monitorState.Text = isMonitoring ? "МОНИТОРИНГ ВКЛЮЧЁН" : "МОНИТОРИНГ ПРИОСТАНОВЛЕН";
             monitorState.ForeColor = isMonitoring
                 ? Color.FromArgb(104, 211, 184)

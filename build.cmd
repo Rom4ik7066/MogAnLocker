@@ -14,7 +14,7 @@ if errorlevel 1 exit /b %errorlevel%
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0build-extension.ps1" -SourceDirectory "%~dp0browser-extension" -ArchivePath "%~dp0bin\browser-extension.zip"
 if errorlevel 1 exit /b %errorlevel%
 
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $source = Join-Path '%~dp0' 'soundpad'; $target = Join-Path '%~dp0bin' 'soundpad.zip'; if (-not (Test-Path -LiteralPath $source -PathType Container)) { throw \"Soundpad directory not found: $source\" }; if (Test-Path -LiteralPath $target -PathType Leaf) { Remove-Item -LiteralPath $target -Force }; Compress-Archive -Path $source -DestinationPath $target -Force; if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw \"Failed to create soundpad archive: $target\" }"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $source = Join-Path '%~dp0' 'soundpad'; if (-not (Test-Path -LiteralPath $source -PathType Container)) { $source = Join-Path '%~dp0..' 'soundpad' }; $target = Join-Path '%~dp0bin' 'soundpad.zip'; if (-not (Test-Path -LiteralPath $source -PathType Container)) { throw \"Soundpad directory not found: $source\" }; if (Test-Path -LiteralPath $target -PathType Leaf) { Remove-Item -LiteralPath $target -Force }; Compress-Archive -Path $source -DestinationPath $target -Force; if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw \"Failed to create soundpad archive: $target\" }"
 if errorlevel 1 exit /b %errorlevel%
 
 set "PACKAGE_TMP=%~dp0bin\MogLocker.new.exe"

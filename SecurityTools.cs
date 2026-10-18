@@ -10,9 +10,126 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace MogLocker
 {
+    internal enum WindowsUnlockFeature
+    {
+        TaskManager,
+        RegistryEditor,
+        CommandPrompt,
+        ControlPanel
+    }
+
+    internal sealed class WindowsUnlockStatus
+    {
+        public bool CurrentUserRestricted { get; set; }
+        public bool MachineRestricted { get; set; }
+    }
+
+    internal static class WindowsUnlockTools
+    {
+        private sealed class PolicyValue
+        {
+            public readonly string Path;
+            public readonly string Name;
+
+            public PolicyValue(string path, string name)
+            {
+                Path = path;
+                Name = name;
+            }
+        }
+
+        private const string CurrentSystemPolicy = @"Software\Microsoft\Windows\CurrentVersion\Policies\System";
+        private static readonly string ExplorerPolicy =
+            @"Software\Microsoft\Windows\CurrentVersion\Policies\Explorer";
+        private static readonly string ManagedExplorerPolicy =
+            @"Software\Policies\Microsoft\Windows\Explorer";
+
+        public static WindowsUnlockStatus GetStatus(WindowsUnlockFeature feature)
+        {
+            PolicyValue[] values = GetValues(feature);
+            var status = new WindowsUnlockStatus();
+            using (RegistryKey machine = GetMachineRegistry())
+            {
+                foreach (PolicyValue value in values)
+                {
+                    if (HasEnabledValue(Registry.CurrentUser, value.Path, value.Name))
+                        status.CurrentUserRestricted = true;
+                    if (HasEnabledValue(machine, value.Path, value.Name))
+                        status.MachineRestricted = true;
+                }
+            }
+            return status;
+        }
+
+        public static void RemoveCurrentUserRestrictions(WindowsUnlockFeature feature)
+        {
+            WindowsUnlockStatus status = GetStatus(feature);
+            if (status.MachineRestricted)
+                throw new InvalidOperationException(
+                    "A machine-wide Windows policy is active. MogLocker does not change machine or organization policies.");
+            if (!status.CurrentUserRestricted)
+                return;
+
+            foreach (PolicyValue value in GetValues(feature))
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(value.Path, true))
+                {
+                    if (key != null && HasEnabledValue(key, value.Name))
+                        key.DeleteValue(value.Name, false);
+                }
+            }
+
+            WindowsUnlockStatus remaining = GetStatus(feature);
+            if (remaining.CurrentUserRestricted || remaining.MachineRestricted)
+                throw new InvalidOperationException(
+                    "The restriction is still active. Windows policy may be managed by an administrator.");
+        }
+
+        private static PolicyValue[] GetValues(WindowsUnlockFeature feature)
+        {
+            switch (feature)
+            {
+                case WindowsUnlockFeature.TaskManager:
+                    return new[] { new PolicyValue(CurrentSystemPolicy, "DisableTaskMgr") };
+                case WindowsUnlockFeature.RegistryEditor:
+                    return new[] { new PolicyValue(CurrentSystemPolicy, "DisableRegistryTools") };
+                case WindowsUnlockFeature.CommandPrompt:
+                    return new[] { new PolicyValue(@"Software\Policies\Microsoft\Windows\System", "DisableCMD") };
+                case WindowsUnlockFeature.ControlPanel:
+                    return new[]
+                    {
+                        new PolicyValue(ExplorerPolicy, "NoControlPanel"),
+                        new PolicyValue(ManagedExplorerPolicy, "NoControlPanel")
+                    };
+                default:
+                    throw new ArgumentOutOfRangeException("feature");
+            }
+        }
+
+        private static bool HasEnabledValue(RegistryKey root, string path, string name)
+        {
+            using (RegistryKey key = root.OpenSubKey(path, false))
+                return key != null && HasEnabledValue(key, name);
+        }
+
+        private static bool HasEnabledValue(RegistryKey key, string name)
+        {
+            object value = key.GetValue(name, null);
+            return value != null &&
+                Convert.ToInt32(value, System.Globalization.CultureInfo.InvariantCulture) != 0;
+        }
+
+        private static RegistryKey GetMachineRegistry()
+        {
+            return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
+                Environment.Is64BitOperatingSystem ? RegistryView.Registry64 : RegistryView.Default);
+        }
+    }
+
     internal sealed class DefenderExclusion
     {
         public string Kind { get; private set; }
@@ -33,18 +150,52 @@ namespace MogLocker
 
         public static IList<DefenderExclusion> Read()
         {
+            return Read(false);
+        }
+
+        public static IList<DefenderExclusion> ReadElevated()
+        {
+            return Read(true);
+        }
+
+        private static IList<DefenderExclusion> Read(bool elevate)
+        {
             const string script =
                 "$ErrorActionPreference='Stop';" +
                 "$p=Get-MpPreference;" +
                 "$items=@();" +
-                "foreach($v in $p.ExclusionPath){if($null -ne $v){$items+=@{Value=[string]$v;Parameter='ExclusionPath'}}};" +
-                "foreach($v in $p.ExclusionProcess){if($null -ne $v){$items+=@{Value=[string]$v;Parameter='ExclusionProcess'}}};" +
-                "foreach($v in $p.ExclusionExtension){if($null -ne $v){$items+=@{Value=[string]$v;Parameter='ExclusionExtension'}}};" +
-                "foreach($v in $p.ExclusionIpAddress){if($null -ne $v){$items+=@{Value=[string]$v;Parameter='ExclusionIpAddress'}}};" +
+                "foreach($v in $p.ExclusionPath){if($null -ne $v){if([string]$v -like 'N/A:*administrator*'){throw 'Administrator approval is required to view Defender exclusions.'};$items+=@{Value=[string]$v;Parameter='ExclusionPath'}}};" +
+                "foreach($v in $p.ExclusionProcess){if($null -ne $v){if([string]$v -like 'N/A:*administrator*'){throw 'Administrator approval is required to view Defender exclusions.'};$items+=@{Value=[string]$v;Parameter='ExclusionProcess'}}};" +
+                "foreach($v in $p.ExclusionExtension){if($null -ne $v){if([string]$v -like 'N/A:*administrator*'){throw 'Administrator approval is required to view Defender exclusions.'};$items+=@{Value=[string]$v;Parameter='ExclusionExtension'}}};" +
+                "foreach($v in $p.ExclusionIpAddress){if($null -ne $v){if([string]$v -like 'N/A:*administrator*'){throw 'Administrator approval is required to view Defender exclusions.'};$items+=@{Value=[string]$v;Parameter='ExclusionIpAddress'}}};" +
                 "$json=ConvertTo-Json -InputObject @($items) -Compress;" +
-                "[Console]::Out.Write([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json)))";
+                "$payload=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json));" +
+                "[Console]::Out.Write($payload)";
 
-            string output = RunPowerShell(script, false);
+            string output;
+            string elevatedOutputPath = null;
+            if (elevate)
+            {
+                elevatedOutputPath = Path.Combine(Path.GetTempPath(),
+                    "MogLocker-Defender-" + Guid.NewGuid().ToString("N") + ".tmp");
+                string escapedPath = elevatedOutputPath.Replace("'", "''");
+                RunPowerShell(script + ";[IO.File]::WriteAllText('" + escapedPath +
+                    "',$payload,[Text.Encoding]::ASCII)", true);
+                try
+                {
+                    output = File.ReadAllText(elevatedOutputPath, Encoding.ASCII);
+                }
+                finally
+                {
+                    if (File.Exists(elevatedOutputPath))
+                        File.Delete(elevatedOutputPath);
+                }
+            }
+            else
+            {
+                output = RunPowerShell(script, false);
+            }
+
             string json;
             try
             {
@@ -99,11 +250,6 @@ namespace MogLocker
             RunPowerShell(script.ToString(), true);
         }
 
-        public static void CheckAccessWithUac()
-        {
-            RunPowerShell("$ErrorActionPreference='Stop';Get-MpPreference | Out-Null", true);
-        }
-
         private static bool IsAllowedParameter(string parameter)
         {
             return parameter == "ExclusionPath" || parameter == "ExclusionProcess" ||
@@ -156,7 +302,7 @@ namespace MogLocker
                 if (process.ExitCode != 0)
                 {
                     string error = elevate
-                        ? "Elevated PowerShell could not update Microsoft Defender exclusions."
+                        ? "Elevated PowerShell could not complete the Microsoft Defender operation."
                         : errorOutput.Result;
                     throw new InvalidOperationException(String.IsNullOrWhiteSpace(error)
                         ? "PowerShell could not complete the Microsoft Defender operation."
@@ -197,10 +343,13 @@ namespace MogLocker
         private readonly ListView exclusionsList;
         private readonly Button refreshButton;
         private readonly Button removeButton;
+        private readonly Label emptyStateLabel;
+        private readonly bool english;
 
-        public DefenderExclusionsForm()
+        public DefenderExclusionsForm(bool english)
         {
-            Text = "Исключения Microsoft Defender";
+            this.english = english;
+            Text = T("Исключения Microsoft Defender");
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.Sizable;
             MinimizeBox = false;
@@ -216,7 +365,7 @@ namespace MogLocker
                 Dock = DockStyle.Top,
                 Height = 48,
                 Padding = new Padding(12, 8, 12, 4),
-                Text = "Отметьте исключения, которые хотите удалить. Для изменения настроек Windows потребуется подтверждение UAC.",
+                Text = T("Отметьте исключения, которые хотите удалить. Для изменения настроек Windows потребуется подтверждение UAC."),
                 ForeColor = ForeColor
             };
             exclusionsList = new ListView
@@ -225,12 +374,23 @@ namespace MogLocker
                 CheckBoxes = true,
                 View = View.Details,
                 FullRowSelect = true,
-                GridLines = true,
+                GridLines = false,
                 BackColor = System.Drawing.Color.FromArgb(14, 21, 36),
                 ForeColor = ForeColor
             };
-            exclusionsList.Columns.Add("Тип", 120);
-            exclusionsList.Columns.Add("Значение", 560);
+            exclusionsList.Columns.Add(T("Тип"), 120);
+            exclusionsList.Columns.Add(T("Значение"), 560);
+            emptyStateLabel = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+                ForeColor = System.Drawing.Color.FromArgb(143, 153, 171),
+                Padding = new Padding(24),
+                Visible = true
+            };
+            var listHost = new Panel { Dock = DockStyle.Fill, BackColor = BackColor };
+            listHost.Controls.Add(exclusionsList);
+            listHost.Controls.Add(emptyStateLabel);
 
             var footer = new FlowLayoutPanel
             {
@@ -240,16 +400,16 @@ namespace MogLocker
                 Padding = new Padding(8),
                 WrapContents = false
             };
-            removeButton = new Button { Text = "Удалить выбранные", Width = 150, Height = 30 };
-            refreshButton = new Button { Text = "Обновить список", Width = 130, Height = 30 };
-            var closeButton = new Button { Text = "Закрыть", Width = 90, Height = 30 };
+            removeButton = new Button { Text = T("Удалить выбранные"), Width = 150, Height = 30 };
+            refreshButton = new Button { Text = T("Обновить список"), Width = 130, Height = 30 };
+            var closeButton = new Button { Text = T("Закрыть"), Width = 90, Height = 30 };
             removeButton.Click += RemoveSelected;
             refreshButton.Click += RefreshList;
             closeButton.Click += delegate { Close(); };
             footer.Controls.Add(closeButton);
             footer.Controls.Add(removeButton);
             footer.Controls.Add(refreshButton);
-            Controls.Add(exclusionsList);
+            Controls.Add(listHost);
             Controls.Add(footer);
             Controls.Add(description);
             Shown += RefreshList;
@@ -263,26 +423,47 @@ namespace MogLocker
         private async void RefreshList(object sender, EventArgs e)
         {
             SetBusy(true);
+            exclusionsList.Items.Clear();
+            emptyStateLabel.Text = T("Ожидание подтверждения UAC для чтения списка исключений…");
+            emptyStateLabel.Visible = true;
             try
             {
                 IList<DefenderExclusion> exclusions =
-                    await Task.Run(() => DefenderExclusionManager.Read());
+                    await Task.Run(() => DefenderExclusionManager.ReadElevated());
                 exclusionsList.Items.Clear();
                 foreach (DefenderExclusion exclusion in exclusions)
                 {
-                    var item = new ListViewItem(exclusion.Kind);
+                    var item = new ListViewItem(T(exclusion.Kind));
                     item.SubItems.Add(exclusion.Value);
                     item.Tag = exclusion;
                     exclusionsList.Items.Add(item);
                 }
-                if (exclusions.Count == 0)
-                    MessageBox.Show(this, "Исключения Microsoft Defender не найдены.",
-                        "Список исключений", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                emptyStateLabel.Text = exclusions.Count == 0
+                    ? T("Исключения Microsoft Defender не найдены.")
+                    : String.Empty;
+                emptyStateLabel.Visible = exclusions.Count == 0;
+            }
+            catch (Win32Exception ex)
+            {
+                if (ex.NativeErrorCode == 1223)
+                {
+                    emptyStateLabel.Text = T("Запрос UAC отменён. Данные об исключениях не загружены.");
+                    emptyStateLabel.Visible = true;
+                }
+                else
+                {
+                    emptyStateLabel.Text = T("Не удалось получить исключения Microsoft Defender.");
+                    emptyStateLabel.Visible = true;
+                    MessageBox.Show(this, T("Не удалось получить исключения Microsoft Defender:\r\n\r\n") + ex.Message,
+                        T("Ошибка PowerShell"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Не удалось получить исключения Microsoft Defender:\r\n\r\n" + ex.Message,
-                    "Ошибка PowerShell", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                emptyStateLabel.Text = T("Не удалось получить исключения Microsoft Defender.");
+                emptyStateLabel.Visible = true;
+                MessageBox.Show(this, T("Не удалось получить исключения Microsoft Defender:\r\n\r\n") + ex.Message,
+                    T("Ошибка PowerShell"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -300,19 +481,19 @@ namespace MogLocker
                 .ToList();
             if (selected.Count == 0)
             {
-                MessageBox.Show(this, "Сначала отметьте исключения для удаления.",
-                    "Ничего не выбрано", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, T("Сначала отметьте исключения для удаления."),
+                    T("Ничего не выбрано"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             string preview = String.Join("\r\n", selected.Take(8).Select(item =>
-                item.Kind + ": " + item.Value).ToArray());
+                T(item.Kind) + ": " + item.Value).ToArray());
             if (selected.Count > 8)
-                preview += "\r\n… и ещё " + (selected.Count - 8) + ".";
+                preview += T("\r\n… и ещё ") + (selected.Count - 8) + ".";
             if (MessageBox.Show(this,
-                "Удалить выбранные исключения Microsoft Defender?\r\n\r\n" + preview +
-                "\r\n\r\nWindows покажет запрос контроля учётных записей.",
-                "Подтвердите удаление", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                T("Удалить выбранные исключения Microsoft Defender?\r\n\r\n") + preview +
+                T("\r\n\r\nWindows покажет запрос контроля учётных записей."),
+                T("Подтвердите удаление"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                 return;
 
@@ -320,28 +501,24 @@ namespace MogLocker
             try
             {
                 await Task.Run(() => DefenderExclusionManager.Remove(selected));
-                IList<DefenderExclusion> remaining = await ReloadList();
-                int remainingCount = selected.Count(selectedItem => remaining.Any(item =>
-                    String.Equals(item.Kind, selectedItem.Kind, StringComparison.OrdinalIgnoreCase) &&
-                    String.Equals(item.Value, selectedItem.Value, StringComparison.OrdinalIgnoreCase)));
-                MessageBox.Show(this, remainingCount == 0
-                    ? "Выбранные исключения удалены."
-                    : "После команды в списке всё ещё присутствуют " + remainingCount +
-                        " выбранных исключений. Проверьте состояние Microsoft Defender.",
-                    "Microsoft Defender", MessageBoxButtons.OK,
-                    remainingCount == 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+                exclusionsList.Items.Clear();
+                emptyStateLabel.Text = T("Команда удаления выполнена. Список не перечитан; нажмите «Обновить список» для проверки.");
+                emptyStateLabel.Visible = true;
+                MessageBox.Show(this,
+                    T("Команда удаления выполнена. Список не перечитан; нажмите «Обновить список» для проверки."),
+                    "Microsoft Defender", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Win32Exception ex)
             {
-                MessageBox.Show(this, ex.NativeErrorCode == 1223
+                MessageBox.Show(this, T(ex.NativeErrorCode == 1223
                     ? "Запрос UAC был отменён. Исключения не изменены."
-                    : "Не удалось запустить PowerShell:\r\n\r\n" + ex.Message,
-                    "Операция отменена или не выполнена", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    : "Не удалось запустить PowerShell:\r\n\r\n") + (ex.NativeErrorCode == 1223 ? String.Empty : ex.Message),
+                    T("Операция отменена или не выполнена"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Не удалось удалить исключения Microsoft Defender:\r\n\r\n" + ex.Message,
-                    "Ошибка PowerShell", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, T("Не удалось удалить исключения Microsoft Defender:\r\n\r\n") + ex.Message,
+                    T("Ошибка PowerShell"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -349,19 +526,9 @@ namespace MogLocker
             }
         }
 
-        private async Task<IList<DefenderExclusion>> ReloadList()
+        private string T(string text)
         {
-            IList<DefenderExclusion> exclusions =
-                await Task.Run(() => DefenderExclusionManager.Read());
-            exclusionsList.Items.Clear();
-            foreach (DefenderExclusion exclusion in exclusions)
-            {
-                var item = new ListViewItem(exclusion.Kind);
-                item.SubItems.Add(exclusion.Value);
-                item.Tag = exclusion;
-                exclusionsList.Items.Add(item);
-            }
-            return exclusions;
+            return UiLocalization.Translate(text, english);
         }
 
         private void SetBusy(bool busy)
@@ -382,7 +549,7 @@ namespace MogLocker
     {
         public const string ReleasesUrl = "https://github.com/Rom4ik7066/MogAnLocker/releases";
         private const string LatestReleaseApi =
-            "https://api.github.com/repos/Rom4ik7066/MogAnLocker/releases/latest";
+            "https://api.github.com/repos/Rom4ik7066/MogAnLocker/releases?per_page=1";
 
         public static GitHubRelease CheckLatest()
         {
@@ -398,8 +565,11 @@ namespace MogLocker
             using (Stream stream = response.GetResponseStream())
             using (var reader = new StreamReader(stream, Encoding.UTF8))
             {
-                var values = new JavaScriptSerializer()
-                    .Deserialize<Dictionary<string, object>>(reader.ReadToEnd());
+                object[] releases = new JavaScriptSerializer()
+                    .DeserializeObject(reader.ReadToEnd()) as object[];
+                if (releases == null || releases.Length == 0)
+                    throw new FileNotFoundException("GitHub has no published releases.");
+                var values = releases[0] as Dictionary<string, object>;
                 if (values == null || !values.ContainsKey("tag_name") ||
                     !values.ContainsKey("html_url"))
                     throw new InvalidDataException("GitHub returned release data in an unexpected format.");

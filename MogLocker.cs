@@ -19,11 +19,422 @@ using Microsoft.Win32;
 using MogLocker.AdBlock;
 using System.Web.Script.Serialization;
 
-[assembly: System.Reflection.AssemblyVersion("1.0.1.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.0.1.0")]
+[assembly: System.Reflection.AssemblyVersion("0.2.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("0.2.0.0")]
 
 namespace MogLocker
 {
+    internal static class UiPalette
+    {
+        internal static readonly Color DefaultBackground = Color.FromArgb(12, 16, 24);
+        internal static readonly Color DefaultSidebar = Color.FromArgb(15, 20, 30);
+        internal static readonly Color DefaultSurface = Color.FromArgb(24, 30, 42);
+        internal static readonly Color DefaultSurfaceRaised = Color.FromArgb(29, 37, 51);
+        internal static readonly Color DefaultAccentSurface = Color.FromArgb(21, 43, 66);
+        internal static readonly Color DefaultHover = Color.FromArgb(34, 48, 66);
+        internal static readonly Color DefaultPressed = Color.FromArgb(28, 42, 60);
+        internal static readonly Color DefaultBorder = Color.FromArgb(37, 46, 61);
+        internal static readonly Color DefaultText = Color.FromArgb(232, 237, 245);
+        internal static readonly Color DefaultMuted = Color.FromArgb(143, 153, 171);
+        internal static readonly Color DefaultAccent = Color.FromArgb(64, 145, 242);
+        internal static readonly Color Background = Color.FromArgb(12, 16, 24);
+        internal static readonly Color Sidebar = Color.FromArgb(15, 20, 30);
+        internal static readonly Color Surface = Color.FromArgb(24, 30, 42);
+        internal static readonly Color SurfaceRaised = Color.FromArgb(29, 37, 51);
+        internal static readonly Color AccentSurface = Color.FromArgb(21, 43, 66);
+        internal static readonly Color Hover = Color.FromArgb(34, 48, 66);
+        internal static readonly Color Pressed = Color.FromArgb(28, 42, 60);
+        internal static readonly Color Border = Color.FromArgb(37, 46, 61);
+        internal static readonly Color Text = Color.FromArgb(232, 237, 245);
+        internal static readonly Color Muted = Color.FromArgb(143, 153, 171);
+        internal static readonly Color Accent = Color.FromArgb(64, 145, 242);
+        internal static readonly Color Safe = Color.FromArgb(82, 196, 145);
+        internal static readonly Color Warning = Color.FromArgb(216, 165, 83);
+        internal static readonly Color Danger = Color.FromArgb(224, 91, 91);
+    }
+
+    internal sealed class ThemePalette
+    {
+        internal readonly Color Background;
+        internal readonly Color Sidebar;
+        internal readonly Color Surface;
+        internal readonly Color SurfaceRaised;
+        internal readonly Color AccentSurface;
+        internal readonly Color Hover;
+        internal readonly Color Pressed;
+        internal readonly Color Border;
+        internal readonly Color Text;
+        internal readonly Color Muted;
+
+        internal ThemePalette(Color background, Color sidebar, Color surface,
+            Color raised, Color accentSurface, Color hover, Color pressed, Color border,
+            Color text, Color muted)
+        {
+            Background = background;
+            Sidebar = sidebar;
+            Surface = surface;
+            SurfaceRaised = raised;
+            AccentSurface = accentSurface;
+            Hover = hover;
+            Pressed = pressed;
+            Border = border;
+            Text = text;
+            Muted = muted;
+        }
+    }
+
+    internal static class ThemePalettes
+    {
+        internal static readonly ThemePalette[] Light =
+        {
+            new ThemePalette(Color.FromArgb(246, 248, 251), Color.FromArgb(239, 243, 248),
+                Color.White, Color.FromArgb(232, 237, 244), Color.FromArgb(230, 240, 253),
+                Color.FromArgb(224, 235, 248), Color.FromArgb(211, 228, 249),
+                Color.FromArgb(214, 222, 233), Color.FromArgb(31, 41, 55), Color.FromArgb(71, 85, 105)),
+            new ThemePalette(Color.FromArgb(247, 245, 240), Color.FromArgb(239, 236, 228),
+                Color.White, Color.FromArgb(241, 238, 230), Color.FromArgb(229, 239, 250),
+                Color.FromArgb(232, 230, 222), Color.FromArgb(220, 218, 209),
+                Color.FromArgb(219, 215, 204), Color.FromArgb(43, 47, 55), Color.FromArgb(104, 107, 115)),
+            new ThemePalette(Color.FromArgb(242, 246, 250), Color.FromArgb(233, 239, 246),
+                Color.White, Color.FromArgb(230, 237, 245), Color.FromArgb(222, 238, 249),
+                Color.FromArgb(224, 234, 245), Color.FromArgb(211, 226, 241),
+                Color.FromArgb(210, 220, 232), Color.FromArgb(34, 48, 63), Color.FromArgb(81, 98, 117)),
+            new ThemePalette(Color.FromArgb(242, 248, 245), Color.FromArgb(231, 241, 236),
+                Color.White, Color.FromArgb(228, 240, 234), Color.FromArgb(220, 242, 232),
+                Color.FromArgb(222, 238, 230), Color.FromArgb(208, 231, 220),
+                Color.FromArgb(207, 224, 216), Color.FromArgb(34, 56, 47), Color.FromArgb(77, 105, 91)),
+            new ThemePalette(Color.FromArgb(247, 244, 249), Color.FromArgb(239, 233, 244),
+                Color.White, Color.FromArgb(239, 233, 244), Color.FromArgb(235, 229, 251),
+                Color.FromArgb(232, 226, 240), Color.FromArgb(218, 210, 232),
+                Color.FromArgb(218, 209, 228), Color.FromArgb(53, 42, 63), Color.FromArgb(103, 91, 115)),
+            new ThemePalette(Color.FromArgb(250, 245, 239), Color.FromArgb(242, 234, 224),
+                Color.White, Color.FromArgb(244, 236, 226), Color.FromArgb(230, 239, 249),
+                Color.FromArgb(236, 227, 215), Color.FromArgb(222, 211, 197),
+                Color.FromArgb(224, 214, 200), Color.FromArgb(63, 48, 36), Color.FromArgb(115, 99, 84))
+        };
+
+        internal static readonly ThemePalette[] Dark =
+        {
+            new ThemePalette(UiPalette.DefaultBackground, UiPalette.DefaultSidebar,
+                UiPalette.DefaultSurface, UiPalette.DefaultSurfaceRaised, UiPalette.DefaultAccentSurface,
+                UiPalette.DefaultHover, UiPalette.DefaultPressed, UiPalette.DefaultBorder,
+                UiPalette.DefaultText, UiPalette.DefaultMuted),
+            new ThemePalette(Color.FromArgb(10, 18, 29), Color.FromArgb(12, 22, 35),
+                Color.FromArgb(18, 31, 48), Color.FromArgb(24, 39, 58), Color.FromArgb(19, 45, 73),
+                Color.FromArgb(30, 48, 70), Color.FromArgb(24, 39, 58), Color.FromArgb(37, 57, 79),
+                Color.FromArgb(230, 237, 246), Color.FromArgb(143, 160, 180)),
+            new ThemePalette(Color.FromArgb(15, 16, 18), Color.FromArgb(18, 20, 23),
+                Color.FromArgb(27, 29, 33), Color.FromArgb(34, 37, 42), Color.FromArgb(29, 43, 61),
+                Color.FromArgb(43, 46, 52), Color.FromArgb(35, 38, 43), Color.FromArgb(48, 51, 57),
+                Color.FromArgb(235, 237, 240), Color.FromArgb(151, 155, 163)),
+            new ThemePalette(Color.FromArgb(10, 18, 15), Color.FromArgb(13, 24, 19),
+                Color.FromArgb(20, 34, 27), Color.FromArgb(27, 44, 35), Color.FromArgb(22, 48, 46),
+                Color.FromArgb(34, 51, 41), Color.FromArgb(27, 43, 34), Color.FromArgb(39, 57, 46),
+                Color.FromArgb(229, 239, 232), Color.FromArgb(143, 164, 150)),
+            new ThemePalette(Color.FromArgb(15, 12, 23), Color.FromArgb(20, 16, 30),
+                Color.FromArgb(30, 24, 43), Color.FromArgb(39, 31, 55), Color.FromArgb(43, 30, 68),
+                Color.FromArgb(47, 39, 63), Color.FromArgb(38, 31, 52), Color.FromArgb(52, 43, 70),
+                Color.FromArgb(237, 231, 246), Color.FromArgb(158, 147, 176)),
+            new ThemePalette(Color.FromArgb(18, 16, 12), Color.FromArgb(23, 20, 15),
+                Color.FromArgb(33, 29, 22), Color.FromArgb(42, 37, 28), Color.FromArgb(45, 35, 23),
+                Color.FromArgb(49, 43, 32), Color.FromArgb(40, 35, 26), Color.FromArgb(54, 47, 35),
+                Color.FromArgb(240, 235, 224), Color.FromArgb(164, 153, 133)),
+            new ThemePalette(Color.FromArgb(8, 9, 12), Color.FromArgb(12, 14, 18),
+                Color.FromArgb(20, 22, 27), Color.FromArgb(27, 30, 36), Color.FromArgb(17, 38, 58),
+                Color.FromArgb(33, 37, 44), Color.FromArgb(25, 29, 35), Color.FromArgb(38, 42, 49),
+                Color.FromArgb(235, 237, 241), Color.FromArgb(143, 149, 160))
+        };
+    }
+
+    internal static class UiLocalization
+    {
+        private static readonly Dictionary<string, string> English =
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                { "Добро пожаловать в MOGLOCKER", "Welcome to MOGLOCKER" },
+                { "Контроль системы. Защита приватности.", "System control. Privacy protection." },
+                { "Настройки", "Settings" },
+                { "Внешний вид, журнал событий и обновления приложения.", "Appearance, event log, and application updates." },
+                { "ВНЕШНИЙ ВИД", "APPEARANCE" },
+                { "Язык интерфейса", "Interface language" },
+                { "Язык, используемый приложением.", "Language used by the application." },
+                { "Поиск по журналу событий", "Search event log" },
+                { "Поиск по источнику, уровню, описанию и пути", "Search source, level, description, and path" },
+                { "Русский", "Russian" },
+                { "Тёмный режим", "Dark mode" },
+                { "Переключение между светлой и тёмной темой.", "Switch between light and dark themes." },
+                { "Дополнительные темы", "Additional themes" },
+                { "Системная тема и сохранённые пользовательские темы.", "System theme and saved custom themes." },
+                { "Создать свою тему", "Create custom theme" },
+                { "Удалить тему", "Delete theme" },
+                { "Тёмная", "Dark" },
+                { "Светлая", "Light" },
+                { "Системная", "System" },
+                { "ЦВЕТ АКЦЕНТА", "ACCENT COLOR" },
+                { "Использовать собственный акцент", "Use custom accent" },
+                { "Переопределить основной цвет интерфейса.", "Override the primary interface color." },
+                { "Пользовательский акцент", "Custom accent" },
+                { "ЦВЕТОВАЯ ПАЛИТРА", "COLOR PALETTE" },
+                { "ЖУРНАЛ И ИНТЕГРАЦИИ", "LOG AND INTEGRATIONS" },
+                { "Светлая палитра", "Light palette" },
+                { "Выберите оформление светлой темы.", "Choose the light theme appearance." },
+                { "Тёмная палитра", "Dark palette" },
+                { "Выберите оформление тёмной темы.", "Choose the dark theme appearance." },
+                { "Стиль шапки приложения", "Application title bar style" },
+                { "Системная рамка окна или оформление macOS.", "Windows frame or macOS styling." },
+                { "Анимация интерфейса", "Interface animations" },
+                { "Переходы между страницами и заставка при запуске.", "Page transitions and the startup splash screen." },
+                { "Включить анимации и заставку при запуске", "Enable animations and startup splash screen" },
+                { "ЖУРНАЛ СОБЫТИЙ", "EVENT LOG" },
+                { "Папка экспорта журнала", "Log export folder" },
+                { "Расположение, предлагаемое при сохранении отчёта.", "Default location for saving reports." },
+                { "Выбрать папку", "Choose folder" },
+                { "Журнал событий", "Event log" },
+                { "Сохранить собранные события в файл.", "Save collected events to a file." },
+                { "Экспортировать журнал", "Export log" },
+                { "Звук в Discord Desktop", "Discord Desktop audio" },
+                { "Настройка звукового вывода через виртуальный аудиокабель.", "Configure audio output through a virtual audio cable." },
+                { "Настроить звук", "Configure audio" },
+                { "ОБНОВЛЕНИЯ", "UPDATES" },
+                { "Обновления", "Updates" },
+                { "Проверка опубликованной версии через GitHub Releases.", "Check the published version via GitHub Releases." },
+                { "Проверить обновления", "Check for updates" },
+                { "Источник: GitHub Releases", "Source: GitHub Releases" },
+                { "Мониторинг Windows", "Windows Monitoring" },
+                { "Системные события, автозагрузка и изменения выбранных параметров.", "System events, startup items, and changes to selected settings." },
+                { "СОСТОЯНИЕ ЗАЩИТЫ", "PROTECTION STATUS" },
+                { "ПРОВЕРКИ WINDOWS", "WINDOWS CHECKS" },
+                { "Подозрительную программу можно завершить вручную после подтверждения.", "A suspicious program can be stopped manually after confirmation." },
+                { "Все события", "All events" },
+                { "ПОДОЗРИТЕЛЬНО", "SUSPICIOUS" },
+                { "ПРЕДУПРЕЖДЕНИЕ", "WARNING" },
+                { "ИНФО", "INFO" },
+                { "ОШИБКА", "ERROR" },
+                { "Период", "Time range" },
+                { "Найти", "Search" },
+                { "Сбросить", "Reset" },
+                { "Пауза", "Pause" },
+                { "Продолжить", "Resume" },
+                { "Сведения", "Details" },
+                { "Копировать журнал", "Copy log" },
+                { "Сохранить лог", "Save log" },
+                { "Саундпад", "Sound pad" },
+                { "Помощь при блокировке", "Browser recovery help" },
+                { "Выберите событие", "Select an event" },
+                { "Данные выбранной записи появятся здесь.", "Details of the selected entry will appear here." },
+                { "Выберите запись в журнале, чтобы просмотреть её описание, путь и связанные сведения.", "Select a log entry to view its description, path, and related information." },
+                { "Время", "Time" },
+                { "Уровень", "Level" },
+                { "Источник", "Source" },
+                { "Событие", "Event" },
+                { "Путь: ", "Path: " },
+                { "Дескриптор окна: ", "Window handle: " },
+                { "Microsoft Defender", "Microsoft Defender" },
+                { "AdBlock", "AdBlock" },
+                { "Браузерная защита от рекламы и трекеров", "Browser protection from ads and trackers" },
+                { "AdBlock включён", "AdBlock enabled" },
+                { "Подключить браузер", "Connect browser" },
+                { "Обновить фильтры", "Update filters" },
+                { "Очистить статистику", "Clear statistics" },
+                { "Загрузка настроек AdBlock…", "Loading AdBlock settings…" },
+                { "Последние заблокированные запросы", "Recently blocked requests" },
+                { "Домены и типы ресурсов появятся после первых блокировок.", "Domains and resource types will appear after the first blocked requests." },
+                { "Событий пока нет. Здесь появятся реальные запросы, заблокированные расширением.", "No events yet. Requests blocked by the extension will appear here." },
+                { "Активные фильтр-листы", "Active filter lists" },
+                { "Пользовательские правила", "Custom rules" },
+                { "Добавить", "Add" },
+                { "Удалить", "Remove" },
+                { "Импорт", "Import" },
+                { "Экспорт", "Export" },
+                { "Windows Monitor", "Windows Monitor" },
+                { "Мониторинг системных событий, автозагрузки, реестра и подозрительной активности.", "Monitor system events, startup items, registry, and suspicious activity." },
+                { "Browser AdBlock", "Browser AdBlock" },
+                { "Контроль сетевых запросов, фильтры, пользовательские правила и журнал блокировок.", "Control network requests, filters, custom rules, and the blocking log." },
+                { "МОНИТОРИНГ", "MONITORING" },
+                { "СОБЫТИЯ", "EVENTS" },
+                { "СЕТЬ", "NETWORK" },
+                { "Проверка…", "Checking…" },
+                { "Событий: ", "Events: " },
+                { "Показано ", "Showing " },
+                { "Мониторинг Windows: включён", "Windows monitoring: enabled" },
+                { "Проверка обновлений завершилась ошибкой.", "Update check failed." },
+                { "Проверяю GitHub Releases…", "Checking GitHub Releases…" },
+                { "Найдена версия ", "Found version " },
+                { " на GitHub.", " on GitHub." },
+                { "Доступно обновление: ", "Update available: " },
+                { "Установлена последняя версия (", "Latest version installed (" },
+                { "Исключения Defender: проверено через PowerShell — ", "Defender exclusions checked via PowerShell — " },
+                { "Исключения Defender: не удалось проверить", "Could not check Defender exclusions" },
+                { "Исключения Defender: проверка выполняется…", "Checking Defender exclusions…" },
+                { "Исключения Defender: проверка не завершена", "Defender exclusions: check incomplete" },
+                { "Редактор реестра: regedit.exe не запущен", "Registry Editor: regedit.exe is not running" },
+                { "Редактор реестра: запущен экземпляров — ", "Registry Editor: running instances — " },
+                { "Автозагрузка: наблюдаются папки запуска — ", "Startup: watching startup folders — " },
+                { "Автозагрузка: папки запуска не удалось открыть.", "Startup: could not access startup folders." },
+                { "Экранные окна: проверка каждые 1,5 сек.", "Visible windows: checked every 1.5 seconds." },
+                { "Реестр: контроль ключевых параметров включён.", "Registry: monitoring selected settings." },
+                { "⌂   Главная", "⌂   Home" },
+                { "◈   Мониторинг", "◈   Monitor" },
+                { "⚙   Настройки", "⚙   Settings" },
+                { "СВЕДЕНИЯ О СОБЫТИИ", "EVENT DETAILS" },
+                { "Завершить выбранную", "Terminate selected" },
+                { "Проверить Defender", "Check Defender" },
+                { "Исключения Defender", "Defender exclusions" },
+                { "Проверить сейчас", "Check now" },
+                { "Открыть журнал", "Open log" },
+                { "Диагностический монитор, не полноценный антивирус. Microsoft Defender остаётся основной защитой; MogLocker не выполняет автоматическое удаление или блокировку.",
+                    "A diagnostic monitor, not a full antivirus. Microsoft Defender remains the primary protection; MOGLOCKER does not automatically remove or block anything." },
+                { "Отслеживаются запуск regedit.exe и изменения списка исключений Microsoft Defender. Удаление исключений доступно вручную с подтверждением и запросом UAC.",
+                    "MOGLOCKER monitors regedit.exe launches and changes to Microsoft Defender exclusions. Exclusions can be removed manually after confirmation and a UAC prompt." },
+                { "Исключения Defender: проверка через PowerShell…", "Checking Defender exclusions with PowerShell…" },
+                { "Свернуть и перейти к браузеру", "Minimize and switch to browser" },
+                { "Открыть Диспетчер задач", "Open Task Manager" },
+                { "Открыть саундпад", "Open sound pad" },
+                { "Проверить VB-CABLE", "Check VB-CABLE" },
+                { "Саундпад в Discord Desktop", "Sound pad in Discord Desktop" },
+                { "Доступен релиз ", "Release available: " },
+                { "Ошибка экспорта", "Export error" },
+                { "Обновление доступно", "Update available" },
+                { "Проверка обновлений", "Update check" },
+                { "Проверить", "Check" },
+                { "Моглокер", "MOGLOCKER" },
+                { "МОНИТОРИНГ ВКЛЮЧЁН", "MONITORING ON" },
+                { "МОНИТОРИНГ ПРИОСТАНОВЛЕН", "MONITORING PAUSED" },
+                { "Монитор", "Monitor" },
+                { "Моглокер — монитор защиты", "MOGLOCKER — protection monitor" },
+                { "Открыть", "Open" },
+                { "Пауза/Продолжить", "Pause/Resume" },
+                { "Выход", "Exit" },
+                { "Создать цветовую тему", "Create color theme" },
+                { "Новая тема", "New theme" },
+                { "Название", "Name" },
+                { "Моя тема", "My theme" },
+                { "Выбрать цвет", "Choose color" },
+                { "Создать", "Create" },
+                { "Отмена", "Cancel" },
+                { "Исключения Microsoft Defender", "Microsoft Defender exclusions" },
+                { "Отметьте исключения, которые хотите удалить. Для изменения настроек Windows потребуется подтверждение UAC.", "Select the exclusions to remove. UAC confirmation is required to change Windows settings." },
+                { "Запрос UAC отменён. Данные об исключениях не загружены.", "UAC was cancelled. Exclusion data was not loaded." },
+                { "Ожидание подтверждения UAC для чтения списка исключений…", "Waiting for UAC approval to read exclusions…" },
+                { "Исключения Microsoft Defender не найдены.", "No Microsoft Defender exclusions were found." },
+                { "Не удалось получить исключения Microsoft Defender.", "Could not read Microsoft Defender exclusions." },
+                { "Не удалось получить исключения Microsoft Defender:\r\n\r\n", "Could not read Microsoft Defender exclusions:\r\n\r\n" },
+                { "Ошибка PowerShell", "PowerShell error" },
+                { "Ничего не выбрано", "Nothing selected" },
+                { "Сначала отметьте исключения для удаления.", "Select exclusions to remove first." },
+                { "Удалить выбранные исключения Microsoft Defender?\r\n\r\n", "Remove the selected Microsoft Defender exclusions?\r\n\r\n" },
+                { "\r\n\r\nWindows покажет запрос контроля учётных записей.", "\r\n\r\nWindows will show a User Account Control prompt." },
+                { "\r\n… и ещё ", "\r\n… and " },
+                { "Подтвердите удаление", "Confirm removal" },
+                { "Команда удаления выполнена. Список не перечитан; нажмите «Обновить список» для проверки.", "The removal command completed. The list was not re-read; select “Refresh list” to verify." },
+                { "Запрос UAC был отменён. Исключения не изменены.", "UAC was cancelled. No exclusions were changed." },
+                { "Не удалось запустить PowerShell:\r\n\r\n", "Could not start PowerShell:\r\n\r\n" },
+                { "Операция отменена или не выполнена", "Operation cancelled or failed" },
+                { "Не удалось удалить исключения Microsoft Defender:\r\n\r\n", "Could not remove Microsoft Defender exclusions:\r\n\r\n" },
+                { "Запрос UAC отменён. Список исключений не открыт.", "UAC was cancelled. The exclusions list was not opened." },
+                { "Не удалось проверить доступ к Microsoft Defender:\r\n\r\n", "Could not check access to Microsoft Defender:\r\n\r\n" },
+                { "Проверка UAC", "UAC check" },
+                { "Закрыть", "Close" },
+                { "Тип", "Type" },
+                { "Значение", "Value" },
+                { "Путь", "Path" },
+                { "Процесс", "Process" },
+                { "Расширение", "Extension" },
+                { "IP-адрес", "IP address" },
+                { "Удалить выбранные", "Remove selected" },
+                { "Обновить список", "Refresh list" },
+                { "Не удалось проверить обновление фильтров: ", "Could not check for filter updates: " },
+                { "Ошибка чтения настроек AdBlock: ", "Could not read AdBlock settings: " },
+                { "Состояние фильтра сохранено; расширение обновится не позднее чем через минуту.", "AdBlock state saved; the extension will update within one minute." },
+                { "Правило сохранено и будет применено расширением браузера.", "Rule saved and will be applied by the browser extension." },
+                { "Не удалось обновить фильтры: ", "Could not update filters: " },
+                { "Пользовательские правила экспортированы.", "Custom rules exported." },
+                { "Не удалось подключить браузер: ", "Could not connect the browser: " },
+                { "Экранные окна: ожидание", "Visible windows: waiting" },
+                { "Автозагрузка: подготовка", "Startup items: preparing" },
+                { "Системные параметры: подготовка", "System settings: preparing" },
+                { "Сеть: доступна", "Network: available" },
+                { "Сеть: соединение недоступно", "Network: connection unavailable" },
+                { "Проводник: запущен", "File Explorer: running" },
+                { "Проводник: не запущен", "File Explorer: not running" },
+                { "Экранные окна: подозрительных признаков не найдено.", "Visible windows: no suspicious indicators found." },
+                { "Мониторинг Windows запускается…", "Starting Windows monitoring…" },
+                { "Исключения Defender: ожидание PowerShell", "Waiting for Defender exclusions via PowerShell" },
+                { "Домены: ", "Domains: " },
+                { "Импортировано правил: ", "Rules imported: " },
+                { "Проводник: проверка", "File Explorer: checking" },
+                { "Сеть: проверка", "Network: checking" },
+                { "Домен: ", "Domains: " },
+                { "ПРОВЕРКА UAC", "UAC CHECK" },
+                { "Загрузка…", "Loading…" },
+                { "Анлок", "Unlock" },
+                { "Снятие отдельных пользовательских ограничений Windows.", "Remove selected per-user Windows restrictions." },
+                { "Проверяются только известные политики; удаляются только значения HKCU после подтверждения. Системные значения HKLM не меняются; организационные политики могут восстановить ограничения.", "Only known policies are checked; HKCU values are removed only after confirmation. Machine-wide HKLM values are not changed; organization policies may reapply restrictions." },
+                { "Диспетчер задач", "Task Manager" },
+                { "Редактор реестра", "Registry Editor" },
+                { "Командная строка", "Command Prompt" },
+                { "Панель управления", "Control Panel" },
+                { "Политика DisableTaskMgr текущего пользователя.", "Current-user DisableTaskMgr policy." },
+                { "Политика DisableRegistryTools текущего пользователя.", "Current-user DisableRegistryTools policy." },
+                { "Политика DisableCMD текущего пользователя.", "Current-user DisableCMD policy." },
+                { "Политика NoControlPanel текущего пользователя.", "Current-user NoControlPanel policy." },
+                { "Состояние не проверено", "Status not checked" },
+                { "Разблокировать", "Unlock" },
+                { "Ограничено системной политикой; изменения не выполняются.", "Restricted by machine policy; no changes made." },
+                { "Ограничено системной политикой; не изменено.", "Restricted by machine policy; not changed." },
+                { "Ограничено для текущего пользователя.", "Restricted for current user." },
+                { "Ограничение не обнаружено.", "No restriction detected." },
+                { "Не удалось проверить политики.", "Could not check policies." },
+                { "Ошибка чтения политик Windows", "Windows policy read error" },
+                { "Обнаружена системная политика Windows. MogLocker не изменяет системные или организационные политики.", "A machine-wide Windows policy was detected. MogLocker does not change system or organization policies." },
+                { "Политика не изменена", "Policy not changed" },
+                { "Ограничение текущего пользователя не обнаружено; никаких изменений не внесено.", "No current-user restriction was detected; no changes were made." },
+                { "Нечего разблокировать", "Nothing to unlock" },
+                { "Удалить известное значение политики текущего пользователя для «", "Remove the known current-user policy value for \"" },
+                { "»? MogLocker не меняет HKLM; организационная политика может восстановить ограничение.", "\"? MogLocker does not modify HKLM; an organization policy may reapply the restriction." },
+                { "Подтвердите изменение реестра", "Confirm registry change" },
+                { "Пользовательское ограничение удалено.", "The per-user restriction was removed." },
+                { "Готово", "Done" },
+                { "Не удалось изменить пользовательскую политику:\r\n\r\n", "Could not change the per-user policy:\r\n\r\n" },
+                { "Ошибка разблокировки", "Unlock error" }
+            };
+
+        internal static string Translate(string text, bool english)
+        {
+            if (String.IsNullOrEmpty(text))
+                return text;
+            if (english && text == "0 событий")
+                return "0 events";
+            if (!english && text == "0 events")
+                return "0 событий";
+            string translation;
+            if (english)
+            {
+                if (English.TryGetValue(text, out translation))
+                    return translation;
+                foreach (KeyValuePair<string, string> entry in English)
+                {
+                    if (entry.Key.EndsWith(" ", StringComparison.Ordinal) &&
+                        text.StartsWith(entry.Key, StringComparison.Ordinal))
+                        return entry.Value + text.Substring(entry.Key.Length);
+                }
+                return text;
+            }
+            foreach (KeyValuePair<string, string> entry in English)
+            {
+                if (entry.Value.EndsWith(" ", StringComparison.Ordinal) &&
+                    text.StartsWith(entry.Value, StringComparison.Ordinal))
+                    return entry.Key + text.Substring(entry.Value.Length);
+            }
+            foreach (KeyValuePair<string, string> entry in English)
+            {
+                if (String.Equals(entry.Value, text, StringComparison.Ordinal))
+                    return entry.Key;
+            }
+            return text;
+        }
+    }
+
     internal sealed class BufferedPanel : Panel
     {
         public BufferedPanel()
@@ -39,6 +450,131 @@ namespace MogLocker
         {
             DoubleBuffered = true;
             ResizeRedraw = true;
+        }
+    }
+
+    internal sealed class ThemeToggle : CheckBox
+    {
+        public ThemeToggle()
+        {
+            Appearance = Appearance.Button;
+            FlatStyle = FlatStyle.Flat;
+            FlatAppearance.BorderSize = 0;
+            Text = String.Empty;
+            Size = new Size(52, 28);
+            Cursor = Cursors.Hand;
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer, true);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            Rectangle track = new Rectangle(1, 4, Width - 2, Height - 8);
+            bool light = MainForm.ActiveLightTheme;
+            Color trackColor = Checked
+                ? MainForm.TranslateThemeColor(UiPalette.Accent, light, false)
+                : MainForm.TranslateThemeColor(UiPalette.SurfaceRaised, light, false);
+            int trackDiameter = track.Height;
+            using (var path = new GraphicsPath())
+            {
+                path.AddArc(track.Left, track.Top, trackDiameter, trackDiameter, 90, 180);
+                path.AddArc(track.Right - trackDiameter, track.Top,
+                    trackDiameter, trackDiameter, 270, 180);
+                path.CloseFigure();
+                using (var brush = new SolidBrush(trackColor))
+                    e.Graphics.FillPath(brush, path);
+                using (var border = new Pen(MainForm.TranslateThemeColor(
+                    UiPalette.Border, light, false)))
+                    e.Graphics.DrawPath(border, path);
+            }
+            int diameter = Math.Max(12, Height - 14);
+            int x = Checked ? Width - diameter - 5 : 5;
+            var thumb = new Rectangle(x, (Height - diameter) / 2, diameter, diameter);
+            using (var brush = new SolidBrush(Color.White))
+                e.Graphics.FillEllipse(brush, thumb);
+        }
+
+    }
+
+    internal sealed class ColorSwatchButton : Control
+    {
+        public Color SwatchColor { get; set; }
+        public bool Selected { get; set; }
+        private bool hovered;
+
+        public ColorSwatchButton(Color color)
+        {
+            SwatchColor = color;
+            Size = new Size(30, 30);
+            BackColor = UiPalette.Surface;
+            TabStop = false;
+            Cursor = Cursors.Hand;
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            int inset = Selected ? 3 : 5;
+            Rectangle circle = new Rectangle(inset, inset, Width - inset * 2, Height - inset * 2);
+            bool light = MainForm.ActiveLightTheme;
+            if (Selected)
+            {
+                using (var selection = new Pen(
+                    MainForm.TranslateThemeColor(UiPalette.Text, light, true), 2F))
+                    e.Graphics.DrawEllipse(selection, circle);
+                circle.Inflate(-3, -3);
+            }
+            using (var brush = new SolidBrush(SwatchColor))
+                e.Graphics.FillEllipse(brush, circle);
+            using (var border = new Pen(Color.FromArgb(115,
+                MainForm.TranslateThemeColor(UiPalette.Border, light, false))))
+                e.Graphics.DrawEllipse(border, circle);
+            if (Selected)
+            {
+                using (var check = new Pen(Color.White, 1.8F))
+                {
+                    int centerX = circle.Left + circle.Width / 2;
+                    int centerY = circle.Top + circle.Height / 2;
+                    e.Graphics.DrawLines(check, new[]
+                    {
+                        new Point(centerX - 4, centerY),
+                        new Point(centerX - 1, centerY + 3),
+                        new Point(centerX + 5, centerY - 4)
+                    });
+                }
+            }
+            if (hovered)
+            {
+                Rectangle hoverRing = new Rectangle(1, 1, Width - 3, Height - 3);
+                using (var hover = new Pen(
+                    MainForm.TranslateThemeColor(UiPalette.Accent, light, false), 2F))
+                    e.Graphics.DrawEllipse(hover, hoverRing);
+            }
+        }
+
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            bool light = MainForm.ActiveLightTheme;
+            Color background = MainForm.TranslateThemeColor(UiPalette.Surface, light, false);
+            using (var brush = new SolidBrush(background))
+                e.Graphics.FillRectangle(brush, ClientRectangle);
+        }
+
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            hovered = true;
+            Invalidate();
+            base.OnMouseEnter(e);
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            hovered = false;
+            Invalidate();
+            base.OnMouseLeave(e);
         }
     }
 
@@ -196,6 +732,8 @@ namespace MogLocker
 
     internal sealed class MainForm : Form
     {
+        internal static bool ActiveLightTheme;
+
         private const int GwlStyle = -16;
         private const int GwlExStyle = -20;
         private const int WsCaption = 0x00C00000;
@@ -226,6 +764,7 @@ namespace MogLocker
         private readonly Panel homePanel;
         private readonly Panel monitorPanel;
         private readonly Panel securityPanel;
+        private readonly Panel unlockPanel;
         private readonly Panel settingsPanel;
         private readonly Panel macTitleBar;
         private readonly Panel pageHost;
@@ -236,7 +775,14 @@ namespace MogLocker
         private readonly Button adBlockNavButton;
         private readonly Button monitorNavButton;
         private readonly Button securityNavButton;
+        private readonly Button unlockNavButton;
         private readonly Button settingsNavButton;
+        private readonly Panel brandMark;
+        private readonly Label brandTitleLabel;
+        private readonly Label brandSubtitleLabel;
+        private readonly Label versionLabel;
+        private readonly Label developerLabel;
+        private readonly FlowLayoutPanel headerStatus;
         private readonly Label monitorState;
         private readonly Label pulseDot;
         private readonly Label logCountLabel;
@@ -245,6 +791,12 @@ namespace MogLocker
         private readonly Label registryState;
         private readonly Label explorerState;
         private readonly Label networkState;
+        private readonly Label selectedEventHeading;
+        private readonly Label selectedEventMetadata;
+        private readonly TextBox selectedEventDetails;
+        private Label homeMonitorValue;
+        private Label homeEventsValue;
+        private Label homeNetworkValue;
         private Label securityMonitorState;
         private Label securityExclusionState;
         private Label securityRegeditState;
@@ -257,14 +809,32 @@ namespace MogLocker
         private Form soundPadDialog;
         private ComboBox themeSelector;
         private ComboBox headerStyleSelector;
+        private ComboBox languageSelector;
         private ComboBox logFilterSelector;
+        private TextBox logSearchBox;
+        private CheckBox timeframeFilterCheckBox;
+        private DateTimePicker timeframeStartPicker;
+        private DateTimePicker timeframeEndPicker;
+        private ThemeToggle darkModeToggle;
+        private ThemeToggle accentEnabledToggle;
+        private readonly List<ColorSwatchButton> accentSwatches = new List<ColorSwatchButton>();
+        private readonly List<ColorSwatchButton> lightPaletteSwatches = new List<ColorSwatchButton>();
+        private readonly List<ColorSwatchButton> darkPaletteSwatches = new List<ColorSwatchButton>();
         private CheckBox animationsCheckBox;
         private Label exportDirectoryLabel;
         private Label updateStatusLabel;
         private Button checkUpdatesButton;
+        private readonly ToolTip swatchToolTip = new ToolTip();
+        private readonly HashSet<Control> localizedControls = new HashSet<Control>();
+        private readonly Dictionary<WindowsUnlockFeature, Label> unlockStatusLabels =
+            new Dictionary<WindowsUnlockFeature, Label>();
         private string currentFilter = null;
         private static CustomTheme activeCustomTheme;
+        private static Color? activeAccentColor;
+        private static int activeLightPaletteIndex;
+        private static int activeDarkPaletteIndex;
         private bool applyingTheme;
+        private bool applyingLanguage;
         private readonly Dictionary<Control, ControlThemeState> originalControlColors =
             new Dictionary<Control, ControlThemeState>();
         private readonly Dictionary<DataGridViewCellStyle, CellThemeState> originalCellColors =
@@ -294,13 +864,13 @@ namespace MogLocker
             if (settings == null)
                 throw new ArgumentNullException("settings");
             appSettings = settings;
-            Text = "Моглокер — монитор защиты";
+            Text = "MOGLOCKER — System Monitor";
             StartPosition = FormStartPosition.CenterScreen;
             TopMost = true;
             MinimumSize = new Size(1000, 680);
             Size = new Size(1280, 820);
-            BackColor = Color.FromArgb(12, 17, 31);
-            ForeColor = Color.FromArgb(226, 232, 244);
+            BackColor = UiPalette.Background;
+            ForeColor = UiPalette.Text;
             Font = new Font("Segoe UI", 9F);
 
             trayIcon = new NotifyIcon
@@ -316,89 +886,67 @@ namespace MogLocker
             trayIcon.ContextMenuStrip = trayMenu;
             trayIcon.DoubleClick += (s, e) => RestoreFromTray();
 
-            var header = new Panel
+            headerStatus = new FlowLayoutPanel
             {
-                Dock = DockStyle.Top,
-                Height = 120,
-                BackColor = Color.FromArgb(18, 26, 45),
-                Padding = new Padding(24, 18, 24, 14)
-            };
-            var brandMark = new Panel
-            {
-                BackColor = Color.FromArgb(104, 211, 184),
-                Location = new Point(22, 24),
-                Size = new Size(4, 58)
-            };
-            var title = new Label
-            {
-                Text = "МОГЛОКЕР",
-                AutoSize = true,
-                Font = new Font("Segoe UI Semibold", 23F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(237, 244, 255),
-                Location = new Point(38, 15)
-            };
-            var subtitle = new Label
-            {
-                Text = "ЛОКАЛЬНЫЙ МОНИТОР ПОДОЗРИТЕЛЬНЫХ БЛОКИРОВОК WINDOWS",
-                AutoSize = true,
-                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(142, 160, 185),
-                Location = new Point(40, 62)
-            };
-            var headerStatus = new FlowLayoutPanel
-            {
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Size = new Size(244, 38),
-                Location = new Point(1012, 40),
+                Size = new Size(194, 32),
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = false,
-                BackColor = Color.FromArgb(19, 39, 48),
-                Padding = new Padding(12, 7, 8, 0)
+                BackColor = Color.Transparent,
+                Padding = new Padding(8, 6, 0, 0),
+                Margin = new Padding(0)
             };
             pulseDot = new Label
             {
                 Text = "●",
                 AutoSize = true,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(104, 211, 184),
-                Margin = new Padding(0, 2, 8, 0)
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+                ForeColor = UiPalette.Accent,
+                Margin = new Padding(0, 2, 7, 0)
             };
             monitorState = new Label
             {
                 Text = "МОНИТОРИНГ ВКЛЮЧЁН",
                 AutoSize = true,
-                Font = new Font("Segoe UI Semibold", 8.5F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(104, 211, 184),
-                Margin = new Padding(0, 4, 0, 0)
+                Font = new Font("Segoe UI Semibold", 8F, FontStyle.Bold),
+                ForeColor = UiPalette.Safe,
+                Margin = new Padding(0, 3, 0, 0)
             };
             headerStatus.Controls.Add(pulseDot);
             headerStatus.Controls.Add(monitorState);
-            header.Controls.Add(brandMark);
-            header.Controls.Add(title);
-            header.Controls.Add(subtitle);
-            header.Controls.Add(headerStatus);
 
             var content = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                Padding = new Padding(22, 18, 22, 22),
+                Padding = new Padding(18, 14, 18, 18),
                 BackColor = BackColor,
                 ColumnCount = 2,
-                RowCount = 2
+                RowCount = 3
             };
             content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56F));
             content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44F));
-            content.RowStyles.Add(new RowStyle(SizeType.Absolute, 204F));
+            content.RowStyles.Add(new RowStyle(SizeType.Absolute, 68F));
+            content.RowStyles.Add(new RowStyle(SizeType.Absolute, 126F));
             content.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
-            var overview = MakeCard(Color.FromArgb(104, 211, 184));
+            var monitorHeading = CreatePageHeading("Мониторинг Windows",
+                "Системные события, автозагрузка и изменения выбранных параметров.");
+            content.Controls.Add(monitorHeading, 0, 0);
+            content.SetColumnSpan(monitorHeading, 2);
+
+            var overview = MakeCard(UiPalette.Accent);
             overview.Dock = DockStyle.Fill;
-            overview.Padding = new Padding(21, 19, 20, 18);
+            overview.Padding = new Padding(15, 13, 14, 12);
             var overviewTitle = MakeSectionTitle("СОСТОЯНИЕ ЗАЩИТЫ");
             overviewTitle.Dock = DockStyle.Top;
             screenState = MakeStatusLabel("Экранные окна: ожидание");
             startupState = MakeStatusLabel("Автозагрузка: подготовка");
             registryState = MakeStatusLabel("Системные параметры: подготовка");
+            screenState.Font = new Font("Segoe UI", 8.5F);
+            startupState.Font = new Font("Segoe UI", 8.5F);
+            registryState.Font = new Font("Segoe UI", 8.5F);
+            screenState.Margin = new Padding(0, 2, 0, 2);
+            startupState.Margin = new Padding(0, 2, 0, 2);
+            registryState.Margin = new Padding(0, 2, 0, 2);
             var overviewBody = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -413,41 +961,47 @@ namespace MogLocker
             overview.Controls.Add(overviewBody);
             overview.Controls.Add(overviewTitle);
 
-            var health = MakeCard(Color.FromArgb(111, 164, 211));
+            var health = MakeCard(UiPalette.Safe);
             health.Dock = DockStyle.Fill;
-            health.Padding = new Padding(21, 19, 20, 18);
+            health.Padding = new Padding(15, 13, 14, 12);
             var healthTitle = MakeSectionTitle("ПРОВЕРКИ WINDOWS");
             healthTitle.Dock = DockStyle.Top;
-            var healthBody = new FlowLayoutPanel
+            var healthBody = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.TopDown,
-                WrapContents = false,
+                ColumnCount = 1,
+                RowCount = 3,
                 BackColor = Color.Transparent,
-                Padding = new Padding(0, 9, 0, 0)
+                Padding = new Padding(0, 7, 0, 0)
             };
+            healthBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            healthBody.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            healthBody.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            healthBody.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             explorerState = MakeStatusLabel("Проводник: проверка");
             networkState = MakeStatusLabel("Сеть: проверка");
-            healthBody.Controls.Add(explorerState);
-            healthBody.Controls.Add(networkState);
+            explorerState.Dock = DockStyle.Fill;
+            networkState.Dock = DockStyle.Fill;
+            healthBody.Controls.Add(explorerState, 0, 0);
+            healthBody.Controls.Add(networkState, 0, 1);
             var safeNote = new Label
             {
                 Text = "Подозрительную программу можно завершить вручную после подтверждения.",
                 AutoSize = false,
-                Height = 44,
-                Width = 390,
+                Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 8.5F),
-                ForeColor = Color.FromArgb(133, 151, 177),
-                Margin = new Padding(0, 12, 0, 0)
+                ForeColor = UiPalette.Muted,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(0, 4, 0, 0)
             };
-            healthBody.Controls.Add(safeNote);
+            healthBody.Controls.Add(safeNote, 0, 2);
             health.Controls.Add(healthBody);
             health.Controls.Add(healthTitle);
 
-            var logCard = MakeCard(Color.FromArgb(67, 91, 122));
+            var logCard = MakeCard(UiPalette.Border);
             logCard.Dock = DockStyle.Fill;
             logCard.Padding = new Padding(18);
-            var logHeader = new Panel { Dock = DockStyle.Top, Height = 82, BackColor = Color.Transparent };
+            var logHeader = new Panel { Dock = DockStyle.Top, Height = 204, BackColor = Color.Transparent };
             var titleRow = new Panel { Dock = DockStyle.Top, Height = 28, BackColor = Color.Transparent };
             var logTitle = MakeSectionTitle("ЖУРНАЛ СОБЫТИЙ");
             logTitle.Location = new Point(4, 4);
@@ -466,19 +1020,18 @@ namespace MogLocker
             logFilterSelector = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Width = 132,
+                Width = 130,
                 Height = 22,
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 Font = new Font("Segoe UI", 8.5F),
-                Margin = new Padding(0, 0, 8, 0)
+                Margin = new Padding(0, 3, 8, 3)
             };
             logFilterSelector.Items.AddRange(new object[]
             {
-                "Все события",
-                "ПОДОЗРИТЕЛЬНО",
-                "ПРЕДУПРЕЖДЕНИЕ",
-                "ИНФО",
-                "ОШИБКА"
+                UiLocalization.Translate("Все события", String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase)),
+                UiLocalization.Translate("ПОДОЗРИТЕЛЬНО", String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase)),
+                UiLocalization.Translate("ПРЕДУПРЕЖДЕНИЕ", String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase)),
+                UiLocalization.Translate("ИНФО", String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase)),
+                UiLocalization.Translate("ОШИБКА", String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase))
             });
             logFilterSelector.SelectedIndex = 0;
             currentFilter = null;
@@ -487,18 +1040,132 @@ namespace MogLocker
             {
                 int labelX = Math.Max(8, titleRow.ClientSize.Width - logCountLabel.Width - 10);
                 logCountLabel.Location = new Point(labelX, 5);
-                int filterX = Math.Max(8, labelX - logFilterSelector.Width - 10);
-                logFilterSelector.Location = new Point(filterX, 2);
             };
             titleRow.Controls.Add(logTitle);
-            titleRow.Controls.Add(logFilterSelector);
             titleRow.Controls.Add(logCountLabel);
-            var actions = new FlowLayoutPanel
+            var queryRow = new FlowLayoutPanel
             {
-                Dock = DockStyle.Bottom,
+                Dock = DockStyle.Top,
                 Height = 38,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = false,
+                BackColor = Color.Transparent,
+                Padding = new Padding(0, 1, 0, 1),
+                Margin = new Padding(0)
+            };
+            logSearchBox = new TextBox
+            {
+                Width = 170,
+                Height = 26,
+                BackColor = UiPalette.SurfaceRaised,
+                ForeColor = UiPalette.Text,
+                BorderStyle = BorderStyle.FixedSingle,
+                Font = new Font("Segoe UI", 8.5F),
+                Margin = new Padding(0, 3, 8, 3)
+            };
+            logSearchBox.AccessibleName = "Поиск по журналу событий";
+            logSearchBox.AccessibleDescription = "Поиск по источнику, уровню, событию и пути";
+            logSearchBox.TextChanged += ApplyLogFilter;
+            logSearchBox.KeyDown += delegate(object sender, KeyEventArgs args)
+            {
+                if (args.KeyCode == Keys.Enter)
+                {
+                    ApplyLogFilter(sender, EventArgs.Empty);
+                    args.SuppressKeyPress = true;
+                }
+            };
+            var executeQueryButton = MakeButton("Найти", Color.FromArgb(53, 105, 99));
+            executeQueryButton.Width = 80;
+            executeQueryButton.Click += ApplyLogFilter;
+            var clearFiltersButton = MakeButton("Сбросить", Color.FromArgb(41, 53, 76));
+            clearFiltersButton.Width = 88;
+            clearFiltersButton.Click += delegate
+            {
+                logSearchBox.Clear();
+                logFilterSelector.SelectedIndex = 0;
+                timeframeFilterCheckBox.Checked = false;
+                ApplyLogFilter(null, EventArgs.Empty);
+            };
+            queryRow.Controls.Add(logSearchBox);
+            queryRow.Controls.Add(logFilterSelector);
+            queryRow.Controls.Add(executeQueryButton);
+            queryRow.Controls.Add(clearFiltersButton);
+            var timeframeRow = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                Height = 34,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                BackColor = Color.Transparent,
+                Padding = new Padding(0, 0, 0, 0),
+                Margin = new Padding(0)
+            };
+            timeframeFilterCheckBox = new CheckBox
+            {
+                Text = "Период",
+                AutoSize = true,
+                Checked = false,
+                ForeColor = UiPalette.Muted,
+                Font = new Font("Segoe UI", 8.5F),
+                FlatStyle = FlatStyle.Flat,
+                Margin = new Padding(0, 7, 8, 0)
+            };
+            timeframeStartPicker = new DateTimePicker
+            {
+                Format = DateTimePickerFormat.Custom,
+                CustomFormat = "yyyy-MM-dd HH:mm",
+                ShowUpDown = true,
+                Value = DateTime.Now.AddDays(-1),
+                Width = 132,
+                Enabled = false,
+                Font = new Font("Segoe UI", 8F),
+                Margin = new Padding(0, 3, 6, 2)
+            };
+            timeframeEndPicker = new DateTimePicker
+            {
+                Format = DateTimePickerFormat.Custom,
+                CustomFormat = "yyyy-MM-dd HH:mm",
+                ShowUpDown = true,
+                Value = DateTime.Now,
+                Width = 132,
+                Enabled = false,
+                Font = new Font("Segoe UI", 8F),
+                Margin = new Padding(0, 3, 0, 2)
+            };
+            timeframeFilterCheckBox.CheckedChanged += delegate
+            {
+                timeframeStartPicker.Enabled = timeframeFilterCheckBox.Checked;
+                timeframeEndPicker.Enabled = timeframeFilterCheckBox.Checked;
+                ApplyLogFilter(null, EventArgs.Empty);
+            };
+            timeframeStartPicker.ValueChanged += delegate
+            {
+                if (timeframeStartPicker.Value > timeframeEndPicker.Value)
+                    timeframeEndPicker.Value = timeframeStartPicker.Value;
+                ApplyLogFilter(null, EventArgs.Empty);
+            };
+            timeframeEndPicker.ValueChanged += delegate
+            {
+                if (timeframeEndPicker.Value < timeframeStartPicker.Value)
+                    timeframeStartPicker.Value = timeframeEndPicker.Value;
+                ApplyLogFilter(null, EventArgs.Empty);
+            };
+            timeframeRow.Controls.Add(timeframeFilterCheckBox);
+            timeframeRow.Controls.Add(timeframeStartPicker);
+            timeframeRow.Controls.Add(new Label
+            {
+                Text = "—",
+                AutoSize = true,
+                ForeColor = UiPalette.Muted,
+                Margin = new Padding(0, 8, 6, 0)
+            });
+            timeframeRow.Controls.Add(timeframeEndPicker);
+            var actions = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 102,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
                 BackColor = Color.Transparent
             };
             pauseButton = MakeButton("Пауза", Color.FromArgb(41, 53, 76));
@@ -534,16 +1201,18 @@ namespace MogLocker
             actions.Controls.Add(defenderButton);
             actions.Controls.Add(terminateButton);
             logHeader.Controls.Add(titleRow);
+            logHeader.Controls.Add(queryRow);
+            logHeader.Controls.Add(timeframeRow);
             logHeader.Controls.Add(actions);
 
             alertsGrid = new DataGridView
             {
                 Dock = DockStyle.Fill,
-                BackgroundColor = Color.FromArgb(14, 21, 36),
+                BackgroundColor = UiPalette.Background,
                 BorderStyle = BorderStyle.None,
                 CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
                 ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
-                GridColor = Color.FromArgb(37, 49, 71),
+                GridColor = UiPalette.Border,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
                 AllowUserToResizeRows = false,
@@ -554,77 +1223,176 @@ namespace MogLocker
                 MultiSelect = false,
                 EnableHeadersVisualStyles = false,
                 Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.FromArgb(222, 229, 242),
+                ForeColor = UiPalette.Text,
                 ColumnHeadersHeight = 40,
                 ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
-                RowTemplate = { Height = 40 },
-                AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells
+                RowTemplate = { Height = 38 },
+                AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None
             };
-            alertsGrid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(25, 35, 56);
-            alertsGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(157, 176, 204);
+            alertsGrid.ColumnHeadersDefaultCellStyle.BackColor = UiPalette.SurfaceRaised;
+            alertsGrid.ColumnHeadersDefaultCellStyle.ForeColor = UiPalette.Muted;
             alertsGrid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
             alertsGrid.ColumnHeadersDefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
-            alertsGrid.DefaultCellStyle.BackColor = Color.FromArgb(15, 22, 39);
-            alertsGrid.DefaultCellStyle.ForeColor = Color.FromArgb(222, 229, 242);
-            alertsGrid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(41, 61, 86);
+            alertsGrid.DefaultCellStyle.BackColor = UiPalette.Background;
+            alertsGrid.DefaultCellStyle.ForeColor = UiPalette.Text;
+            alertsGrid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(39, 57, 74);
             alertsGrid.DefaultCellStyle.SelectionForeColor = Color.White;
             alertsGrid.DefaultCellStyle.Padding = new Padding(10, 2, 10, 2);
-            alertsGrid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(18, 26, 45);
+            alertsGrid.AlternatingRowsDefaultCellStyle.BackColor = UiPalette.Surface;
             alertsGrid.Columns.Add("time", "Время");
             alertsGrid.Columns.Add("level", "Уровень");
             alertsGrid.Columns.Add("source", "Источник");
             alertsGrid.Columns.Add("details", "Событие");
             foreach (DataGridViewColumn column in alertsGrid.Columns)
                 column.SortMode = DataGridViewColumnSortMode.NotSortable;
-            alertsGrid.Columns[0].FillWeight = 13F;
-            alertsGrid.Columns[1].FillWeight = 18F;
-            alertsGrid.Columns[2].FillWeight = 20F;
-            alertsGrid.Columns[3].FillWeight = 59F;
+            alertsGrid.Columns[0].FillWeight = 18F;
+            alertsGrid.Columns[1].FillWeight = 16F;
+            alertsGrid.Columns[2].FillWeight = 24F;
+            alertsGrid.Columns[3].FillWeight = 42F;
             alertsGrid.Columns[0].MinimumWidth = 82;
-            alertsGrid.Columns[1].MinimumWidth = 125;
-            alertsGrid.Columns[2].MinimumWidth = 150;
-            alertsGrid.Columns[3].MinimumWidth = 300;
-            alertsGrid.Columns[3].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            alertsGrid.Columns[3].DefaultCellStyle.ForeColor = Color.FromArgb(197, 209, 228);
+            alertsGrid.Columns[1].MinimumWidth = 90;
+            alertsGrid.Columns[2].MinimumWidth = 104;
+            alertsGrid.Columns[3].MinimumWidth = 150;
+            alertsGrid.Columns[3].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+            alertsGrid.Columns[3].DefaultCellStyle.ForeColor = UiPalette.Text;
+            alertsGrid.DefaultCellStyle.Padding = new Padding(8, 5, 8, 5);
+            alertsGrid.AlternatingRowsDefaultCellStyle.BackColor = UiPalette.Surface;
+            alertsGrid.DefaultCellStyle.SelectionBackColor = UiPalette.AccentSurface;
+            alertsGrid.DefaultCellStyle.SelectionForeColor = UiPalette.Text;
             alertsGrid.CellToolTipTextNeeded += delegate(object sender, DataGridViewCellToolTipTextNeededEventArgs args)
             {
                 if (args.RowIndex >= 0 && args.ColumnIndex == 3)
                     args.ToolTipText = Convert.ToString(alertsGrid.Rows[args.RowIndex].Cells[args.ColumnIndex].Value);
             };
             alertsGrid.CellDoubleClick += delegate { ShowSelectedDetails(this, EventArgs.Empty); };
+            alertsGrid.SelectionChanged += delegate { UpdateSelectedAlertDetails(); };
             logCard.Controls.Add(alertsGrid);
             logCard.Controls.Add(logHeader);
 
-            content.Controls.Add(overview, 0, 0);
-            content.Controls.Add(health, 1, 0);
-            content.Controls.Add(logCard, 0, 1);
-            content.SetColumnSpan(logCard, 2);
+            var logSplit = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            logSplit.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 68F));
+            logSplit.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32F));
+            logSplit.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            logCard.Margin = new Padding(4, 4, 6, 4);
+            logSplit.Controls.Add(logCard, 0, 0);
+
+            var eventDetailsCard = MakeCard(UiPalette.Accent);
+            eventDetailsCard.Dock = DockStyle.Fill;
+            eventDetailsCard.Margin = new Padding(6, 4, 4, 4);
+            eventDetailsCard.Padding = new Padding(16, 14, 16, 12);
+            var detailsTitle = MakeSectionTitle("СВЕДЕНИЯ О СОБЫТИИ");
+            detailsTitle.Dock = DockStyle.Top;
+            detailsTitle.Height = 24;
+            selectedEventHeading = new Label
+            {
+                Text = "Выберите событие",
+                Dock = DockStyle.Top,
+                Height = 34,
+                Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold),
+                ForeColor = UiPalette.Text,
+                TextAlign = ContentAlignment.MiddleLeft,
+                AutoEllipsis = true,
+                Margin = new Padding(0)
+            };
+            selectedEventMetadata = new Label
+            {
+                Text = "Данные выбранной записи появятся здесь.",
+                Dock = DockStyle.Top,
+                Height = 62,
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = UiPalette.Muted,
+                TextAlign = ContentAlignment.TopLeft,
+                AutoEllipsis = true,
+                Margin = new Padding(0, 2, 0, 8)
+            };
+            selectedEventDetails = new TextBox
+            {
+                Multiline = true,
+                ReadOnly = true,
+                ScrollBars = ScrollBars.Vertical,
+                Dock = DockStyle.Fill,
+                BackColor = UiPalette.Surface,
+                ForeColor = UiPalette.Text,
+                BorderStyle = BorderStyle.None,
+                Font = new Font("Segoe UI", 9F),
+                Text = "Выберите запись в журнале, чтобы просмотреть её описание, путь и связанные сведения.",
+                Margin = new Padding(0, 5, 0, 0)
+            };
+            eventDetailsCard.Controls.Add(selectedEventDetails);
+            eventDetailsCard.Controls.Add(selectedEventMetadata);
+            eventDetailsCard.Controls.Add(selectedEventHeading);
+            eventDetailsCard.Controls.Add(detailsTitle);
+            logSplit.Controls.Add(eventDetailsCard, 1, 0);
+
+            content.Controls.Add(overview, 0, 1);
+            content.Controls.Add(health, 1, 1);
+            content.Controls.Add(logSplit, 0, 2);
+            content.SetColumnSpan(logSplit, 2);
 
             sidebar = new BufferedPanel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(15, 22, 38),
+                BackColor = UiPalette.Sidebar,
                 Padding = new Padding(0)
             };
-            menuToggleButton = MakeButton("☰   МЕНЮ", Color.FromArgb(24, 35, 56));
-            menuToggleButton.SetBounds(12, 16, 194, 40);
+            brandMark = new Panel
+            {
+                Bounds = new Rectangle(18, 20, 38, 38),
+                BackColor = Color.FromArgb(24, 43, 55),
+                BorderStyle = BorderStyle.FixedSingle
+            };
+            var brandLetter = new Label
+            {
+                Text = "M",
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 17F, FontStyle.Bold),
+                ForeColor = UiPalette.Accent,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            brandMark.Controls.Add(brandLetter);
+            brandTitleLabel = new Label
+            {
+                Text = "MOGLOCKER",
+                Bounds = new Rectangle(66, 22, 138, 20),
+                Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold),
+                ForeColor = UiPalette.Text
+            };
+            brandSubtitleLabel = new Label
+            {
+                Text = "SYSTEM MONITOR",
+                Bounds = new Rectangle(67, 43, 138, 16),
+                Font = new Font("Segoe UI", 7F, FontStyle.Bold),
+                ForeColor = UiPalette.Muted
+            };
+            menuToggleButton = MakeButton("☰   МЕНЮ", UiPalette.Surface);
+            menuToggleButton.SetBounds(12, 82, 194, 36);
             menuToggleButton.TextAlign = ContentAlignment.MiddleLeft;
             menuToggleButton.Padding = new Padding(12, 0, 0, 0);
             menuToggleButton.Click += ToggleNavigation;
             homeNavButton = CreateNavigationButton("⌂   Главная");
             adBlockNavButton = CreateNavigationButton("◉   AdBlock");
             monitorNavButton = CreateNavigationButton("◈   Мониторинг");
-            securityNavButton = CreateNavigationButton("♢   Антивирус");
+            securityNavButton = CreateNavigationButton("♢   Defender");
+            unlockNavButton = CreateNavigationButton("▣   Анлок");
             settingsNavButton = CreateNavigationButton("⚙   Настройки");
-            homeNavButton.SetBounds(8, 74, 202, 44);
-            adBlockNavButton.SetBounds(8, 126, 202, 44);
-            monitorNavButton.SetBounds(8, 178, 202, 44);
-            securityNavButton.SetBounds(8, 230, 202, 44);
-            settingsNavButton.SetBounds(8, 282, 202, 44);
+            homeNavButton.SetBounds(8, 132, 202, 42);
+            adBlockNavButton.SetBounds(8, 180, 202, 42);
+            monitorNavButton.SetBounds(8, 228, 202, 42);
+            securityNavButton.SetBounds(8, 276, 202, 42);
+            unlockNavButton.SetBounds(8, 324, 202, 42);
+            settingsNavButton.SetBounds(8, 372, 202, 42);
             navigationIndicator = new Panel
             {
-                BackColor = Color.FromArgb(104, 211, 184),
-                Bounds = new Rectangle(0, 74, 3, 44)
+                BackColor = UiPalette.Accent,
+                Bounds = new Rectangle(0, 132, 3, 42)
             };
             SetActiveNavigation(0);
 
@@ -637,6 +1405,7 @@ namespace MogLocker
             monitorPanel = content;
             homePanel = CreateHomePage();
             securityPanel = CreateSecurityPage();
+            unlockPanel = CreateUnlockPage();
             settingsPanel = CreateSettingsPage();
             adBlockPanel = new AdBlockPanel
             {
@@ -646,19 +1415,56 @@ namespace MogLocker
             pageHost.Controls.Add(content);
             pageHost.Controls.Add(adBlockPanel);
             pageHost.Controls.Add(securityPanel);
+            pageHost.Controls.Add(unlockPanel);
             pageHost.Controls.Add(settingsPanel);
             homeNavButton.Click += delegate { ShowPage(0); };
             adBlockNavButton.Click += delegate { ShowPage(1); };
             monitorNavButton.Click += delegate { ShowPage(2); };
             securityNavButton.Click += delegate { ShowPage(3); };
-            settingsNavButton.Click += delegate { ShowPage(4); };
+            unlockNavButton.Click += delegate { ShowPage(4); };
+            settingsNavButton.Click += delegate { ShowPage(5); };
             sidebar.Controls.Add(menuToggleButton);
+            sidebar.Controls.Add(brandMark);
+            sidebar.Controls.Add(brandTitleLabel);
+            sidebar.Controls.Add(brandSubtitleLabel);
             sidebar.Controls.Add(homeNavButton);
             sidebar.Controls.Add(adBlockNavButton);
             sidebar.Controls.Add(monitorNavButton);
             sidebar.Controls.Add(securityNavButton);
+            sidebar.Controls.Add(unlockNavButton);
             sidebar.Controls.Add(settingsNavButton);
             sidebar.Controls.Add(navigationIndicator);
+            var sidebarFooter = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 92,
+                BackColor = Color.Transparent,
+                Padding = new Padding(10, 5, 8, 8)
+            };
+            headerStatus.Dock = DockStyle.Top;
+            headerStatus.Width = 194;
+            versionLabel = new Label
+            {
+                Text = "VERSION " + typeof(MainForm).Assembly.GetName().Version.ToString(3),
+                Dock = DockStyle.Top,
+                Height = 20,
+                Font = new Font("Segoe UI", 7.5F, FontStyle.Bold),
+                ForeColor = UiPalette.Muted,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            developerLabel = new Label
+            {
+                Text = "ICONAMASK",
+                Dock = DockStyle.Top,
+                Height = 19,
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                ForeColor = UiPalette.Text,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            sidebarFooter.Controls.Add(developerLabel);
+            sidebarFooter.Controls.Add(versionLabel);
+            sidebarFooter.Controls.Add(headerStatus);
+            sidebar.Controls.Add(sidebarFooter);
             bodyLayout = new BufferedTableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -679,19 +1485,16 @@ namespace MogLocker
                 Dock = DockStyle.Fill,
                 BackColor = BackColor,
                 ColumnCount = 1,
-                RowCount = 3,
+                RowCount = 2,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
             };
             rootLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             rootLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 0F));
-            rootLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, header.Height));
             rootLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            header.Dock = DockStyle.Fill;
             bodyLayout.Dock = DockStyle.Fill;
             rootLayout.Controls.Add(macTitleBar, 0, 0);
-            rootLayout.Controls.Add(header, 0, 1);
-            rootLayout.Controls.Add(bodyLayout, 0, 2);
+            rootLayout.Controls.Add(bodyLayout, 0, 1);
             Controls.Add(rootLayout);
             ShowPage(0);
 
@@ -699,7 +1502,7 @@ namespace MogLocker
             ConfigureStartupWatchers();
             AddAlert("ИНФО", "Монитор", "Наблюдение запущено. Автоматического закрытия, удаления или восстановления нет.");
             securityMonitorState.Text = "Мониторинг Windows: включён";
-            securityMonitorState.ForeColor = Color.FromArgb(104, 211, 184);
+            securityMonitorState.ForeColor = UiPalette.Safe;
             screenState.Text = "Экранные окна: проверка каждые 1,5 сек.";
             startupState.Text = watchers.Count == 0
                 ? "Автозагрузка: папки запуска не удалось открыть."
@@ -731,13 +1534,14 @@ namespace MogLocker
             InitializeSoundPad();
             ApplyTheme();
             ApplyWindowHeaderStyle();
+            ApplyLanguage();
         }
 
         private Panel MakeCard(Color accentColor)
         {
             var card = new Panel
             {
-                BackColor = Color.FromArgb(18, 26, 45),
+                BackColor = UiPalette.Surface,
                 Margin = new Padding(8),
                 BorderStyle = BorderStyle.None
             };
@@ -749,14 +1553,14 @@ namespace MogLocker
                 float reveal;
                 if (!cardRevealProgress.TryGetValue(card, out reveal))
                     reveal = 1F;
-                using (var border = new Pen(TranslateThemeColor(Color.FromArgb(37, 49, 71),
+                using (var border = new Pen(TranslateThemeColor(UiPalette.Border,
                     SettingsStore.ResolveLightTheme(appSettings.Theme), false)))
                 {
                     args.Graphics.DrawRectangle(border, bounds);
                     if (reveal > 0F)
                     {
                         using (var accent = new Pen(Color.FromArgb(
-                            (int)(104 + 151 * reveal), accentColor), 2F))
+                            (int)(104 + 151 * reveal), accentColor), 1F))
                         {
                             int accentEnd = 1 + (int)((bounds.Width - 2) * reveal);
                             args.Graphics.DrawLine(accent, 1, 1, Math.Max(1, accentEnd), 1);
@@ -770,14 +1574,66 @@ namespace MogLocker
 
         private static AnimatedButton CreateNavigationButton(string text)
         {
-            var button = MakeButton(text, Color.FromArgb(15, 22, 38));
-            button.Height = 44;
+            var button = MakeButton(text, UiPalette.Sidebar);
+            button.Height = 42;
             button.Width = 202;
             button.TextAlign = ContentAlignment.MiddleLeft;
-            button.Padding = new Padding(14, 0, 0, 0);
-            button.Margin = new Padding(0);
+            button.Padding = new Padding(12, 0, 0, 0);
+            button.Margin = new Padding(0, 2, 0, 2);
             button.FlatAppearance.BorderSize = 0;
             return button;
+        }
+
+        private static Control CreatePageHeading(string title, string description)
+        {
+            var heading = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0, 0, 0, 8),
+                Padding = new Padding(2, 0, 0, 0)
+            };
+            heading.RowStyles.Add(new RowStyle(SizeType.Percent, 62F));
+            heading.RowStyles.Add(new RowStyle(SizeType.Percent, 38F));
+            heading.Controls.Add(new Label
+            {
+                Text = title,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 21F, FontStyle.Bold),
+                ForeColor = UiPalette.Text,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(0)
+            }, 0, 0);
+            heading.Controls.Add(new Label
+            {
+                Text = description,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 9.5F),
+                ForeColor = UiPalette.Muted,
+                TextAlign = ContentAlignment.MiddleLeft,
+                AutoEllipsis = true,
+                Margin = new Padding(1, 0, 0, 0)
+            }, 0, 1);
+            return heading;
+        }
+
+        private void BindHomeCardNavigation(Control card, int page)
+        {
+            EventHandler navigate = delegate { ShowPage(page); };
+            card.Click += navigate;
+            card.Cursor = Cursors.Hand;
+            foreach (Control child in card.Controls)
+                BindHomeCardNavigationChild(child, navigate);
+        }
+
+        private static void BindHomeCardNavigationChild(Control control, EventHandler navigate)
+        {
+            control.Click += navigate;
+            control.Cursor = Cursors.Hand;
+            foreach (Control child in control.Controls)
+                BindHomeCardNavigationChild(child, navigate);
         }
 
         private Panel CreateHomePage()
@@ -786,7 +1642,7 @@ namespace MogLocker
             {
                 Dock = DockStyle.Fill,
                 BackColor = BackColor,
-                Padding = new Padding(26, 22, 26, 22)
+                Padding = new Padding(28, 24, 28, 24)
             };
             var layout = new BufferedTableLayoutPanel
             {
@@ -799,48 +1655,102 @@ namespace MogLocker
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 112F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 224F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 104F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 172F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 76F));
 
-            var heading = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
-            var headingTitle = new Label
-            {
-                Text = "Добро пожаловать в Моглокер",
-                AutoSize = true,
-                Font = new Font("Segoe UI Semibold", 21F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(237, 244, 255),
-                Location = new Point(4, 2)
-            };
-            var headingSubtitle = new Label
-            {
-                Text = "Локальные инструменты для мониторинга Windows и браузерной фильтрации.",
-                AutoSize = true,
-                Font = new Font("Segoe UI", 10F),
-                ForeColor = Color.FromArgb(142, 160, 185),
-                Location = new Point(7, 48)
-            };
-            heading.Controls.Add(headingTitle);
-            heading.Controls.Add(headingSubtitle);
+            var heading = CreatePageHeading("Добро пожаловать в MOGLOCKER",
+                "Контроль системы. Защита приватности.");
             layout.Controls.Add(heading, 0, 0);
             layout.SetColumnSpan(heading, 2);
 
-            layout.Controls.Add(CreateHomeCard(
-                "МОНИТОРИНГ WINDOWS",
-                "Отслеживает некоторые подозрительные полноэкранные окна, изменения выбранных системных параметров и папок автозагрузки. События доступны в журнале; приложение не выполняет автоматическое удаление или завершение процессов.",
-                Color.FromArgb(104, 211, 184)), 0, 1);
-            layout.Controls.Add(CreateHomeCard(
-                "БРАУЗЕРНЫЙ ADBLOCK",
-                "Расширение для Edge и Chrome применяет сетевые и косметические фильтры. В приложении можно управлять списками правил, пользовательскими исключениями и статистикой блокировок.",
-                Color.FromArgb(111, 164, 211)), 1, 1);
-            var developersCard = CreateHomeCard(
-                "РАЗРАБОТЧИКИ",
-                "Iconamask",
-                Color.FromArgb(163, 139, 211));
-            layout.Controls.Add(developersCard, 0, 2);
-            layout.SetColumnSpan(developersCard, 2);
+            var monitorCard = CreateHomeCard(
+                "Windows Monitor",
+                "Мониторинг системных событий, автозагрузки, реестра и подозрительной активности.",
+                UiPalette.Accent);
+            var adBlockCard = CreateHomeCard(
+                "Browser AdBlock",
+                "Контроль сетевых запросов, фильтры, пользовательские правила и журнал блокировок.",
+                UiPalette.Safe);
+            BindHomeCardNavigation(monitorCard, 2);
+            BindHomeCardNavigation(adBlockCard, 1);
+            layout.Controls.Add(monitorCard, 0, 1);
+            layout.Controls.Add(adBlockCard, 1, 1);
+
+            var summary = MakeCard(UiPalette.Border);
+            summary.Dock = DockStyle.Fill;
+            summary.Padding = new Padding(14, 8, 14, 8);
+            var summaryLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 3,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            for (int i = 0; i < 3; i++)
+                summaryLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F));
+            summaryLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            summaryLayout.Controls.Add(CreateHomeSummaryItem("МОНИТОРИНГ", out homeMonitorValue), 0, 0);
+            summaryLayout.Controls.Add(CreateHomeSummaryItem("СОБЫТИЯ", out homeEventsValue), 1, 0);
+            summaryLayout.Controls.Add(CreateHomeSummaryItem("СЕТЬ", out homeNetworkValue), 2, 0);
+            summary.Controls.Add(summaryLayout);
+            layout.Controls.Add(summary, 0, 2);
+            layout.SetColumnSpan(summary, 2);
+            RefreshHomeSummary();
             home.Controls.Add(layout);
             return home;
+        }
+
+        private Control CreateHomeSummaryItem(string title, out Label value)
+        {
+            var item = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0, 0, 12, 0),
+                Padding = new Padding(0)
+            };
+            item.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            item.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F));
+            item.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            item.Controls.Add(new Label
+            {
+                Text = title,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 7.5F, FontStyle.Bold),
+                ForeColor = UiPalette.Muted,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(0)
+            }, 0, 0);
+            value = new Label
+            {
+                Text = "Проверка…",
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = UiPalette.Text,
+                TextAlign = ContentAlignment.MiddleLeft,
+                AutoEllipsis = true,
+                Margin = new Padding(0)
+            };
+            item.Controls.Add(value, 0, 1);
+            return item;
+        }
+
+        private void RefreshHomeSummary()
+        {
+            if (homeMonitorValue == null)
+                return;
+
+            homeMonitorValue.Text = monitorState.Text;
+            homeMonitorValue.ForeColor = monitorState.ForeColor;
+            homeEventsValue.Text = records.Count.ToString(CultureInfo.CurrentCulture);
+            homeEventsValue.ForeColor = UiPalette.Text;
+            homeNetworkValue.Text = networkState.Text;
+            homeNetworkValue.ForeColor = networkState.ForeColor;
         }
 
         private Panel CreateSecurityPage()
@@ -869,15 +1779,34 @@ namespace MogLocker
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 54F));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 66F));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 76F));
-
-            var title = new Label
+            layout.Paint += delegate(object sender, PaintEventArgs args)
             {
-                Text = "Антивирус — монитор защиты Windows",
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI Semibold", 21F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(237, 244, 255),
-                TextAlign = ContentAlignment.MiddleLeft
+                bool light = SettingsStore.ResolveLightTheme(appSettings.Theme);
+                Color surface = TranslateThemeColor(UiPalette.Surface, light, false);
+                Color border = TranslateThemeColor(UiPalette.Border, light, false);
+                Color accent = TranslateThemeColor(UiPalette.Accent, light, false);
+                int[] rowHeights = layout.GetRowHeights();
+                int top = 0;
+                for (int row = 0; row < rowHeights.Length; row++)
+                {
+                    if (row >= 2 && row <= 4 && rowHeights[row] > 8)
+                    {
+                        var bounds = new Rectangle(0, top + 3,
+                            Math.Max(0, layout.ClientSize.Width - 1), rowHeights[row] - 6);
+                        using (var fill = new SolidBrush(surface))
+                            args.Graphics.FillRectangle(fill, bounds);
+                        using (var outline = new Pen(border))
+                            args.Graphics.DrawRectangle(outline, bounds);
+                        using (var marker = new Pen(accent, 2F))
+                            args.Graphics.DrawLine(marker, bounds.Left + 1, bounds.Top + 5,
+                                bounds.Left + 1, bounds.Bottom - 5);
+                    }
+                    top += rowHeights[row];
+                }
             };
+
+            var title = CreatePageHeading("Microsoft Defender",
+                "Диагностика состояния защиты и ручное управление исключениями.");
             var disclaimer = new Label
             {
                 Text = "Диагностический монитор, не полноценный антивирус. Microsoft Defender остаётся основной защитой; MogLocker не выполняет автоматическое удаление или блокировку.",
@@ -937,207 +1866,502 @@ namespace MogLocker
             return page;
         }
 
+        private Panel CreateUnlockPage()
+        {
+            var page = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = BackColor,
+                Padding = new Padding(30, 26, 30, 24)
+            };
+            var layout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                ColumnCount = 1,
+                RowCount = 6,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            for (int i = 0; i < 4; i++)
+                layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 78F));
+
+            var heading = CreatePageHeading("Анлок",
+                "Снятие отдельных пользовательских ограничений Windows.");
+            layout.Controls.Add(heading, 0, 0);
+            var notice = new Label
+            {
+                Text = "Проверяются только известные политики; удаляются только значения HKCU после подтверждения. Системные значения HKLM не меняются; организационные политики могут восстановить ограничения.",
+                Dock = DockStyle.Fill,
+                ForeColor = UiPalette.Muted,
+                Font = new Font("Segoe UI", 9.5F),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(2, 0, 2, 4)
+            };
+            layout.Controls.Add(notice, 0, 1);
+
+            WindowsUnlockFeature[] features =
+            {
+                WindowsUnlockFeature.TaskManager,
+                WindowsUnlockFeature.RegistryEditor,
+                WindowsUnlockFeature.CommandPrompt,
+                WindowsUnlockFeature.ControlPanel
+            };
+            string[] names = { "Диспетчер задач", "Редактор реестра", "Командная строка", "Панель управления" };
+            string[] descriptions =
+            {
+                "Политика DisableTaskMgr текущего пользователя.",
+                "Политика DisableRegistryTools текущего пользователя.",
+                "Политика DisableCMD текущего пользователя.",
+                "Политика NoControlPanel текущего пользователя."
+            };
+
+            for (int i = 0; i < features.Length; i++)
+            {
+                WindowsUnlockFeature feature = features[i];
+                var row = new TableLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    ColumnCount = 3,
+                    RowCount = 1,
+                    BackColor = UiPalette.Surface,
+                    Margin = new Padding(0, 4, 0, 4),
+                    Padding = new Padding(12, 6, 8, 6)
+                };
+                row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44F));
+                row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36F));
+                row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+                row.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+                var info = new TableLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    ColumnCount = 1,
+                    RowCount = 2,
+                    BackColor = Color.Transparent,
+                    Margin = new Padding(0)
+                };
+                info.RowStyles.Add(new RowStyle(SizeType.Percent, 55F));
+                info.RowStyles.Add(new RowStyle(SizeType.Percent, 45F));
+                info.Controls.Add(new Label
+                {
+                    Text = names[i],
+                    Dock = DockStyle.Fill,
+                    ForeColor = UiPalette.Text,
+                    Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    Margin = new Padding(0)
+                }, 0, 0);
+                info.Controls.Add(new Label
+                {
+                    Text = descriptions[i],
+                    Dock = DockStyle.Fill,
+                    ForeColor = UiPalette.Muted,
+                    Font = new Font("Segoe UI", 8F),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    AutoEllipsis = true,
+                    Margin = new Padding(0)
+                }, 0, 1);
+
+                var status = new Label
+                {
+                    Text = "Состояние не проверено",
+                    Dock = DockStyle.Fill,
+                    ForeColor = UiPalette.Muted,
+                    Font = new Font("Segoe UI", 8.5F),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    AutoEllipsis = true,
+                    Margin = new Padding(8, 0, 4, 0)
+                };
+                unlockStatusLabels.Add(feature, status);
+                var unlockButton = MakeButton("Разблокировать", Color.FromArgb(53, 105, 99));
+                unlockButton.Dock = DockStyle.Fill;
+                unlockButton.Margin = new Padding(4);
+                unlockButton.Click += delegate { RemoveUnlockRestriction(feature); };
+                row.Controls.Add(info, 0, 0);
+                row.Controls.Add(status, 1, 0);
+                row.Controls.Add(unlockButton, 2, 0);
+                layout.Controls.Add(row, 0, i + 2);
+            }
+            page.Controls.Add(layout);
+            return page;
+        }
+
+        private void RefreshUnlockStatuses()
+        {
+            var errors = new List<string>();
+            foreach (KeyValuePair<WindowsUnlockFeature, Label> entry in unlockStatusLabels)
+            {
+                try
+                {
+                    WindowsUnlockStatus status = WindowsUnlockTools.GetStatus(entry.Key);
+                    if (status.MachineRestricted)
+                    {
+                        entry.Value.Text = status.CurrentUserRestricted
+                            ? "Ограничено системной политикой; изменения не выполняются."
+                            : "Ограничено системной политикой; не изменено.";
+                        entry.Value.ForeColor = UiPalette.Warning;
+                    }
+                    else if (status.CurrentUserRestricted)
+                    {
+                        entry.Value.Text = "Ограничено для текущего пользователя.";
+                        entry.Value.ForeColor = UiPalette.Warning;
+                    }
+                    else
+                    {
+                        entry.Value.Text = "Ограничение не обнаружено.";
+                        entry.Value.ForeColor = UiPalette.Safe;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    entry.Value.Text = "Не удалось проверить политики.";
+                    entry.Value.ForeColor = UiPalette.Danger;
+                    errors.Add(ex.Message);
+                }
+            }
+            if (errors.Count > 0)
+                MessageBox.Show(this, String.Join("\r\n\r\n", errors.ToArray()),
+                    "Ошибка чтения политик Windows", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void RemoveUnlockRestriction(WindowsUnlockFeature feature)
+        {
+            bool english = String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase);
+            string name = UiLocalization.Translate(GetUnlockFeatureName(feature), english);
+            try
+            {
+                WindowsUnlockStatus status = WindowsUnlockTools.GetStatus(feature);
+                if (status.MachineRestricted)
+                {
+                    MessageBox.Show(this,
+                        UiLocalization.Translate("Обнаружена системная политика Windows. MogLocker не изменяет системные или организационные политики.", english),
+                        UiLocalization.Translate("Политика не изменена", english), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    RefreshUnlockStatuses();
+                    return;
+                }
+                if (!status.CurrentUserRestricted)
+                {
+                    MessageBox.Show(this,
+                        UiLocalization.Translate("Ограничение текущего пользователя не обнаружено; никаких изменений не внесено.", english),
+                        UiLocalization.Translate("Нечего разблокировать", english), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    RefreshUnlockStatuses();
+                    return;
+                }
+
+                if (MessageBox.Show(this,
+                    UiLocalization.Translate("Удалить известное значение политики текущего пользователя для «", english) + name +
+                    UiLocalization.Translate("»? MogLocker не меняет HKLM; организационная политика может восстановить ограничение.", english),
+                    UiLocalization.Translate("Подтвердите изменение реестра", english), MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                    return;
+
+                WindowsUnlockTools.RemoveCurrentUserRestrictions(feature);
+                MessageBox.Show(this, UiLocalization.Translate("Пользовательское ограничение удалено.", english),
+                    UiLocalization.Translate("Готово", english), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, UiLocalization.Translate("Не удалось изменить пользовательскую политику:\r\n\r\n", english) + ex.Message,
+                    UiLocalization.Translate("Ошибка разблокировки", english), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                RefreshUnlockStatuses();
+            }
+        }
+
+        private static string GetUnlockFeatureName(WindowsUnlockFeature feature)
+        {
+            switch (feature)
+            {
+                case WindowsUnlockFeature.TaskManager: return "Диспетчер задач";
+                case WindowsUnlockFeature.RegistryEditor: return "Редактор реестра";
+                case WindowsUnlockFeature.CommandPrompt: return "Командная строка";
+                case WindowsUnlockFeature.ControlPanel: return "Панель управления";
+                default: return feature.ToString();
+            }
+        }
+
         private Panel CreateSettingsPage()
         {
             var settings = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = BackColor,
-                Padding = new Padding(30, 26, 30, 24),
+                Padding = new Padding(26, 22, 26, 22),
                 AutoScroll = true
             };
             var layout = new TableLayoutPanel
             {
                 Dock = DockStyle.Top,
                 AutoSize = true,
-                ColumnCount = 2,
-                RowCount = 9,
+                ColumnCount = 1,
+                RowCount = 16,
                 BackColor = Color.Transparent,
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 210F));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 62F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 68F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 68F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 92F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 64F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 84F));
-
-            var title = new Label
+            float[] heights =
             {
-                Text = "Настройки",
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI Semibold", 21F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(237, 244, 255),
-                TextAlign = ContentAlignment.MiddleLeft
+                66F, 28F, 62F, 62F, 76F, 28F, 200F, 28F,
+                142F, 62F, 62F, 28F, 68F, 62F, 62F, 28F, 84F
             };
-            layout.Controls.Add(title, 0, 0);
-            layout.SetColumnSpan(title, 2);
+            layout.RowCount = heights.Length;
+            foreach (float height in heights)
+                layout.RowStyles.Add(new RowStyle(SizeType.Absolute, height));
 
-            layout.Controls.Add(CreateSettingsLabel("Оформление"), 0, 1);
-            themeSelector = new ComboBox
+            var title = CreatePageHeading("Настройки",
+                "Внешний вид, журнал событий и обновления приложения.");
+            layout.Controls.Add(title, 0, 0);
+
+            var appearanceSection = CreateSettingsSectionTitle("ВНЕШНИЙ ВИД");
+            layout.Controls.Add(appearanceSection, 0, 1);
+
+            languageSelector = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Width = 240,
-                Anchor = AnchorStyles.Left,
-                BackColor = Color.FromArgb(18, 26, 45),
-                ForeColor = Color.FromArgb(226, 232, 244),
+                Width = 132,
+                ForeColor = UiPalette.Text,
+                BackColor = UiPalette.SurfaceRaised,
                 Font = new Font("Segoe UI", 9.5F),
-                Margin = new Padding(6, 0, 0, 0)
+                Margin = new Padding(0, 6, 6, 0)
             };
-            RefreshThemeOptions();
-            themeSelector.SelectedIndexChanged += ThemeChanged;
-            layout.Controls.Add(themeSelector, 1, 1);
+            languageSelector.Items.AddRange(new object[] { "Русский", "English" });
+            languageSelector.SelectedIndex = String.Equals(appSettings.Language, "en",
+                StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            languageSelector.SelectedIndexChanged += LanguageChanged;
+            layout.Controls.Add(CreateSettingsRow("Язык интерфейса",
+                "Язык, используемый приложением.", languageSelector, 160), 0, 2);
 
-            layout.Controls.Add(CreateSettingsLabel("Цветовые темы"), 0, 2);
-            var themeActions = new FlowLayoutPanel
+            darkModeToggle = new ThemeToggle
             {
-                Dock = DockStyle.Fill,
+                Checked = !SettingsStore.ResolveLightTheme(appSettings.Theme),
+                Anchor = AnchorStyles.Right,
+                Margin = new Padding(0, 0, 12, 0)
+            };
+            darkModeToggle.CheckedChanged += DarkModeChanged;
+            var modeControls = new FlowLayoutPanel
+            {
+                Dock = DockStyle.None,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = false,
                 BackColor = Color.Transparent,
-                Padding = new Padding(0, 14, 0, 0),
-                Margin = new Padding(0)
+                Anchor = AnchorStyles.Right,
+                AutoSize = true,
+                Margin = new Padding(0, 8, 10, 0)
+            };
+            modeControls.Controls.Add(new Label
+            {
+                Text = "☼",
+                AutoSize = true,
+                Font = new Font("Segoe UI", 12F),
+                ForeColor = UiPalette.Muted,
+                Margin = new Padding(0, 1, 8, 0)
+            });
+            modeControls.Controls.Add(darkModeToggle);
+            modeControls.Controls.Add(new Label
+            {
+                Text = "☾",
+                AutoSize = true,
+                Font = new Font("Segoe UI", 12F),
+                ForeColor = UiPalette.Muted,
+                Margin = new Padding(8, 1, 0, 0)
+            });
+            layout.Controls.Add(CreateSettingsRow("Тёмный режим",
+                "Переключение между светлой и тёмной темой.", modeControls, 160), 0, 3);
+
+            themeSelector = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Width = 220,
+                Anchor = AnchorStyles.Left,
+                BackColor = UiPalette.SurfaceRaised,
+                ForeColor = UiPalette.Text,
+                Font = new Font("Segoe UI", 9.5F),
+                Margin = new Padding(0, 7, 0, 0)
+            };
+            RefreshThemeOptions();
+            themeSelector.SelectedIndexChanged += ThemeChanged;
+            var themeActions = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Right,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                BackColor = Color.Transparent,
+                AutoSize = true,
+                Margin = new Padding(0, 4, 4, 0)
             };
             var createThemeButton = MakeButton("Создать свою тему", Color.FromArgb(41, 53, 76));
-            createThemeButton.Width = 160;
+            createThemeButton.Width = 148;
             createThemeButton.Click += CreateCustomTheme;
             var deleteThemeButton = MakeButton("Удалить тему", Color.FromArgb(133, 67, 62));
-            deleteThemeButton.Width = 130;
+            deleteThemeButton.Width = 118;
             deleteThemeButton.Click += DeleteCustomTheme;
             themeActions.Controls.Add(createThemeButton);
             themeActions.Controls.Add(deleteThemeButton);
-            layout.Controls.Add(themeActions, 1, 2);
+            var advancedThemes = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            advancedThemes.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            advancedThemes.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            advancedThemes.Controls.Add(themeSelector, 0, 0);
+            advancedThemes.Controls.Add(themeActions, 1, 0);
+            layout.Controls.Add(CreateSettingsRow("Дополнительные темы",
+                "Системная тема и сохранённые пользовательские темы.", advancedThemes, 560), 0, 4);
 
-            layout.Controls.Add(CreateSettingsLabel("Стиль шапки приложения"), 0, 3);
+            var accentSection = CreateSettingsSectionTitle("ЦВЕТ АКЦЕНТА");
+            layout.Controls.Add(accentSection, 0, 5);
+            layout.Controls.Add(CreateAccentSettingsCard(), 0, 6);
+
+            var paletteSection = CreateSettingsSectionTitle("ЦВЕТОВАЯ ПАЛИТРА");
+            layout.Controls.Add(paletteSection, 0, 7);
+            layout.Controls.Add(CreateThemePaletteCard(), 0, 8);
+
             headerStyleSelector = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Width = 240,
+                Width = 220,
                 Anchor = AnchorStyles.Left,
-                BackColor = Color.FromArgb(18, 26, 45),
-                ForeColor = Color.FromArgb(226, 232, 244),
+                BackColor = UiPalette.SurfaceRaised,
+                ForeColor = UiPalette.Text,
                 Font = new Font("Segoe UI", 9.5F),
-                Margin = new Padding(6, 0, 0, 0)
+                Margin = new Padding(0, 7, 0, 0)
             };
             headerStyleSelector.Items.AddRange(new object[] { "Windows", "macOS" });
             headerStyleSelector.SelectedIndex = appSettings.HeaderStyle == "MacOS" ? 1 : 0;
             headerStyleSelector.SelectedIndexChanged += HeaderStyleChanged;
-            layout.Controls.Add(headerStyleSelector, 1, 3);
+            layout.Controls.Add(CreateSettingsRow("Стиль шапки приложения",
+                "Системная рамка окна или оформление macOS.", headerStyleSelector, 260), 0, 9);
 
-            layout.Controls.Add(CreateSettingsLabel("Анимация интерфейса"), 0, 4);
             animationsCheckBox = new CheckBox
             {
                 Text = "Включить анимации и заставку при запуске",
                 AutoSize = true,
                 Anchor = AnchorStyles.Left,
                 Checked = appSettings.Animations,
-                ForeColor = Color.FromArgb(226, 232, 244),
+                ForeColor = UiPalette.Text,
                 Font = new Font("Segoe UI", 9.5F),
                 Margin = new Padding(6, 0, 0, 0)
             };
             animationsCheckBox.CheckedChanged += AnimationsChanged;
-            layout.Controls.Add(animationsCheckBox, 1, 4);
+            layout.Controls.Add(CreateSettingsRow("Анимация интерфейса",
+                "Переходы между страницами и заставка при запуске.", animationsCheckBox, 420), 0, 10);
 
-            layout.Controls.Add(CreateSettingsLabel("Папка экспорта журнала"), 0, 5);
+            var journalSection = CreateSettingsSectionTitle("ЖУРНАЛ И ИНТЕГРАЦИИ");
+            layout.Controls.Add(journalSection, 0, 11);
             var exportRow = new FlowLayoutPanel
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Right,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = false,
                 BackColor = Color.Transparent,
-                Margin = new Padding(0),
-                Padding = new Padding(0, 12, 0, 0)
+                AutoSize = true,
+                Margin = new Padding(0, 3, 8, 0)
             };
             exportDirectoryLabel = new Label
             {
                 Text = GetExportDirectory(),
-                Width = 320,
-                Height = 34,
+                Width = 280,
+                Height = 30,
                 AutoEllipsis = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = Color.FromArgb(183, 199, 222),
-                Margin = new Padding(6, 0, 8, 0)
+                ForeColor = UiPalette.Muted,
+                Margin = new Padding(0, 0, 8, 0)
             };
             var folderButton = MakeButton("Выбрать папку", Color.FromArgb(41, 53, 76));
-            folderButton.Width = 134;
+            folderButton.Width = 124;
             folderButton.Click += ChooseExportDirectory;
             exportRow.Controls.Add(exportDirectoryLabel);
             exportRow.Controls.Add(folderButton);
-            layout.Controls.Add(exportRow, 1, 5);
+            layout.Controls.Add(CreateSettingsRow("Папка экспорта журнала",
+                "Расположение, предлагаемое при сохранении отчёта.", exportRow, 440), 0, 12);
 
-            layout.Controls.Add(CreateSettingsLabel("Журнал"), 0, 6);
             var exportButton = MakeButton("Экспортировать журнал", Color.FromArgb(53, 105, 99));
-            exportButton.Width = 190;
+            exportButton.Width = 180;
             exportButton.Anchor = AnchorStyles.Left;
             exportButton.Click += ExportReport;
-            layout.Controls.Add(exportButton, 1, 6);
+            layout.Controls.Add(CreateSettingsRow("Журнал событий",
+                "Сохранить собранные события в файл.", exportButton, 240), 0, 13);
 
-            layout.Controls.Add(CreateSettingsLabel("Звук в Discord Desktop"), 0, 7);
             var discordAudioButton = MakeButton("Настроить звук", Color.FromArgb(64, 89, 122));
-            discordAudioButton.Width = 160;
+            discordAudioButton.Width = 152;
             discordAudioButton.Anchor = AnchorStyles.Left;
             discordAudioButton.Click += ShowDiscordDesktopGuide;
-            layout.Controls.Add(discordAudioButton, 1, 7);
+            layout.Controls.Add(CreateSettingsRow("Звук в Discord Desktop",
+                "Настройка звукового вывода через виртуальный аудиокабель.", discordAudioButton, 210), 0, 14);
 
-            layout.Controls.Add(CreateSettingsLabel("Обновления"), 0, 8);
+            var updatesSection = CreateSettingsSectionTitle("ОБНОВЛЕНИЯ");
+            layout.Controls.Add(updatesSection, 0, 15);
+
             var updateRow = new FlowLayoutPanel
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Right,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = true,
                 BackColor = Color.Transparent,
-                Margin = new Padding(0),
-                Padding = new Padding(0, 10, 0, 0)
+                AutoSize = true,
+                Margin = new Padding(0, 4, 8, 0)
             };
             checkUpdatesButton = MakeButton("Проверить обновления", Color.FromArgb(64, 89, 122));
-            checkUpdatesButton.Width = 180;
+            checkUpdatesButton.Width = 176;
             updateStatusLabel = new Label
             {
                 AutoSize = true,
                 MaximumSize = new Size(500, 42),
                 Text = "Источник: GitHub Releases",
                 TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = Color.FromArgb(183, 199, 222),
+                ForeColor = UiPalette.Muted,
                 Margin = new Padding(8, 8, 0, 0)
             };
             checkUpdatesButton.Click += CheckForUpdates;
             updateRow.Controls.Add(checkUpdatesButton);
             updateRow.Controls.Add(updateStatusLabel);
-            layout.Controls.Add(updateRow, 1, 8);
+            layout.Controls.Add(CreateSettingsRow("Обновления",
+                "Проверка опубликованной версии через GitHub Releases.", updateRow, 520), 0, 16);
 
             settings.Controls.Add(layout);
             return settings;
         }
 
-        private async void ShowDefenderExclusions(object sender, EventArgs e)
+        private void ShowDefenderExclusions(object sender, EventArgs e)
         {
             Control source = sender as Control;
             if (source != null)
                 source.Enabled = false;
             try
             {
-                await Task.Run(() => DefenderExclusionManager.CheckAccessWithUac());
-                using (var dialog = new DefenderExclusionsForm())
+                bool english = String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase);
+                using (var dialog = new DefenderExclusionsForm(english))
+                {
+                    LocalizeControlTree(dialog, english);
                     dialog.ShowDialog(this);
+                }
                 ScanDefenderExclusions();
             }
             catch (Win32Exception ex)
             {
-                MessageBox.Show(this, ex.NativeErrorCode == 1223
+                bool english = String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase);
+                MessageBox.Show(this, UiLocalization.Translate(ex.NativeErrorCode == 1223
                     ? "Запрос UAC отменён. Список исключений не открыт."
-                    : "Не удалось проверить доступ к Microsoft Defender:\r\n\r\n" + ex.Message,
-                    "Проверка UAC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    : "Не удалось проверить доступ к Microsoft Defender:\r\n\r\n", english) +
+                    (ex.NativeErrorCode == 1223 ? String.Empty : ex.Message),
+                    UiLocalization.Translate("Проверка UAC", english), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Не удалось проверить доступ к Microsoft Defender:\r\n\r\n" + ex.Message,
-                    "Проверка UAC", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                bool english = String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase);
+                MessageBox.Show(this, UiLocalization.Translate("Не удалось проверить доступ к Microsoft Defender:\r\n\r\n", english) + ex.Message,
+                    UiLocalization.Translate("Проверка UAC", english), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -1230,8 +2454,8 @@ namespace MogLocker
                     ? "Редактор реестра: regedit.exe не запущен"
                     : "Редактор реестра: запущен экземпляров — " + activeProcessIds.Count,
                 activeProcessIds.Count == 0
-                    ? Color.FromArgb(104, 211, 184)
-                    : Color.FromArgb(255, 190, 105));
+                    ? UiPalette.Safe
+                    : UiPalette.Warning);
         }
 
         private void ScanDefenderExclusions()
@@ -1255,7 +2479,7 @@ namespace MogLocker
                         {
                             SetLabelState(securityExclusionState,
                                 "Исключения Defender: не удалось проверить",
-                                Color.FromArgb(255, 190, 105));
+                                UiPalette.Warning);
                             AddAlertThrottled("defender-preference-read-error",
                                 "ОШИБКА", "Исключения Microsoft Defender",
                                 "Не удалось проверить исключения через PowerShell: " + ex.Message);
@@ -1279,7 +2503,7 @@ namespace MogLocker
                 defenderExclusionBaseline = current;
                 SetLabelState(securityExclusionState,
                     "Исключения Defender: проверено через PowerShell — " + current.Count,
-                    Color.FromArgb(104, 211, 184));
+                    UiPalette.Safe);
                 AddAlert("ИНФО", "Исключения Microsoft Defender",
                     "Снимок исключений получен через PowerShell; автоматическое изменение настроек выключено.");
                 return;
@@ -1302,14 +2526,20 @@ namespace MogLocker
             defenderExclusionBaseline = current;
             SetLabelState(securityExclusionState,
                 "Исключения Defender: проверено через PowerShell — " + current.Count,
-                Color.FromArgb(104, 211, 184));
+                UiPalette.Safe);
         }
 
         private void RefreshThemeOptions()
         {
             applyingTheme = true;
             themeSelector.Items.Clear();
-            themeSelector.Items.AddRange(new object[] { "Тёмная", "Светлая", "Системная" });
+            bool english = String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase);
+            themeSelector.Items.AddRange(new object[]
+            {
+                UiLocalization.Translate("Тёмная", english),
+                UiLocalization.Translate("Светлая", english),
+                UiLocalization.Translate("Системная", english)
+            });
             if (appSettings.CustomThemes == null)
                 appSettings.CustomThemes = new List<CustomTheme>();
             foreach (CustomTheme theme in appSettings.CustomThemes)
@@ -1327,13 +2557,123 @@ namespace MogLocker
                     appSettings.Theme = "Dark";
             }
             themeSelector.SelectedIndex = selectedIndex;
+            if (darkModeToggle != null)
+                darkModeToggle.Checked = !SettingsStore.ResolveLightTheme(appSettings.Theme);
             applyingTheme = false;
+        }
+
+        private void LanguageChanged(object sender, EventArgs e)
+        {
+            if (applyingLanguage || languageSelector == null || languageSelector.SelectedIndex < 0)
+                return;
+            appSettings.Language = languageSelector.SelectedIndex == 1 ? "en" : "ru";
+            RefreshThemeOptions();
+            RefreshLogFilterOptions();
+            ApplyLanguage();
+            PersistSettings();
+        }
+
+        private void RefreshLogFilterOptions()
+        {
+            if (logFilterSelector == null)
+                return;
+            int selectedIndex = Math.Max(0, logFilterSelector.SelectedIndex);
+            bool english = String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase);
+            logFilterSelector.BeginUpdate();
+            logFilterSelector.Items.Clear();
+            string[] options =
+            {
+                "Все события", "ПОДОЗРИТЕЛЬНО", "ПРЕДУПРЕЖДЕНИЕ", "ИНФО", "ОШИБКА"
+            };
+            foreach (string option in options)
+                logFilterSelector.Items.Add(UiLocalization.Translate(option, english));
+            logFilterSelector.SelectedIndex = Math.Min(selectedIndex, options.Length - 1);
+            logFilterSelector.EndUpdate();
+        }
+
+        private void ApplyLanguage()
+        {
+            bool english = String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase);
+            applyingLanguage = true;
+            Text = english ? "MOGLOCKER — System Monitor" : "MOGLOCKER — Монитор системы";
+            LocalizeControlTree(this, english);
+            if (alertsGrid != null)
+            {
+                foreach (DataGridViewColumn column in alertsGrid.Columns)
+                    column.HeaderText = UiLocalization.Translate(column.HeaderText, english);
+                    foreach (DataGridViewRow row in alertsGrid.Rows)
+                    {
+                        AlertRecord record = row.Tag as AlertRecord;
+                        if (record != null)
+                            row.Cells[1].Value = UiLocalization.Translate(record.Severity, english);
+                    }
+                }
+            if (trayIcon != null)
+                trayIcon.Text = english ? "MOGLOCKER — protection monitor" : "Моглокер — монитор защиты";
+            RefreshAppearanceSwatches();
+            PerformLayout();
+            Invalidate(true);
+            applyingLanguage = false;
+        }
+
+        private void LocalizeControlTree(Control control, bool english)
+        {
+            if (localizedControls.Add(control))
+            {
+                control.TextChanged += LocalizedControlTextChanged;
+                control.ControlAdded += LocalizedControlAdded;
+            }
+            string translatedText = UiLocalization.Translate(control.Text, english);
+            if (!String.Equals(control.Text, translatedText, StringComparison.Ordinal))
+                control.Text = translatedText;
+            control.AccessibleName = UiLocalization.Translate(control.AccessibleName, english);
+            control.AccessibleDescription = UiLocalization.Translate(control.AccessibleDescription, english);
+            DataGridView grid = control as DataGridView;
+            if (grid != null)
+            {
+                foreach (DataGridViewColumn column in grid.Columns)
+                    column.HeaderText = UiLocalization.Translate(column.HeaderText, english);
+            }
+            ListView list = control as ListView;
+            if (list != null)
+            {
+                foreach (ColumnHeader column in list.Columns)
+                    column.Text = UiLocalization.Translate(column.Text, english);
+            }
+            foreach (Control child in control.Controls)
+                LocalizeControlTree(child, english);
+        }
+
+        private void LocalizedControlAdded(object sender, ControlEventArgs e)
+        {
+            if (!applyingLanguage)
+                LocalizeControlTree(e.Control,
+                    String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void LocalizedControlTextChanged(object sender, EventArgs e)
+        {
+            if (applyingLanguage)
+                return;
+            Control control = sender as Control;
+            if (control == null || control.IsDisposed)
+                return;
+            string translated = UiLocalization.Translate(control.Text,
+                String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase));
+            if (!String.Equals(control.Text, translated, StringComparison.Ordinal))
+            {
+                applyingLanguage = true;
+                control.Text = translated;
+                applyingLanguage = false;
+            }
         }
 
         private void CreateCustomTheme(object sender, EventArgs e)
         {
             using (var editor = new ThemeEditorDialog())
             {
+                LocalizeControlTree(editor,
+                    String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase));
                 if (editor.ShowDialog(this) != DialogResult.OK)
                     return;
                 string name = editor.ThemeName.Trim();
@@ -1405,21 +2745,18 @@ namespace MogLocker
             var bar = new BufferedPanel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(18, 26, 45)
+                BackColor = UiPalette.Sidebar
             };
-            AddMacWindowButton(bar, 16, Color.FromArgb(0, 174, 239), delegate
+            AddMacWindowButton(bar, 16, Color.FromArgb(255, 95, 86), delegate { Close(); });
+            AddMacWindowButton(bar, 40, Color.FromArgb(255, 189, 46), delegate
             {
                 WindowState = FormWindowState.Minimized;
             });
-            AddMacWindowButton(bar, 40, Color.FromArgb(255, 189, 46), delegate
+            AddMacWindowButton(bar, 64, Color.FromArgb(39, 201, 90), delegate
             {
                 WindowState = WindowState == FormWindowState.Maximized
                     ? FormWindowState.Normal
                     : FormWindowState.Maximized;
-            });
-            AddMacWindowButton(bar, 64, Color.FromArgb(255, 95, 86), delegate
-            {
-                Close();
             });
             var title = new Label
             {
@@ -1427,7 +2764,7 @@ namespace MogLocker
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(183, 199, 222),
+                ForeColor = UiPalette.Muted,
                 BackColor = Color.Transparent
             };
             bar.Controls.Add(title);
@@ -1481,10 +2818,353 @@ namespace MogLocker
                 Text = text,
                 Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(183, 199, 222),
+                ForeColor = UiPalette.Muted,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Margin = new Padding(2, 0, 0, 0)
             };
+        }
+
+        private static Label CreateSettingsSectionTitle(string text)
+        {
+            return new Label
+            {
+                Text = text,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 8F, FontStyle.Bold),
+                ForeColor = UiPalette.Accent,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(12, 4, 0, 0),
+                Margin = new Padding(0)
+            };
+        }
+
+        private Control CreateSettingsRow(string title, string description,
+            Control valueControl, int valueWidth)
+        {
+            var card = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = UiPalette.Surface,
+                Padding = new Padding(14, 5, 12, 5),
+                Margin = new Padding(0, 2, 0, 2)
+            };
+            card.Paint += delegate(object sender, PaintEventArgs args)
+            {
+                Color border = TranslateThemeColor(UiPalette.Border,
+                    SettingsStore.ResolveLightTheme(appSettings.Theme), false);
+                using (var pen = new Pen(border))
+                    args.Graphics.DrawRectangle(pen, 0, 0,
+                        Math.Max(0, card.ClientSize.Width - 1),
+                        Math.Max(0, card.ClientSize.Height - 1));
+            };
+            var row = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            row.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, valueWidth));
+            row.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            var labels = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            labels.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            labels.RowStyles.Add(new RowStyle(SizeType.Percent, 54F));
+            labels.RowStyles.Add(new RowStyle(SizeType.Percent, 46F));
+            labels.Controls.Add(new Label
+            {
+                Text = title,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
+                ForeColor = UiPalette.Text,
+                TextAlign = ContentAlignment.BottomLeft,
+                Margin = new Padding(0)
+            }, 0, 0);
+            labels.Controls.Add(new Label
+            {
+                Text = description,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = UiPalette.Muted,
+                TextAlign = ContentAlignment.TopLeft,
+                AutoEllipsis = true,
+                Margin = new Padding(0)
+            }, 0, 1);
+            var valueHost = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            valueControl.Width = valueWidth;
+            valueControl.Dock = DockStyle.Right;
+            valueHost.Controls.Add(valueControl);
+            row.Controls.Add(labels, 0, 0);
+            row.Controls.Add(valueHost, 1, 0);
+            card.Controls.Add(row);
+            return card;
+        }
+
+        private Control CreateAccentSettingsCard()
+        {
+            var card = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = UiPalette.Surface,
+                Padding = new Padding(14, 8, 14, 8),
+                Margin = new Padding(0, 2, 0, 2)
+            };
+            card.Paint += delegate(object sender, PaintEventArgs args)
+            {
+                Color border = TranslateThemeColor(UiPalette.Border,
+                    SettingsStore.ResolveLightTheme(appSettings.Theme), false);
+                using (var pen = new Pen(border))
+                    args.Graphics.DrawRectangle(pen, 0, 0,
+                        Math.Max(0, card.ClientSize.Width - 1),
+                        Math.Max(0, card.ClientSize.Height - 1));
+            };
+            var content = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            content.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            content.RowStyles.Add(new RowStyle(SizeType.Absolute, 1F));
+            content.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            var optionRow = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            optionRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            optionRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 62F));
+            optionRow.Controls.Add(CreateSettingsDescription("Использовать собственный акцент",
+                "Переопределить основной цвет интерфейса."), 0, 0);
+            accentEnabledToggle = new ThemeToggle
+            {
+                Checked = appSettings.UseCustomAccent,
+                Anchor = AnchorStyles.Right,
+                Margin = new Padding(0, 0, 6, 0)
+            };
+            accentEnabledToggle.CheckedChanged += AccentEnabledChanged;
+            optionRow.Controls.Add(accentEnabledToggle, 1, 0);
+            content.Controls.Add(optionRow, 0, 0);
+            var separator = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = UiPalette.Border,
+                Margin = new Padding(0, 0, 0, 4)
+            };
+            content.Controls.Add(separator, 0, 1);
+            var colorsArea = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            colorsArea.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            colorsArea.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
+            colorsArea.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            colorsArea.Controls.Add(new Label
+            {
+                Text = "Пользовательский акцент",
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold),
+                ForeColor = UiPalette.Text,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(0)
+            }, 0, 0);
+            var swatches = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                AutoScroll = true,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0),
+                Padding = new Padding(0, 2, 0, 0)
+            };
+            Color[] colors =
+            {
+                Color.FromArgb(15, 165, 233), Color.FromArgb(37, 99, 235),
+                Color.FromArgb(79, 70, 229), Color.FromArgb(124, 58, 237),
+                Color.FromArgb(147, 51, 234), Color.FromArgb(217, 70, 239),
+                Color.FromArgb(236, 72, 153), Color.FromArgb(225, 29, 72),
+                Color.FromArgb(239, 68, 68), Color.FromArgb(249, 115, 22),
+                Color.FromArgb(245, 158, 11), Color.FromArgb(234, 179, 8),
+                Color.FromArgb(132, 204, 22), Color.FromArgb(34, 197, 94),
+                Color.FromArgb(16, 185, 129), Color.FromArgb(20, 184, 166),
+                Color.FromArgb(6, 182, 212), Color.FromArgb(100, 116, 139)
+            };
+            foreach (Color color in colors)
+            {
+                var swatch = new ColorSwatchButton(color)
+                {
+                    Margin = new Padding(0, 0, 4, 0)
+                };
+                swatchToolTip.SetToolTip(swatch, ColorTranslator.ToHtml(color));
+                swatch.Click += delegate
+                {
+                    SelectAccentColor(swatch.SwatchColor);
+                };
+                accentSwatches.Add(swatch);
+                swatches.Controls.Add(swatch);
+            }
+            var customColorButton = new Button
+            {
+                Text = "+",
+                Size = new Size(30, 30),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = UiPalette.SurfaceRaised,
+                ForeColor = UiPalette.Text,
+                Font = new Font("Segoe UI", 14F),
+                Cursor = Cursors.Hand,
+                Margin = new Padding(2, 0, 0, 0)
+            };
+            customColorButton.FlatAppearance.BorderColor = UiPalette.Border;
+            customColorButton.Click += ChooseAccentColor;
+            swatches.Controls.Add(customColorButton);
+            colorsArea.Controls.Add(swatches, 0, 1);
+            content.Controls.Add(colorsArea, 0, 2);
+            card.Controls.Add(content);
+            return card;
+        }
+
+        private Control CreateThemePaletteCard()
+        {
+            var card = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = UiPalette.Surface,
+                Padding = new Padding(14, 7, 14, 7),
+                Margin = new Padding(0, 2, 0, 2)
+            };
+            card.Paint += delegate(object sender, PaintEventArgs args)
+            {
+                Color border = TranslateThemeColor(UiPalette.Border,
+                    SettingsStore.ResolveLightTheme(appSettings.Theme), false);
+                using (var pen = new Pen(border))
+                    args.Graphics.DrawRectangle(pen, 0, 0,
+                        Math.Max(0, card.ClientSize.Width - 1),
+                        Math.Max(0, card.ClientSize.Height - 1));
+            };
+            var rows = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            rows.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            rows.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            rows.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            rows.Controls.Add(CreatePaletteChoiceRow("Светлая палитра",
+                "Выберите оформление светлой темы.", ThemePalettes.Light,
+                appSettings.LightPaletteIndex, true), 0, 0);
+            rows.Controls.Add(CreatePaletteChoiceRow("Тёмная палитра",
+                "Выберите оформление тёмной темы.", ThemePalettes.Dark,
+                appSettings.DarkPaletteIndex, false), 0, 1);
+            card.Controls.Add(rows);
+            return card;
+        }
+
+        private Control CreatePaletteChoiceRow(string title, string description,
+            ThemePalette[] palettes, int selectedIndex, bool light)
+        {
+            var row = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0, 2, 0, 2)
+            };
+            row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            row.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, palettes.Length * 33F + 4F));
+            row.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            row.Controls.Add(CreateSettingsDescription(title, description), 0, 0);
+            var chips = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                BackColor = Color.Transparent,
+                AutoSize = false,
+                Margin = new Padding(0, 6, 3, 0)
+            };
+            for (int index = 0; index < palettes.Length; index++)
+            {
+                int paletteIndex = index;
+                ColorSwatchButton chip = new ColorSwatchButton(palettes[index].Background)
+                {
+                    Selected = index == selectedIndex,
+                    Margin = new Padding(0, 0, 3, 0)
+                };
+                swatchToolTip.SetToolTip(chip, ColorTranslator.ToHtml(palettes[index].Background));
+                chip.Click += delegate
+                {
+                    SelectThemePalette(light, paletteIndex);
+                };
+                (light ? lightPaletteSwatches : darkPaletteSwatches).Add(chip);
+                chips.Controls.Add(chip);
+            }
+            row.Controls.Add(chips, 1, 0);
+            return row;
+        }
+
+        private static Control CreateSettingsDescription(string title, string description)
+        {
+            var labels = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0)
+            };
+            labels.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            labels.RowStyles.Add(new RowStyle(SizeType.Percent, 55F));
+            labels.RowStyles.Add(new RowStyle(SizeType.Percent, 45F));
+            labels.Controls.Add(new Label
+            {
+                Text = title,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
+                ForeColor = UiPalette.Text,
+                TextAlign = ContentAlignment.BottomLeft,
+                Margin = new Padding(0)
+            }, 0, 0);
+            labels.Controls.Add(new Label
+            {
+                Text = description,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = UiPalette.Muted,
+                TextAlign = ContentAlignment.TopLeft,
+                AutoEllipsis = true,
+                Margin = new Padding(0)
+            }, 0, 1);
+            return labels;
         }
 
         private string GetExportDirectory()
@@ -1582,7 +3262,8 @@ namespace MogLocker
                 case 1: return adBlockPanel;
                 case 2: return monitorPanel;
                 case 3: return securityPanel;
-                case 4: return settingsPanel;
+                case 4: return unlockPanel;
+                case 5: return settingsPanel;
                 default: return null;
             }
         }
@@ -1593,7 +3274,8 @@ namespace MogLocker
             adBlockPanel.Visible = page == 1;
             monitorPanel.Visible = page == 2;
             securityPanel.Visible = page == 3;
-            settingsPanel.Visible = page == 4;
+            unlockPanel.Visible = page == 4;
+            settingsPanel.Visible = page == 5;
         }
 
         private void AnimatePageTransition(object sender, EventArgs e)
@@ -1665,14 +3347,31 @@ namespace MogLocker
             CaptureOriginalTheme(this);
             RestoreOriginalTheme(this);
             bool light = SettingsStore.ResolveLightTheme(appSettings.Theme);
+            ActiveLightTheme = light;
+            activeLightPaletteIndex = Math.Max(0,
+                Math.Min(ThemePalettes.Light.Length - 1, appSettings.LightPaletteIndex));
+            activeDarkPaletteIndex = Math.Max(0,
+                Math.Min(ThemePalettes.Dark.Length - 1, appSettings.DarkPaletteIndex));
+            activeAccentColor = null;
+            if (appSettings.UseCustomAccent && !String.IsNullOrWhiteSpace(appSettings.AccentColor))
+                activeAccentColor = ColorTranslator.FromHtml(appSettings.AccentColor);
             activeCustomTheme = null;
             if (appSettings.Theme == "Custom" && appSettings.CustomThemes != null)
                 activeCustomTheme = appSettings.CustomThemes.FirstOrDefault(theme =>
                     String.Equals(theme.Name, appSettings.CustomThemeName, StringComparison.Ordinal));
+            applyingTheme = true;
+            if (darkModeToggle != null)
+                darkModeToggle.Checked = !light;
+            if (accentEnabledToggle != null)
+                accentEnabledToggle.Checked = appSettings.UseCustomAccent;
+            applyingTheme = false;
             ApplyThemeToControl(this, light);
             ApplyAlertSeverityStyles(light);
             SetActiveNavigation(selectedPage);
+            RefreshAppearanceSwatches();
             macTitleBar.Invalidate();
+            securityPanel.Invalidate(true);
+            settingsPanel.Invalidate(true);
         }
 
         private void ApplyAlertSeverityStyles(bool light)
@@ -1687,17 +3386,18 @@ namespace MogLocker
                     record.Severity == "ОШИБКА")
                 {
                     row.Cells[1].Style.ForeColor = light
-                        ? Color.FromArgb(153, 79, 28)
-                        : Color.FromArgb(255, 190, 105);
+                        ? Color.FromArgb(166, 54, 64)
+                        : UiPalette.Danger;
                     row.Cells[1].Style.BackColor = light
-                        ? Color.FromArgb(250, 231, 219)
-                        : Color.FromArgb(69, 48, 39);
+                        ? Color.FromArgb(250, 231, 232)
+                        : Color.FromArgb(59, 36, 45);
                 }
                 else if (record.Severity == "ИНФО")
                 {
-                    row.Cells[1].Style.ForeColor = light
-                        ? Color.FromArgb(32, 120, 102)
-                        : Color.FromArgb(121, 211, 190);
+                    row.Cells[1].Style.ForeColor =
+                        TranslateThemeColor(UiPalette.Accent, light, true);
+                    row.Cells[1].Style.BackColor =
+                        TranslateThemeColor(UiPalette.AccentSurface, light, false);
                     if (activeCustomTheme != null)
                         row.Cells[1].Style.ForeColor =
                             ColorTranslator.FromHtml(activeCustomTheme.Accent);
@@ -1837,20 +3537,56 @@ namespace MogLocker
         internal static Color TranslateThemeColor(Color color, bool light, bool foreground)
         {
             int value = color.ToArgb();
+            if (activeAccentColor.HasValue &&
+                (value == UiPalette.DefaultAccent.ToArgb() ||
+                 value == Color.FromArgb(57, 230, 192).ToArgb()))
+                return activeAccentColor.Value;
             if (activeCustomTheme != null)
             {
                 Color custom = TranslateCustomThemeColor(color, foreground);
                 if (!custom.IsEmpty)
                     return custom;
             }
+            Color paletteColor = TranslatePaletteColor(color, light);
+            if (!paletteColor.IsEmpty)
+                return paletteColor;
+            if (value == UiPalette.DefaultAccent.ToArgb())
+                return activeAccentColor.HasValue
+                    ? activeAccentColor.Value
+                    : light ? Color.FromArgb(37, 99, 235) : UiPalette.DefaultAccent;
             if (light && foreground && value == Color.White.ToArgb())
                 return Color.FromArgb(31, 41, 55);
             if (!light && foreground && value == unchecked((int)0xFFE2E9F2))
                 return Color.FromArgb(225, 233, 246);
             if (light)
             {
+                if (value == UiPalette.Background.ToArgb()) return Color.FromArgb(246, 248, 251);
+                if (value == UiPalette.Sidebar.ToArgb()) return Color.FromArgb(239, 243, 248);
+                if (value == UiPalette.Surface.ToArgb()) return Color.White;
+                if (value == UiPalette.SurfaceRaised.ToArgb()) return Color.FromArgb(232, 237, 244);
+                if (value == UiPalette.AccentSurface.ToArgb()) return Color.FromArgb(230, 240, 253);
+                if (value == UiPalette.Hover.ToArgb()) return Color.FromArgb(224, 235, 248);
+                if (value == UiPalette.Pressed.ToArgb()) return Color.FromArgb(211, 228, 249);
+                if (value == UiPalette.Border.ToArgb()) return Color.FromArgb(214, 222, 233);
+                if (foreground && value == UiPalette.Text.ToArgb()) return Color.FromArgb(31, 41, 55);
+                if (foreground && value == UiPalette.Muted.ToArgb()) return Color.FromArgb(71, 85, 105);
+                if (value == UiPalette.Accent.ToArgb()) return Color.FromArgb(37, 99, 235);
+                if (value == UiPalette.Safe.ToArgb()) return Color.FromArgb(32, 128, 96);
+                if (value == UiPalette.Warning.ToArgb()) return Color.FromArgb(153, 91, 28);
+                if (value == UiPalette.Danger.ToArgb()) return Color.FromArgb(158, 62, 62);
                 switch (value)
                 {
+                    case unchecked((int)0xFF101722): return Color.FromArgb(246, 248, 251);
+                    case unchecked((int)0xFF121C29): return Color.FromArgb(239, 243, 248);
+                    case unchecked((int)0xFF192635): return Color.White;
+                    case unchecked((int)0xFF1E2D3D): return Color.FromArgb(232, 237, 244);
+                    case unchecked((int)0xFF283747): return Color.FromArgb(214, 222, 233);
+                    case unchecked((int)0xFFE5EDF5): return Color.FromArgb(31, 41, 55);
+                    case unchecked((int)0xFF8B9BAE): return Color.FromArgb(71, 85, 105);
+                    case unchecked((int)0xFF39E6C0): return Color.FromArgb(24, 133, 111);
+                    case unchecked((int)0xFF63D98A): return Color.FromArgb(32, 128, 96);
+                    case unchecked((int)0xFFD5AA68): return Color.FromArgb(153, 91, 28);
+                    case unchecked((int)0xFFC97878): return Color.FromArgb(158, 62, 62);
                     case unchecked((int)0xFF0C111F): return Color.FromArgb(246, 248, 251);
                     case unchecked((int)0xFF0A0F1C): return Color.FromArgb(245, 247, 250);
                     case unchecked((int)0xFF0E1524): return Color.FromArgb(244, 247, 250);
@@ -1895,6 +3631,20 @@ namespace MogLocker
             }
             else
             {
+                if (!foreground && value == unchecked((int)0xFFF6F8FB)) return UiPalette.Background;
+                if (!foreground && value == unchecked((int)0xFFEFF3F8)) return UiPalette.Sidebar;
+                if (!foreground && value == unchecked((int)0xFFFFFFFF)) return UiPalette.Surface;
+                if (!foreground && value == unchecked((int)0xFFE8EDF4)) return UiPalette.SurfaceRaised;
+                if (!foreground && value == unchecked((int)0xFFE6F0FD)) return UiPalette.AccentSurface;
+                if (!foreground && value == unchecked((int)0xFFE0EBF8)) return UiPalette.Hover;
+                if (!foreground && value == unchecked((int)0xFFD3E4F9)) return UiPalette.Pressed;
+                if (!foreground && value == unchecked((int)0xFFD6DEE9)) return UiPalette.Border;
+                if (foreground && value == unchecked((int)0xFF1F2937)) return UiPalette.Text;
+                if (foreground && value == unchecked((int)0xFF475569)) return UiPalette.Muted;
+                if (value == unchecked((int)0xFF2563EB)) return UiPalette.Accent;
+                if (value == unchecked((int)0xFF208060)) return UiPalette.Safe;
+                if (value == unchecked((int)0xFF995B1C)) return UiPalette.Warning;
+                if (value == unchecked((int)0xFF9E3E3E)) return UiPalette.Danger;
                 switch (value)
                 {
                     case unchecked((int)0xFFF6F8FB): return Color.FromArgb(12, 17, 31);
@@ -1930,6 +3680,114 @@ namespace MogLocker
             return color;
         }
 
+        private static Color TranslatePaletteColor(Color color, bool light)
+        {
+            ThemePalette palette = light
+                ? ThemePalettes.Light[activeLightPaletteIndex]
+                : ThemePalettes.Dark[activeDarkPaletteIndex];
+            int value = color.ToArgb();
+            if (value == UiPalette.DefaultBackground.ToArgb()) return palette.Background;
+            if (value == UiPalette.DefaultSidebar.ToArgb()) return palette.Sidebar;
+            if (value == UiPalette.DefaultSurface.ToArgb()) return palette.Surface;
+            if (value == UiPalette.DefaultSurfaceRaised.ToArgb()) return palette.SurfaceRaised;
+            if (value == UiPalette.DefaultAccentSurface.ToArgb())
+            {
+                Color accent = activeAccentColor.HasValue
+                    ? activeAccentColor.Value
+                    : light ? Color.FromArgb(37, 99, 235) : UiPalette.DefaultAccent;
+                return MixColors(palette.Background, accent, light ? 0.09F : 0.16F);
+            }
+            if (value == UiPalette.DefaultHover.ToArgb()) return palette.Hover;
+            if (value == UiPalette.DefaultPressed.ToArgb()) return palette.Pressed;
+            if (value == UiPalette.DefaultBorder.ToArgb()) return palette.Border;
+            if (value == UiPalette.DefaultText.ToArgb()) return palette.Text;
+            if (value == UiPalette.DefaultMuted.ToArgb()) return palette.Muted;
+            return Color.Empty;
+        }
+
+        private void DarkModeChanged(object sender, EventArgs e)
+        {
+            if (applyingTheme || darkModeToggle == null)
+                return;
+            appSettings.Theme = darkModeToggle.Checked ? "Dark" : "Light";
+            appSettings.CustomThemeName = String.Empty;
+            RefreshThemeOptions();
+            PersistSettings();
+            ApplyTheme();
+        }
+
+        private void AccentEnabledChanged(object sender, EventArgs e)
+        {
+            if (applyingTheme || accentEnabledToggle == null)
+                return;
+            appSettings.UseCustomAccent = accentEnabledToggle.Checked;
+            PersistSettings();
+            ApplyTheme();
+        }
+
+        private void SelectAccentColor(Color color)
+        {
+            appSettings.AccentColor = ColorTranslator.ToHtml(color);
+            appSettings.UseCustomAccent = true;
+            if (accentEnabledToggle != null)
+            {
+                applyingTheme = true;
+                accentEnabledToggle.Checked = true;
+                applyingTheme = false;
+            }
+            PersistSettings();
+            ApplyTheme();
+        }
+
+        private void ChooseAccentColor(object sender, EventArgs e)
+        {
+            Color current = UiPalette.DefaultAccent;
+            if (!String.IsNullOrWhiteSpace(appSettings.AccentColor))
+                current = ColorTranslator.FromHtml(appSettings.AccentColor);
+            using (var dialog = new ColorDialog
+            {
+                Color = current,
+                FullOpen = true,
+                AnyColor = true
+            })
+            {
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                    SelectAccentColor(dialog.Color);
+            }
+        }
+
+        private void SelectThemePalette(bool light, int paletteIndex)
+        {
+            if (light)
+                appSettings.LightPaletteIndex = paletteIndex;
+            else
+                appSettings.DarkPaletteIndex = paletteIndex;
+            PersistSettings();
+            ApplyTheme();
+        }
+
+        private void RefreshAppearanceSwatches()
+        {
+            Color selectedAccent = UiPalette.DefaultAccent;
+            if (appSettings.UseCustomAccent && !String.IsNullOrWhiteSpace(appSettings.AccentColor))
+                selectedAccent = ColorTranslator.FromHtml(appSettings.AccentColor);
+            foreach (ColorSwatchButton swatch in accentSwatches)
+            {
+                swatch.Selected = swatch.SwatchColor.ToArgb() == selectedAccent.ToArgb();
+                swatch.Invalidate();
+            }
+            for (int index = 0; index < lightPaletteSwatches.Count; index++)
+            {
+                lightPaletteSwatches[index].Selected = index == appSettings.LightPaletteIndex;
+                lightPaletteSwatches[index].Invalidate();
+            }
+            for (int index = 0; index < darkPaletteSwatches.Count; index++)
+            {
+                darkPaletteSwatches[index].Selected = index == appSettings.DarkPaletteIndex;
+                darkPaletteSwatches[index].Invalidate();
+            }
+        }
+
         private static Color TranslateCustomThemeColor(Color color, bool foreground)
         {
             Color background = ColorTranslator.FromHtml(activeCustomTheme.Background);
@@ -1940,15 +3798,25 @@ namespace MogLocker
             if (value == Color.FromArgb(12, 17, 31).ToArgb() ||
                 value == Color.FromArgb(10, 15, 28).ToArgb())
                 return background;
+            if (value == UiPalette.Background.ToArgb())
+                return background;
             if (value == Color.FromArgb(15, 22, 38).ToArgb() ||
                 value == Color.FromArgb(15, 23, 38).ToArgb() ||
                 value == Color.FromArgb(14, 21, 36).ToArgb())
+                return MixColors(background, surface, 0.45F);
+            if (value == UiPalette.Sidebar.ToArgb())
                 return MixColors(background, surface, 0.45F);
             if (value == Color.FromArgb(18, 26, 45).ToArgb() ||
                 value == Color.FromArgb(17, 25, 42).ToArgb() ||
                 value == Color.FromArgb(24, 35, 56).ToArgb() ||
                 value == Color.FromArgb(25, 35, 56).ToArgb())
                 return surface;
+            if (value == UiPalette.Surface.ToArgb())
+                return surface;
+            if (value == UiPalette.SurfaceRaised.ToArgb())
+                return MixColors(surface, background, 0.35F);
+            if (value == UiPalette.Border.ToArgb())
+                return MixColors(background, surface, 0.62F);
             if (foreground && (value == Color.FromArgb(226, 232, 244).ToArgb() ||
                 value == Color.FromArgb(225, 233, 246).ToArgb() ||
                 value == Color.FromArgb(237, 244, 255).ToArgb() ||
@@ -1958,11 +3826,14 @@ namespace MogLocker
                 value == Color.FromArgb(142, 160, 185).ToArgb() ||
                 value == Color.FromArgb(133, 151, 177).ToArgb() ||
                 value == Color.FromArgb(143, 158, 181).ToArgb() ||
-                value == Color.FromArgb(160, 174, 196).ToArgb()))
+                value == Color.FromArgb(160, 174, 196).ToArgb() ||
+                value == UiPalette.Text.ToArgb() ||
+                value == UiPalette.Muted.ToArgb()))
                 return text;
             if (value == Color.FromArgb(104, 211, 184).ToArgb() ||
                 value == Color.FromArgb(121, 211, 190).ToArgb() ||
-                value == Color.FromArgb(126, 224, 196).ToArgb())
+                value == Color.FromArgb(126, 224, 196).ToArgb() ||
+                value == UiPalette.Accent.ToArgb())
                 return accent;
             return Color.Empty;
         }
@@ -1976,37 +3847,42 @@ namespace MogLocker
                 first.B + (int)((second.B - first.B) * amount));
         }
 
-        private static Panel CreateHomeCard(string title, string description, Color accent)
+        private Panel CreateHomeCard(string title, string description, Color accent)
         {
             var card = new BufferedPanel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(18, 26, 45),
-                Margin = new Padding(8),
+                BackColor = UiPalette.Surface,
+                Margin = new Padding(8, 4, 8, 8),
                 Padding = new Padding(20),
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.FixedSingle,
+                Cursor = Cursors.Hand
             };
             var titleLabel = new Label
             {
                 Text = title,
                 Dock = DockStyle.Top,
-                Height = 28,
-                Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(183, 199, 222)
+                Height = 30,
+                Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold),
+                ForeColor = UiPalette.Text,
+                Cursor = Cursors.Hand
             };
             var descriptionLabel = new Label
             {
                 Text = description,
                 Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 10F),
-                ForeColor = Color.FromArgb(197, 209, 228),
-                Padding = new Padding(0, 10, 0, 0)
+                Font = new Font("Segoe UI", 9.5F),
+                ForeColor = UiPalette.Muted,
+                Padding = new Padding(0, 8, 0, 0),
+                Cursor = Cursors.Hand
             };
             card.Controls.Add(descriptionLabel);
             card.Controls.Add(titleLabel);
             card.Paint += delegate(object sender, PaintEventArgs args)
             {
-                using (var accentPen = new Pen(accent, 2F))
+                Color themedAccent = MainForm.TranslateThemeColor(accent,
+                    SettingsStore.ResolveLightTheme(appSettings.Theme), false);
+                using (var accentPen = new Pen(themedAccent, 1F))
                     args.Graphics.DrawLine(accentPen, 1, 1, Math.Max(1, card.ClientSize.Width - 2), 1);
             };
             return card;
@@ -2023,8 +3899,14 @@ namespace MogLocker
             SetControlWidth(adBlockNavButton, (int)buttonWidth);
             SetControlWidth(monitorNavButton, (int)buttonWidth);
             SetControlWidth(securityNavButton, (int)buttonWidth);
+            SetControlWidth(unlockNavButton, (int)buttonWidth);
             SetControlWidth(settingsNavButton, (int)buttonWidth);
             SetControlWidth(menuToggleButton, (int)Math.Max(44F, sidebarWidth - 24F));
+            brandTitleLabel.Visible = menuExpanded;
+            brandSubtitleLabel.Visible = menuExpanded;
+            versionLabel.Visible = menuExpanded;
+            developerLabel.Visible = menuExpanded;
+            headerStatus.Width = menuExpanded ? 194 : 48;
             SetNavigationLabels();
             bodyLayout.ResumeLayout(true);
             bodyLayout.PerformLayout();
@@ -2033,7 +3915,7 @@ namespace MogLocker
 
         private void ShowPage(int page)
         {
-            if (page < 0 || page > 4)
+            if (page < 0 || page > 5)
                 return;
             if (transitioningPage != null)
                 CompletePageTransition();
@@ -2041,6 +3923,8 @@ namespace MogLocker
             {
                 if (page == 1)
                     adBlockPanel.Initialize();
+                if (page == 4)
+                    RefreshUnlockStatuses();
                 SetActiveNavigation(page);
                 return;
             }
@@ -2050,6 +3934,8 @@ namespace MogLocker
             selectedPage = page;
             if (page == 1)
                 adBlockPanel.Initialize();
+            if (page == 4)
+                RefreshUnlockStatuses();
             SetActiveNavigation(page);
 
             if (!appSettings.Animations || previousPage == null ||
@@ -2082,18 +3968,19 @@ namespace MogLocker
         {
             Button[] buttons =
             {
-                homeNavButton, adBlockNavButton, monitorNavButton, securityNavButton, settingsNavButton
+                homeNavButton, adBlockNavButton, monitorNavButton, securityNavButton, unlockNavButton,
+                settingsNavButton
             };
             bool lightTheme = SettingsStore.ResolveLightTheme(appSettings.Theme);
             for (int index = 0; index < buttons.Length; index++)
             {
                 bool active = index == page;
                 buttons[index].BackColor = TranslateThemeColor(active
-                    ? Color.FromArgb(19, 39, 48)
-                    : Color.FromArgb(15, 22, 38), lightTheme, false);
+                    ? UiPalette.AccentSurface
+                    : UiPalette.Sidebar, lightTheme, false);
                 buttons[index].ForeColor = TranslateThemeColor(active
-                    ? Color.FromArgb(126, 224, 196)
-                    : Color.FromArgb(143, 158, 181), lightTheme, true);
+                    ? UiPalette.Accent
+                    : UiPalette.Muted, lightTheme, true);
             }
             navigationIndicator.Top = buttons[page].Top;
             navigationIndicator.BringToFront();
@@ -2106,7 +3993,7 @@ namespace MogLocker
                 Text = text,
                 AutoSize = true,
                 Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(183, 199, 222)
+                ForeColor = UiPalette.Muted
             };
         }
 
@@ -2117,33 +4004,40 @@ namespace MogLocker
                 Text = text,
                 AutoSize = true,
                 Font = new Font("Segoe UI", 9.5F),
-                ForeColor = Color.FromArgb(216, 225, 240),
+                ForeColor = UiPalette.Text,
                 Margin = new Padding(0, 5, 0, 5)
             };
         }
 
         private static AnimatedButton MakeButton(string text, Color color)
         {
+            Color foreground = UiPalette.Text;
+            if (color == Color.FromArgb(133, 67, 62))
+            {
+                color = UiPalette.SurfaceRaised;
+                foreground = UiPalette.Danger;
+            }
+            else if (color == Color.FromArgb(53, 105, 99))
+            {
+                color = UiPalette.AccentSurface;
+                foreground = UiPalette.Accent;
+            }
+            else
+                color = UiPalette.SurfaceRaised;
             var button = new AnimatedButton
             {
                 Text = text,
                 Width = 100,
                 Height = 34,
                 BackColor = color,
-                ForeColor = Color.FromArgb(225, 233, 246),
-                Font = new Font("Segoe UI", 9F),
+                ForeColor = foreground,
+                Font = new Font("Segoe UI Semibold", 8.5F, FontStyle.Bold),
                 Margin = new Padding(0, 3, 7, 3),
                 Cursor = Cursors.Hand
             };
-            button.FlatAppearance.BorderColor = Color.FromArgb(57, 73, 100);
-            button.FlatAppearance.MouseOverBackColor = Color.FromArgb(
-                Math.Min(color.R + 14, 255),
-                Math.Min(color.G + 14, 255),
-                Math.Min(color.B + 14, 255));
-            button.FlatAppearance.MouseDownBackColor = Color.FromArgb(
-                Math.Max(color.R - 12, 0),
-                Math.Max(color.G - 12, 0),
-                Math.Max(color.B - 12, 0));
+            button.FlatAppearance.BorderColor = UiPalette.Border;
+            button.FlatAppearance.MouseOverBackColor = UiPalette.Hover;
+            button.FlatAppearance.MouseDownBackColor = UiPalette.Pressed;
             button.FlatAppearance.BorderSize = 1;
             return button;
         }
@@ -2165,6 +4059,7 @@ namespace MogLocker
             }
             if ((DateTime.UtcNow - lastDefenderExclusionScan).TotalSeconds >= 30)
                 ScanDefenderExclusions();
+            RefreshHomeSummary();
         }
 
         private void PurgeExpiredSignals()
@@ -2222,8 +4117,25 @@ namespace MogLocker
             SetControlText(homeNavButton, menuExpanded ? "⌂   Главная" : "⌂");
             SetControlText(adBlockNavButton, menuExpanded ? "◉   AdBlock" : "◉");
             SetControlText(monitorNavButton, menuExpanded ? "◈   Мониторинг" : "◈");
-            SetControlText(securityNavButton, menuExpanded ? "♢   Антивирус" : "♢");
+            SetControlText(securityNavButton, menuExpanded ? "♢   Defender" : "♢");
+            SetControlText(unlockNavButton, menuExpanded ? "▣   Анлок" : "▣");
             SetControlText(settingsNavButton, menuExpanded ? "⚙   Настройки" : "⚙");
+            monitorState.Visible = menuExpanded;
+            ContentAlignment alignment = menuExpanded
+                ? ContentAlignment.MiddleLeft
+                : ContentAlignment.MiddleCenter;
+            homeNavButton.TextAlign = alignment;
+            adBlockNavButton.TextAlign = alignment;
+            monitorNavButton.TextAlign = alignment;
+            securityNavButton.TextAlign = alignment;
+            unlockNavButton.TextAlign = alignment;
+            settingsNavButton.TextAlign = alignment;
+            homeNavButton.Padding = menuExpanded ? new Padding(12, 0, 0, 0) : new Padding(0);
+            adBlockNavButton.Padding = menuExpanded ? new Padding(12, 0, 0, 0) : new Padding(0);
+            monitorNavButton.Padding = menuExpanded ? new Padding(12, 0, 0, 0) : new Padding(0);
+            securityNavButton.Padding = menuExpanded ? new Padding(12, 0, 0, 0) : new Padding(0);
+            unlockNavButton.Padding = menuExpanded ? new Padding(12, 0, 0, 0) : new Padding(0);
+            settingsNavButton.Padding = menuExpanded ? new Padding(12, 0, 0, 0) : new Padding(0);
         }
 
         private static void SetControlText(Control control, string text)
@@ -2285,7 +4197,7 @@ namespace MogLocker
             {
                 SetLabelState(screenState,
                     "Полноэкранные окна для проверки — " + windows.Count,
-                    Color.FromArgb(255, 190, 105));
+                    UiPalette.Warning);
                 var activeWindowKeys = new HashSet<string>(windows.Select(
                     window => "window:" + window.ProcessId + ":" + window.Handle));
                 lock (recentSignalsLock)
@@ -2320,7 +4232,7 @@ namespace MogLocker
                         recentSignals.Remove(key);
                 }
                 SetLabelState(screenState, "Экранные окна: подозрительных признаков не найдено.",
-                    Color.FromArgb(104, 211, 184));
+                    UiPalette.Safe);
             }
         }
 
@@ -2424,8 +4336,8 @@ namespace MogLocker
             SetLabelState(explorerState,
                 explorerRunning ? "Проводник: запущен" : "Проводник: не запущен",
                 explorerRunning
-                ? Color.FromArgb(104, 211, 184)
-                : Color.FromArgb(255, 190, 105));
+                ? UiPalette.Safe
+                : UiPalette.Warning);
             if (explorerWasRunning.HasValue && explorerWasRunning.Value && !explorerRunning)
                 AddAlert("ПРЕДУПРЕЖДЕНИЕ", "Проводник Windows", "Процесс explorer.exe завершился.");
             explorerWasRunning = explorerRunning;
@@ -2434,8 +4346,8 @@ namespace MogLocker
             SetLabelState(networkState,
                 networkAvailable ? "Сеть: доступна" : "Сеть: соединение недоступно",
                 networkAvailable
-                ? Color.FromArgb(104, 211, 184)
-                : Color.FromArgb(160, 174, 196));
+                ? UiPalette.Safe
+                : UiPalette.Muted);
             if (networkWasAvailable.HasValue && networkWasAvailable.Value != networkAvailable)
                 AddAlert("ИНФО", "Сеть", networkAvailable
                     ? "Сетевое соединение появилось."
@@ -2664,6 +4576,8 @@ namespace MogLocker
             records.Add(record);
             int rowIndex = alertsGrid.Rows.Add(record.Time.ToString("HH:mm:ss"), severity, source, details);
             alertsGrid.Rows[rowIndex].Tag = record;
+            alertsGrid.Rows[rowIndex].Cells[1].Value = UiLocalization.Translate(severity,
+                String.Equals(appSettings.Language, "en", StringComparison.OrdinalIgnoreCase));
             ApplyAlertSeverityStyles(SettingsStore.ResolveLightTheme(appSettings.Theme));
             if (alertsGrid.IsHandleCreated && alertsGrid.Visible &&
                 alertsGrid.DisplayedRowCount(false) > 0)
@@ -2682,10 +4596,12 @@ namespace MogLocker
                 alertsGrid.Rows.RemoveAt(0);
                 records.RemoveAt(0);
             }
-            if (currentFilter != null)
+            if (currentFilter != null || !String.IsNullOrWhiteSpace(logSearchBox.Text) ||
+                (timeframeFilterCheckBox != null && timeframeFilterCheckBox.Checked))
                 ApplyLogFilter(null, EventArgs.Empty);
             else
                 logCountLabel.Text = "Событий: " + alertsGrid.Rows.Count;
+            RefreshHomeSummary();
 
             if (severity == "ПОДОЗРИТЕЛЬНО")
             {
@@ -2708,25 +4624,96 @@ namespace MogLocker
             }
         }
 
+        private void UpdateSelectedAlertDetails()
+        {
+            if (selectedEventHeading == null || selectedEventMetadata == null ||
+                selectedEventDetails == null)
+                return;
+
+            AlertRecord record = alertsGrid.SelectedRows.Count == 0
+                ? null
+                : alertsGrid.SelectedRows[0].Tag as AlertRecord;
+            if (record == null)
+            {
+                selectedEventHeading.Text = "Выберите событие";
+                selectedEventMetadata.Text = "Данные выбранной записи появятся здесь.";
+                selectedEventDetails.Text =
+                    "Выберите запись в журнале, чтобы просмотреть её описание, путь и связанные сведения.";
+                return;
+            }
+
+            selectedEventHeading.Text = record.Source;
+            selectedEventMetadata.Text = record.Time.ToString("yyyy-MM-dd HH:mm:ss") +
+                "  |  " + record.Severity + Environment.NewLine +
+                "PID: " + (record.ProcessId == 0 ? "—" : record.ProcessId.ToString(CultureInfo.CurrentCulture));
+            var details = new StringBuilder(record.Details ?? String.Empty);
+            if (!String.IsNullOrWhiteSpace(record.Path))
+                details.AppendLine().AppendLine("Путь: ").Append(record.Path);
+            if (record.WindowHandle != IntPtr.Zero)
+                details.AppendLine().AppendLine("Дескриптор окна: ").Append(record.WindowHandle);
+            selectedEventDetails.Text = details.ToString();
+        }
+
         private void ApplyLogFilter(object sender, EventArgs e)
         {
             if (logFilterSelector == null)
                 return;
 
-            currentFilter = logFilterSelector.SelectedIndex <= 0
-                ? null
-                : logFilterSelector.SelectedItem as string;
+            switch (logFilterSelector.SelectedIndex)
+            {
+                case 1: currentFilter = "ПОДОЗРИТЕЛЬНО"; break;
+                case 2: currentFilter = "ПРЕДУПРЕЖДЕНИЕ"; break;
+                case 3: currentFilter = "ИНФО"; break;
+                case 4: currentFilter = "ОШИБКА"; break;
+                default: currentFilter = null; break;
+            }
+            string search = logSearchBox == null ? String.Empty : logSearchBox.Text.Trim();
 
             int visibleCount = 0;
+            alertsGrid.ClearSelection();
+            alertsGrid.CurrentCell = null;
+            bool filterByTime = timeframeFilterCheckBox != null &&
+                timeframeFilterCheckBox.Checked;
+            DateTime startTime = filterByTime ? timeframeStartPicker.Value : DateTime.MinValue;
+            DateTime endTime = filterByTime ? timeframeEndPicker.Value : DateTime.MaxValue;
             foreach (DataGridViewRow row in alertsGrid.Rows)
             {
-                bool shouldShow = currentFilter == null ||
-                    String.Equals(row.Cells[1].Value as string, currentFilter, StringComparison.Ordinal);
+                AlertRecord record = row.Tag as AlertRecord;
+                bool severityMatches = currentFilter == null ||
+                    (record != null && String.Equals(record.Severity, currentFilter,
+                        StringComparison.OrdinalIgnoreCase));
+                bool timeMatches = !filterByTime || (record != null &&
+                    record.Time >= startTime && record.Time <= endTime);
+                bool searchMatches = search.Length == 0 || (record != null &&
+                    (ContainsSearchText(record.Time.ToString("yyyy-MM-dd HH:mm:ss"), search) ||
+                     ContainsSearchText(record.Severity, search) ||
+                     ContainsSearchText(record.Source, search) ||
+                     ContainsSearchText(record.Details, search) ||
+                     ContainsSearchText(record.Path, search) ||
+                     ContainsSearchText(record.ProcessId.ToString(CultureInfo.CurrentCulture), search)));
+                bool shouldShow = severityMatches && timeMatches && searchMatches;
                 row.Visible = shouldShow;
                 if (shouldShow)
                     visibleCount++;
             }
-            logCountLabel.Text = "Событий: " + visibleCount;
+            if (visibleCount > 0)
+            {
+                foreach (DataGridViewRow row in alertsGrid.Rows)
+                {
+                    if (!row.Visible)
+                        continue;
+                    row.Selected = true;
+                    break;
+                }
+            }
+            logCountLabel.Text = "Показано " + visibleCount + " / " + alertsGrid.Rows.Count;
+            UpdateSelectedAlertDetails();
+        }
+
+        private static bool ContainsSearchText(string value, string search)
+        {
+            return !String.IsNullOrEmpty(value) &&
+                value.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private void ToggleMonitoring(object sender, EventArgs e)
@@ -2741,12 +4728,12 @@ namespace MogLocker
                 ? "Мониторинг Windows: включён"
                 : "Мониторинг Windows: приостановлен";
             securityMonitorState.ForeColor = isMonitoring
-                ? Color.FromArgb(104, 211, 184)
-                : Color.FromArgb(255, 190, 105);
+                ? UiPalette.Safe
+                : UiPalette.Warning;
             monitorState.Text = isMonitoring ? "МОНИТОРИНГ ВКЛЮЧЁН" : "МОНИТОРИНГ ПРИОСТАНОВЛЕН";
             monitorState.ForeColor = isMonitoring
-                ? Color.FromArgb(104, 211, 184)
-                : Color.FromArgb(255, 190, 105);
+                ? UiPalette.Safe
+                : UiPalette.Warning;
             pulseDot.ForeColor = monitorState.ForeColor;
             AddAlert("ИНФО", "Монитор", isMonitoring
                 ? "Наблюдение возобновлено."
@@ -3351,7 +5338,7 @@ namespace MogLocker
             {
                 Location = new Point(22, 116),
                 Size = new Size(576, 56),
-                ForeColor = Color.FromArgb(255, 190, 105),
+                ForeColor = UiPalette.Warning,
                 Text = String.Empty
             };
 
@@ -3375,8 +5362,8 @@ namespace MogLocker
             {
                 deviceStatus.Text = GetDiscordCableStatus();
                 deviceStatus.ForeColor = deviceStatus.Text.IndexOf("не найден", StringComparison.OrdinalIgnoreCase) >= 0
-                    ? Color.FromArgb(255, 190, 105)
-                    : Color.FromArgb(104, 211, 184);
+                    ? UiPalette.Warning
+                    : UiPalette.Safe;
             };
 
             var openSoundPadButton = MakeButton("Открыть саундпад", Color.FromArgb(53, 105, 99));
@@ -3403,8 +5390,8 @@ namespace MogLocker
             guide.Controls.Add(closeButton);
             deviceStatus.Text = GetDiscordCableStatus();
             deviceStatus.ForeColor = deviceStatus.Text.IndexOf("не найден", StringComparison.OrdinalIgnoreCase) >= 0
-                ? Color.FromArgb(255, 190, 105)
-                : Color.FromArgb(104, 211, 184);
+                ? UiPalette.Warning
+                : UiPalette.Safe;
             guide.ShowDialog(this);
         }
 
@@ -3672,21 +5659,31 @@ namespace MogLocker
 
     internal sealed class AppSettings
     {
+        public string Language { get; set; }
         public string Theme { get; set; }
         public string CustomThemeName { get; set; }
         public List<CustomTheme> CustomThemes { get; set; }
         public string HeaderStyle { get; set; }
         public bool Animations { get; set; }
         public string ExportDirectory { get; set; }
+        public bool UseCustomAccent { get; set; }
+        public string AccentColor { get; set; }
+        public int LightPaletteIndex { get; set; }
+        public int DarkPaletteIndex { get; set; }
 
         public AppSettings()
         {
+            Language = "ru";
             Theme = "Dark";
             CustomThemeName = String.Empty;
             CustomThemes = new List<CustomTheme>();
             HeaderStyle = "Windows";
             Animations = true;
             ExportDirectory = String.Empty;
+            UseCustomAccent = false;
+            AccentColor = String.Empty;
+            LightPaletteIndex = 0;
+            DarkPaletteIndex = 0;
         }
     }
 
@@ -3764,10 +5761,10 @@ namespace MogLocker
         private readonly Label[] colorLabels = new Label[4];
         private readonly Color[] colors =
         {
-            Color.FromArgb(12, 17, 31),
-            Color.FromArgb(18, 26, 45),
-            Color.FromArgb(226, 232, 244),
-            Color.FromArgb(104, 211, 184)
+            UiPalette.Background,
+            UiPalette.Surface,
+            UiPalette.Text,
+            UiPalette.Accent
         };
         private readonly string[] colorNames = { "Фон", "Поверхность", "Текст", "Акцент" };
 
@@ -3780,8 +5777,8 @@ namespace MogLocker
             MinimizeBox = false;
             ShowInTaskbar = false;
             ClientSize = new Size(440, 330);
-            BackColor = Color.FromArgb(18, 26, 45);
-            ForeColor = Color.FromArgb(226, 232, 244);
+            BackColor = UiPalette.Background;
+            ForeColor = UiPalette.Text;
             Font = new Font("Segoe UI", 9F);
 
             var heading = new Label
@@ -3790,7 +5787,7 @@ namespace MogLocker
                 Location = new Point(22, 18),
                 Size = new Size(390, 32),
                 Font = new Font("Segoe UI Semibold", 16F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(237, 244, 255)
+                ForeColor = UiPalette.Text
             };
             var nameLabel = new Label
             {
@@ -3804,7 +5801,7 @@ namespace MogLocker
                 Location = new Point(158, 62),
                 Size = new Size(250, 26),
                 Text = "Моя тема",
-                BackColor = Color.FromArgb(12, 17, 31),
+                BackColor = UiPalette.Surface,
                 ForeColor = ForeColor
             };
             Controls.Add(heading);
@@ -3838,8 +5835,8 @@ namespace MogLocker
                     Location = new Point(294, 106 + index * 42),
                     Size = new Size(114, 28),
                     FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.FromArgb(35, 49, 70),
-                    ForeColor = Color.FromArgb(225, 233, 246),
+                    BackColor = UiPalette.SurfaceRaised,
+                    ForeColor = UiPalette.Text,
                     Cursor = Cursors.Hand
                 };
                 pickButton.Click += delegate { PickColor(colorIndex); };
@@ -3855,7 +5852,7 @@ namespace MogLocker
                 Location = new Point(248, 282),
                 Size = new Size(78, 30),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(53, 105, 99),
+                BackColor = UiPalette.Accent,
                 ForeColor = Color.White
             };
             var cancelButton = new Button
@@ -3865,7 +5862,7 @@ namespace MogLocker
                 Location = new Point(330, 282),
                 Size = new Size(78, 30),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(35, 49, 70),
+                BackColor = UiPalette.SurfaceRaised,
                 ForeColor = ForeColor
             };
             Controls.Add(saveButton);
@@ -3915,6 +5912,8 @@ namespace MogLocker
             AppSettings settings = Serializer.Deserialize<AppSettings>(File.ReadAllText(SettingsPath));
             if (settings == null)
                 throw new InvalidDataException("Файл настроек MogLocker пуст.");
+            if (settings.Language != "ru" && settings.Language != "en")
+                settings.Language = "ru";
             if (settings.Theme != "Dark" && settings.Theme != "Light" &&
                 settings.Theme != "System" && settings.Theme != "Custom")
                 settings.Theme = "Dark";
@@ -3936,6 +5935,19 @@ namespace MogLocker
                 settings.HeaderStyle = "Windows";
             if (settings.ExportDirectory == null)
                 settings.ExportDirectory = String.Empty;
+            if (settings.LightPaletteIndex < 0 ||
+                settings.LightPaletteIndex >= ThemePalettes.Light.Length)
+                settings.LightPaletteIndex = 0;
+            if (settings.DarkPaletteIndex < 0 ||
+                settings.DarkPaletteIndex >= ThemePalettes.Dark.Length)
+                settings.DarkPaletteIndex = 0;
+            if (settings.AccentColor == null)
+                settings.AccentColor = String.Empty;
+            if (settings.UseCustomAccent && !IsHtmlColor(settings.AccentColor))
+            {
+                settings.UseCustomAccent = false;
+                settings.AccentColor = String.Empty;
+            }
             return settings;
         }
 

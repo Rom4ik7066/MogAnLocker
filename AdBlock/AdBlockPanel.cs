@@ -17,6 +17,7 @@ namespace MogLocker.AdBlock
         private readonly CheckBox enabledCheckBox;
         private readonly Label blockedCountLabel;
         private readonly Label statsBreakdownLabel;
+        private readonly Label recentEmptyLabel;
         private readonly Label statusLabel;
         private readonly DataGridView recentGrid;
         private readonly CheckedListBox filterListBox;
@@ -35,10 +36,10 @@ namespace MogLocker.AdBlock
         {
             store = new AdBlockStore();
             filterService = new FilterListService(store);
-            BackColor = System.Drawing.Color.FromArgb(12, 17, 31);
-            ForeColor = System.Drawing.Color.FromArgb(226, 232, 244);
+            BackColor = UiPalette.Background;
+            ForeColor = UiPalette.Text;
             Dock = DockStyle.Fill;
-            Padding = new Padding(16);
+            Padding = new Padding(22, 20, 22, 20);
 
             var page = new TableLayoutPanel
             {
@@ -50,9 +51,9 @@ namespace MogLocker.AdBlock
             };
             page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56F));
             page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44F));
-            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 82F));
-            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
-            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 38F));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 74F));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 54F));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
             page.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
             var header = new TableLayoutPanel
@@ -81,13 +82,13 @@ namespace MogLocker.AdBlock
             pageTitle.Dock = DockStyle.Fill;
             pageTitle.Font = new System.Drawing.Font("Segoe UI Semibold", 20F,
                 System.Drawing.FontStyle.Bold);
-            pageTitle.ForeColor = System.Drawing.Color.FromArgb(237, 244, 255);
+            pageTitle.ForeColor = UiPalette.Text;
             pageTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             pageTitle.Margin = new Padding(0);
             var pageSubtitle = MakeLabel("Браузерная защита от рекламы и трекеров", false);
             pageSubtitle.AutoSize = false;
             pageSubtitle.Dock = DockStyle.Fill;
-            pageSubtitle.ForeColor = System.Drawing.Color.FromArgb(142, 160, 185);
+            pageSubtitle.ForeColor = UiPalette.Muted;
             pageSubtitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             pageSubtitle.Margin = new Padding(1, 0, 0, 2);
             heading.Controls.Add(pageTitle, 0, 0);
@@ -106,14 +107,14 @@ namespace MogLocker.AdBlock
             var countCard = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.FromArgb(19, 39, 48),
+                BackColor = UiPalette.AccentSurface,
                 Margin = new Padding(8, 7, 2, 7),
                 Padding = new Padding(10, 0, 10, 0)
             };
             blockedCountLabel = MakeLabel("0 заблокировано", true);
             blockedCountLabel.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F,
                 System.Drawing.FontStyle.Bold);
-            blockedCountLabel.ForeColor = System.Drawing.Color.FromArgb(104, 211, 184);
+            blockedCountLabel.ForeColor = UiPalette.Accent;
             blockedCountLabel.Dock = DockStyle.Fill;
             blockedCountLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             countCard.Controls.Add(blockedCountLabel);
@@ -125,7 +126,7 @@ namespace MogLocker.AdBlock
                 Dock = DockStyle.Fill,
                 ColumnCount = 5,
                 RowCount = 1,
-                BackColor = System.Drawing.Color.FromArgb(18, 26, 45),
+                BackColor = UiPalette.Surface,
                 Padding = new Padding(10, 6, 10, 6),
                 Margin = new Padding(4, 2, 4, 5)
             };
@@ -150,7 +151,7 @@ namespace MogLocker.AdBlock
             var statusStrip = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.FromArgb(15, 23, 38),
+                BackColor = UiPalette.Surface,
                 Padding = new Padding(10, 3, 10, 3),
                 Margin = new Padding(4, 0, 4, 4)
             };
@@ -176,17 +177,19 @@ namespace MogLocker.AdBlock
                 MultiSelect = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = System.Drawing.Color.FromArgb(12, 17, 31),
+                ColumnHeadersHeight = 34,
+                RowTemplate = { Height = 36 },
+                BackgroundColor = UiPalette.Background,
                 BorderStyle = BorderStyle.None,
                 RowHeadersVisible = false,
                 EnableHeadersVisualStyles = false,
-                GridColor = System.Drawing.Color.FromArgb(43, 56, 79)
+                GridColor = UiPalette.Border
             };
-            recentGrid.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(24, 35, 56);
+            recentGrid.ColumnHeadersDefaultCellStyle.BackColor = UiPalette.SurfaceRaised;
             recentGrid.ColumnHeadersDefaultCellStyle.ForeColor = ForeColor;
-            recentGrid.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(18, 26, 45);
+            recentGrid.DefaultCellStyle.BackColor = UiPalette.Surface;
             recentGrid.DefaultCellStyle.ForeColor = ForeColor;
-            recentGrid.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(41, 65, 88);
+            recentGrid.DefaultCellStyle.SelectionBackColor = UiPalette.Hover;
             recentGrid.DefaultCellStyle.SelectionForeColor = ForeColor;
             recentGrid.Columns.Add("time", "Время");
             recentGrid.Columns.Add("domain", "Домен");
@@ -196,7 +199,25 @@ namespace MogLocker.AdBlock
             recentGrid.Columns["domain"].FillWeight = 25;
             recentGrid.Columns["type"].FillWeight = 17;
             recentGrid.Columns["url"].FillWeight = 40;
-            recentGroup.Controls.Add(recentGrid);
+            recentGrid.CellToolTipTextNeeded += delegate(object sender,
+                DataGridViewCellToolTipTextNeededEventArgs args)
+            {
+                if (args.RowIndex >= 0 && args.ColumnIndex >= 0)
+                    args.ToolTipText = Convert.ToString(
+                        recentGrid.Rows[args.RowIndex].Cells[args.ColumnIndex].Value);
+            };
+            var recentContent = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = BackColor
+            };
+            recentEmptyLabel = MakeLabel("Событий пока нет. Здесь появятся реальные запросы, заблокированные расширением.", false);
+            recentEmptyLabel.Dock = DockStyle.Fill;
+            recentEmptyLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            recentEmptyLabel.ForeColor = UiPalette.Muted;
+            recentContent.Controls.Add(recentGrid);
+            recentContent.Controls.Add(recentEmptyLabel);
+            recentGroup.Controls.Add(recentContent);
             recentGroup.Controls.Add(statsBreakdownLabel);
 
             var right = new TableLayoutPanel
@@ -216,7 +237,7 @@ namespace MogLocker.AdBlock
             {
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.None,
-                BackColor = System.Drawing.Color.FromArgb(18, 26, 45),
+                BackColor = UiPalette.Surface,
                 ForeColor = ForeColor,
                 CheckOnClick = true
             };
@@ -229,7 +250,7 @@ namespace MogLocker.AdBlock
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
                 RowCount = 3,
-                BackColor = System.Drawing.Color.FromArgb(18, 26, 45),
+                BackColor = UiPalette.Surface,
                 Padding = new Padding(8)
             };
             rulesLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
@@ -276,7 +297,7 @@ namespace MogLocker.AdBlock
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
                 RowCount = 2,
-                BackColor = System.Drawing.Color.FromArgb(18, 26, 45),
+                BackColor = UiPalette.Surface,
                 Padding = new Padding(8)
             };
             allowLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
@@ -474,6 +495,7 @@ namespace MogLocker.AdBlock
                     request.Url);
                 recentGrid.Rows[index].Cells["url"].ToolTipText = request.Url;
             }
+            recentEmptyLabel.Visible = recentGrid.Rows.Count == 0;
             recentGrid.ResumeLayout();
         }
 
@@ -791,8 +813,8 @@ namespace MogLocker.AdBlock
             {
                 Text = title,
                 Dock = DockStyle.Fill,
-                ForeColor = System.Drawing.Color.FromArgb(183, 199, 222),
-                BackColor = System.Drawing.Color.FromArgb(17, 25, 42),
+                ForeColor = UiPalette.Muted,
+                BackColor = UiPalette.Surface,
                 Padding = new Padding(10),
                 Margin = new Padding(5)
             };
@@ -804,7 +826,7 @@ namespace MogLocker.AdBlock
             {
                 Text = text,
                 AutoSize = true,
-                ForeColor = System.Drawing.Color.FromArgb(226, 232, 244),
+                ForeColor = UiPalette.Text,
                 Font = new System.Drawing.Font("Segoe UI", bold ? 10F : 8.5F,
                     bold ? System.Drawing.FontStyle.Bold : System.Drawing.FontStyle.Regular),
                 Margin = new Padding(4, 12, 4, 4)
@@ -818,14 +840,15 @@ namespace MogLocker.AdBlock
                 Text = text,
                 Width = width,
                 Height = 30,
-                BackColor = System.Drawing.Color.FromArgb(35, 49, 70),
-                ForeColor = System.Drawing.Color.FromArgb(225, 233, 246),
+                BackColor = UiPalette.SurfaceRaised,
+                ForeColor = UiPalette.Text,
                 Font = new System.Drawing.Font("Segoe UI Semibold", 8.5F,
                     System.Drawing.FontStyle.Bold),
                 Margin = new Padding(3, 3, 5, 3)
             };
-            button.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(56, 76, 101);
-            button.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(46, 66, 89);
+            button.FlatAppearance.BorderColor = UiPalette.Border;
+            button.FlatAppearance.MouseOverBackColor = UiPalette.Hover;
+            button.FlatAppearance.MouseDownBackColor = UiPalette.Pressed;
             return button;
         }
 
@@ -835,8 +858,8 @@ namespace MogLocker.AdBlock
             {
                 Text = String.Empty,
                 AccessibleDescription = placeholder,
-                BackColor = System.Drawing.Color.FromArgb(12, 17, 31),
-                ForeColor = System.Drawing.Color.FromArgb(226, 232, 244),
+                BackColor = UiPalette.Background,
+                ForeColor = UiPalette.Text,
                 BorderStyle = BorderStyle.FixedSingle,
                 Font = new System.Drawing.Font("Segoe UI", 9F),
                 Margin = new Padding(3, 5, 5, 3)
@@ -848,8 +871,8 @@ namespace MogLocker.AdBlock
             return new ListBox
             {
                 Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.FromArgb(12, 17, 31),
-                ForeColor = System.Drawing.Color.FromArgb(226, 232, 244),
+                BackColor = UiPalette.Background,
+                ForeColor = UiPalette.Text,
                 BorderStyle = BorderStyle.FixedSingle,
                 IntegralHeight = false
             };

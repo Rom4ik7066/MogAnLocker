@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b0d12">
+    <meta name="description" content="Подробно о MogLocker: мониторинг Windows, диагностика Defender, восстановление пользовательских настроек и AdBlock для браузеров.">
+    <title>О программе MogLocker — возможности и запуск</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <canvas id="ambient-canvas" aria-hidden="true"></canvas>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <header class="wrap header">
+        <a class="brand" href="anlock.html#top" aria-label="MogLocker — на главную">
+            <span class="brand-mark">M</span>
+            <span>MogLocker</span>
+        </a>
+        <nav class="nav" aria-label="Основная навигация">
+            <a href="#modules">Разделы программы</a>
+            <a href="#setup">Первый запуск</a>
+            <label class="theme-control">
+                <span>Тема</span>
+                <select class="theme-select" aria-label="Цветовая тема">
+                    <option value="system">Системная</option>
+                    <option value="light">Светлая</option>
+                    <option value="dark">Тёмная</option>
+                </select>
+            </label>
+            <a class="button button-quiet" href="anlock.html">На главную <span aria-hidden="true">←</span></a>
+        </nav>
+    </header>
+
+    <main id="top">
+        <section class="wrap details-intro">
+            <div class="eyebrow"><span></span> ПОДРОБНО О ПРОЕКТЕ</div>
+            <h1>Один инструмент.<br><em>Несколько задач Windows.</em></h1>
+            <p>MogLocker — локальное приложение для Windows с разделами мониторинга, диагностики Microsoft Defender, восстановления некоторых пользовательских настроек и браузерной фильтрации. Ниже — подробнее о том, что именно оно делает и чего от него ожидать.</p>
+            <div class="hero-actions">
+                <a class="button button-primary" href="https://github.com/Rom4ik7066/MogAnLocker/releases/download/v0.2.0/MogLocker.exe" target="_blank" rel="noopener noreferrer">Скачать версию 0.2.0 <span aria-hidden="true">↓</span></a>
+                <a class="button button-quiet" href="https://github.com/Rom4ik7066/MogAnLocker" target="_blank" rel="noopener noreferrer">Исходный код на GitHub <span aria-hidden="true">↗</span></a>
+            </div>
+        </section>
+
+        <section class="detail-section" id="modules">
+            <div class="wrap">
+                <div class="section-label">Разделы программы</div>
+                <h2 class="section-heading">Что умеет MogLocker</h2>
+                <div class="detail-grid">
+                    <article class="detail-card">
+                        <div class="card-icon" aria-hidden="true">◉</div>
+                        <h3>Мониторинг системы</h3>
+                        <p>Приложение наблюдает за отдельными признаками, которые могут указывать на окно-блокировщик, включая запущенный процесс regedit.exe и изменения наблюдаемых ключей реестра.</p>
+                        <ul>
+                            <li>Показывает результаты наблюдения в интерфейсе.</li>
+                            <li>Отслеживает выбранные изменения системного состояния.</li>
+                            <li>Обнаружение — сигнал для проверки, а не автоматическая блокировка.</li>
+                        </ul>
+                    </article>
+
+                    <article class="detail-card">
+                        <div class="card-icon" aria-hidden="true">◇</div>
+                        <h3>Диагностика Microsoft Defender</h3>
+                        <p>Раздел отображает доступные состояния мониторинга Windows и сведения об исключениях Defender. Для чтения актуального списка исключений Windows запрашивает повышение прав через UAC.</p>
+                        <ul>
+                            <li>Исключения можно просмотреть и выбрать для удаления вручную.</li>
+                            <li>Перед удалением Windows снова показывает запрос UAC.</li>
+                            <li>Программа не добавляет исключения и не меняет защиту без действия пользователя.</li>
+                        </ul>
+                    </article>
+
+                    <article class="detail-card">
+                        <div class="card-icon" aria-hidden="true">↗</div>
+                        <h3>Раздел «Анлок»</h3>
+                        <p>Помогает проверить некоторые пользовательские ограничения Windows для Диспетчера задач, Редактора реестра, Командной строки и Панели управления.</p>
+                        <ul>
+                            <li>Перед изменением настроек требуется подтверждение.</li>
+                            <li>Удаляются только известные значения политик текущего пользователя (HKCU).</li>
+                            <li>Системные политики HKLM приложение не меняет.</li>
+                        </ul>
+                    </article>
+
+                    <article class="detail-card">
+                        <div class="card-icon" aria-hidden="true">⌁</div>
+                        <h3>AdBlock для Chrome и Edge</h3>
+                        <p>Настольное приложение управляет настройками, а браузерное расширение применяет поддерживаемые правила фильтрации с помощью API браузера.</p>
+                        <ul>
+                            <li>Фильтр-листы, пользовательские правила и список исключений сайтов.</li>
+                            <li>Статистика и локальный журнал срабатываний.</li>
+                            <li>Поддерживаемое подмножество ABP-фильтров и косметические правила.</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="detail-section">
+            <div class="wrap">
+                <div class="section-label">Как это устроено</div>
+                <h2 class="section-heading">Приложение работает локально</h2>
+                <div class="detail-grid">
+                    <article class="detail-card">
+                        <h3>Настольная часть</h3>
+                        <p>Главное приложение — Windows Forms на .NET Framework 4.8. Настройки AdBlock и кэш фильтр-листов хранятся локально в профиле пользователя Windows.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Windows 10/11</span>
+                            <span class="tech-tag">.NET Framework 4.8</span>
+                            <span class="tech-tag">WinForms</span>
+                        </div>
+                    </article>
+                    <article class="detail-card">
+                        <h3>Связь с браузером</h3>
+                        <p>Для передачи правил между программой и расширением используется Native Messaging API, а фильтрация сетевых запросов опирается на declarativeNetRequest в Manifest V3.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Chrome</span>
+                            <span class="tech-tag">Microsoft Edge</span>
+                            <span class="tech-tag">Manifest V3</span>
+                        </div>
+                    </article>
+                </div>
+                <aside class="notice">
+                    <span class="notice-icon" aria-hidden="true">i</span>
+                    <div>
+                        <strong>Важно: MogLocker — диагностический прототип, не антивирус.</strong>
+                        <p>Он не гарантирует обнаружение угроз, не блокирует процессы и не заменяет Microsoft Defender. Организационные политики Windows могут применяться снова, а обнаруженные изменения сами по себе не указывают на их источник.</p>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="detail-section" id="setup">
+            <div class="wrap">
+                <div class="section-label">Начало работы</div>
+                <h2 class="section-heading">Как скачать и подключить</h2>
+                <div class="steps">
+                    <article class="step-card">
+                        <div class="step-number">ШАГ 01</div>
+                        <h3>Скачайте релиз</h3>
+                        <p>Получите MogLocker.exe со страницы релиза. При первом запуске загрузчик устанавливает приложение для текущего пользователя. Если нужен .NET Framework 4.8, появится предложение установить его.</p>
+                    </article>
+                    <article class="step-card">
+                        <div class="step-number">ШАГ 02</div>
+                        <h3>Выберите нужный раздел</h3>
+                        <p>Откройте программу и изучите мониторинг, Defender или «Анлок». Перед операциями, которым нужны права или изменения настроек, Windows запросит подтверждение.</p>
+                    </article>
+                    <article class="step-card">
+                        <div class="step-number">ШАГ 03</div>
+                        <h3>Подключите расширение</h3>
+                        <p>В разделе AdBlock нажмите «Подключить браузер», затем откройте страницу расширений Chrome или Edge и загрузите указанную папку browser-extension в режиме разработчика.</p>
+                    </article>
+                </div>
+                <aside class="notice">
+                    <span class="notice-icon" aria-hidden="true">↗</span>
+                    <div>
+                        <strong>Сборка из исходников и инструкции</strong>
+                        <p>В репозитории доступны README, решение Visual Studio и скрипт build.cmd. Перед запуском скачанного файла проверяйте источник и изучайте код проекта.</p>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="wrap cta">
+            <h2>Хотите изучить детали?</h2>
+            <p>В репозитории находятся исходный код, инструкции по запуску и актуальные релизы MogLocker.</p>
+            <div class="hero-actions">
+                <a class="button button-primary" href="https://github.com/Rom4ik7066/MogAnLocker" target="_blank" rel="noopener noreferrer">Открыть репозиторий <span aria-hidden="true">↗</span></a>
+                <a class="button button-quiet" href="anlock.html">Вернуться на главную <span aria-hidden="true">←</span></a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="wrap footer">
+        <span>© MogLocker · Независимый проект с открытым исходным кодом</span>
+        <a class="text-link" href="https://github.com/Rom4ik7066/MogAnLocker" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

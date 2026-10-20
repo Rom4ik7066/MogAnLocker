@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b0d12">
+    <meta name="description" content="MogLocker — локальная Windows-утилита для мониторинга, диагностики и настройки защиты.">
+    <title>MogLocker — больше контроля над Windows</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <canvas id="ambient-canvas" aria-hidden="true"></canvas>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <header class="wrap header">
+        <a class="brand" href="#top" aria-label="MogLocker — на главную">
+            <span class="brand-mark">M</span>
+            <span>MogLocker</span>
+        </a>
+        <nav class="nav" aria-label="Основная навигация">
+            <a href="#features">Возможности</a>
+            <a href="about.html">О программе</a>
+            <label class="theme-control">
+                <span>Тема</span>
+                <select class="theme-select" aria-label="Цветовая тема">
+                    <option value="system">Системная</option>
+                    <option value="light">Светлая</option>
+                    <option value="dark">Тёмная</option>
+                </select>
+            </label>
+            <a class="button button-quiet" href="https://github.com/Rom4ik7066/MogAnLocker" target="_blank" rel="noopener noreferrer" aria-label="Открыть MogLocker на GitHub">GitHub <span aria-hidden="true">↗</span></a>
+        </nav>
+    </header>
+
+    <main id="top">
+        <section class="wrap hero">
+            <div>
+                <div class="eyebrow"><span></span> ИНСТРУМЕНТ ДЛЯ WINDOWS</div>
+                <h1>Больше контроля.<br><em>Меньше тревоги.</em></h1>
+                <p class="hero-copy">MogLocker — локальная утилита для диагностики и настройки Windows. Мониторинг системы, инструменты для браузера и понятный интерфейс — в одном приложении.</p>
+                <div class="hero-actions">
+                    <a class="button button-primary" href="https://github.com/Rom4ik7066/MogAnLocker/releases/download/v0.2.0/MogLocker.exe" target="_blank" rel="noopener noreferrer">Скачать MogLocker <span aria-hidden="true">↓</span></a>
+                    <a class="button button-quiet" href="https://github.com/Rom4ik7066/MogAnLocker" target="_blank" rel="noopener noreferrer">Посмотреть на GitHub <span aria-hidden="true">↗</span></a>
+                </div>
+                <p class="hero-note">Windows · .NET Framework 4.8 · Открытый исходный код</p>
+            </div>
+
+            <div class="preview" aria-label="Декоративный макет интерфейса MogLocker">
+                <div class="app-window">
+                    <div class="window-bar">
+                        <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span>MogLocker / Мониторинг</span>
+                        <span aria-hidden="true">•••</span>
+                    </div>
+                    <div class="app-content">
+                        <aside class="sidebar" aria-hidden="true">
+                            <div class="side-item">⌂ &nbsp; Главная</div>
+                            <div class="side-item active">◉ &nbsp; Мониторинг</div>
+                            <div class="side-item">▦ &nbsp; AdBlock</div>
+                            <div class="side-item">◇ &nbsp; Defender</div>
+                            <div class="side-item">⚙ &nbsp; Настройки</div>
+                        </aside>
+                        <div class="dashboard">
+                            <h2>Мониторинг</h2>
+                            <p>Состояние наблюдаемых компонентов</p>
+                            <div class="status"><span class="status-dot"></span> Активные проверки</div>
+                            <div class="metric-grid">
+                                <div class="metric"><span>Защитник Windows</span><strong>Диагностика</strong></div>
+                                <div class="metric"><span>Окно-блокировщик</span><strong class="purple">Мониторинг</strong></div>
+                                <div class="metric"><span>Браузерные фильтры</span><strong>AdBlock</strong></div>
+                                <div class="metric"><span>Настройки системы</span><strong>Под контролем</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="features">
+            <div class="wrap">
+                <div class="section-label">Возможности</div>
+                <h2 class="section-heading">Нужные инструменты —<br>в одном месте.</h2>
+                <div class="cards">
+                    <article class="card">
+                        <div class="card-icon" aria-hidden="true">◉</div>
+                        <h3>Мониторинг Windows</h3>
+                        <p>Проверка некоторых признаков окна-блокировщика и наблюдение за выбранными системными состояниями.</p>
+                    </article>
+                    <article class="card">
+                        <div class="card-icon" aria-hidden="true">⌁</div>
+                        <h3>AdBlock для браузера</h3>
+                        <p>Настраивайте фильтр-листы и правила блокировки через расширение для Chrome и Edge.</p>
+                    </article>
+                    <article class="card">
+                        <div class="card-icon" aria-hidden="true">◇</div>
+                        <h3>Диагностика Defender</h3>
+                        <p>Просматривайте доступные состояния Microsoft Defender и изучайте обнаруженные исключения.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="wrap section" id="about">
+            <div class="about">
+                <div>
+                    <div class="section-label">Прозрачно и понятно</div>
+                    <h2 class="section-heading">Вы решаете,<br>что делать дальше.</h2>
+                    <p>MogLocker помогает увидеть отдельные системные признаки и предоставляет инструменты для ручных действий. Приложение не подменяет штатные средства защиты Windows.</p>
+                </div>
+                <div class="about-points">
+                    <div class="about-point"><span class="check">✓</span><span>Локальная утилита для Windows с открытым исходным кодом.</span></div>
+                    <div class="about-point"><span class="check">✓</span><span>Изменения системных параметров выполняются только после явного подтверждения.</span></div>
+                    <div class="about-point"><span class="check">✓</span><span>Исходники, инструкции и релизы доступны в репозитории проекта.</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="wrap cta">
+            <h2>Изучите проект<br>и попробуйте сами.</h2>
+            <p>На отдельной странице подробно рассказали о разделах программы, принципах работы и первом запуске.</p>
+            <div class="hero-actions">
+                <a class="button button-quiet" href="about.html">Подробно о программе <span aria-hidden="true">→</span></a>
+                <a class="button button-primary" href="https://github.com/Rom4ik7066/MogAnLocker/releases/download/v0.2.0/MogLocker.exe" target="_blank" rel="noopener noreferrer">Скачать версию 0.2.0 <span aria-hidden="true">↓</span></a>
+                <a class="button button-quiet" href="https://github.com/Rom4ik7066/MogAnLocker" target="_blank" rel="noopener noreferrer">Перейти в репозиторий <span aria-hidden="true">↗</span></a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="wrap footer">
+        <span>© MogLocker · Независимый проект с открытым исходным кодом</span>
+        <a class="text-link" href="https://github.com/Rom4ik7066/MogAnLocker" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>
